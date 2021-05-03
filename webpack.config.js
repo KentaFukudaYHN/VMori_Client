@@ -1,6 +1,6 @@
 const path = require('path');
-const { VueLoaderPlugin } = require('vue-loader')
-
+const { VueLoaderPlugin, default: loader } = require('vue-loader')
+const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 module.exports = {
     entry: './src/main.ts',
     output: {
@@ -8,7 +8,11 @@ module.exports = {
         filename: "bundle.js"
     },
     resolve:{
-        extensions: ['.webpack.js', '.web.js', '.ts', '.tsx', '.js']
+        extensions: ['.webpack.js', '.web.js', '.ts', '.tsx', '.js'],
+        //tsconfigのpathsが効くようにする
+        plugins: [new TsconfigPathsPlugin({
+            configFile: 'tsconfig.json'
+        })]
     },
     module: {
         rules:[
@@ -22,6 +26,10 @@ module.exports = {
                     'vue-style-loader',
                     'css-loader'
                 ]
+            },
+            {
+                test: /\.scss$/,
+                use: ['style-loader', 'css-loader', 'sass-loader']
             },
             {
                 test: /\.ts$/,
