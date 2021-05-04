@@ -1,0 +1,74 @@
+//全体
+body{
+    font-family:helvetica, Meiryo, メイリオ, 'Hiragino Kaku Gothic ProN', 'ヒラギノ角ゴ ProN W3', Osaka, 'MS PGothic', arial, sans-serif ;
+    font-size: 16px;
+}
+
+//form
+$form-border-color: #B2B2B2;
+$form-border-sel-color: #129ed6;
+$form-input-border-radius:3px;
+.form{
+    &-item{
+        margin: 20px 0;
+        label{
+            display: block;
+            margin: 0 0 5px 0;
+        }
+    }
+    &-input{
+        display: block;
+        border:solid 1px $form-border-color;
+        width: 100%;
+        padding:8px 10px;
+        box-sizing: border-box;
+        border-radius: $form-input-border-radius;
+        box-shadow: inset 0 1px 1px  rgba(0, 0, 0, .08);
+        &:focus{
+            outline: 0;
+            border: none;
+            box-shadow: 0 0 0 1px $form-border-sel-color;
+            border-radius: $form-input-border-radius;
+        }
+    }
+}
+
+input:disabled{
+    background:#ccc;
+    &:hover{
+        background:#ccc;
+    }
+}
+
+//button
+.btn-primary{
+    display: block;
+    color:#fff;
+    border: none;
+    font-size:16px;
+    border-radius: $form-input-border-radius;
+    padding: 10px 20px;
+    margin:0;
+    width:100%;
+    background:linear-gradient(to bottom, #2c79ce 0, #226bc7 100%);
+    &:hover{
+        background: #1c5191;
+    }
+    &:focus{
+        border: none;
+        box-shadow: 0 0 0 1px $form-border-sel-color;
+        border-radius: $form-input-border-radius;
+    }
+}
+
+
+//バリゲーション
+.valid {
+    &-input{
+        border-color: red;
+    }
+    &-msg{
+        color: #D24443;
+        font-size: 14px;
+        }
+}
