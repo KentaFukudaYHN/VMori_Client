@@ -1,10 +1,10 @@
 import { InjectionKey } from 'vue'
 import { createStore, Store, useStore as baseUseStore } from 'vuex'
-import { RecommendVideoHeader, RecommendVideo } from '../entities/RecommendVideoEntities'
-import { RecommendVideoHeaderRes, RecoomendVideoRes } from '../reqRes/RecommendVideoReqRes'
+import { RecommendVideoHeader, RecommendVideo } from '@/entities/RecommendVideoEntities'
+import { RecommendVideoHeaderRes, RecoomendVideoRes } from '@/reqRes/RecommendVideoReqRes'
 import * as MutaitonTypes from './mutationTypes'
 import * as ActionTypes from './actionTypes'
-import repository from 'repository/VMoriRepository'
+import repository from '@/repository/VMoriRepository'
 
 //stateの型定義
 type State = {

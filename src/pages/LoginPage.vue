@@ -29,10 +29,11 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
-import VM_Modal from '/components/VM_Modal.vue'
-import VM_Input from '/components/VM_Input.vue'
-import VMoriRepository from 'repository/VMoriRepository';
+import VM_Modal from '@/components/VM_Modal.vue'
+import VM_Input from '@/components/VM_Input.vue'
+import VMoriRepository from '@/repository/VMoriRepository';
 import { useForm } from 'vee-validate';
+import { isRequired } from '../commons/valid-rules';
 
 export default defineComponent({
     name: 'login',
@@ -44,14 +45,6 @@ export default defineComponent({
         let error = ref('');
         let mail = '';
         let password = '';
-
-
-        const isRequired = (value) => {
-            if(value)
-                return true;
-
-            return '入力必須です'
-        }
 
         const mailInput = (value: string) => {
             mail = value;
