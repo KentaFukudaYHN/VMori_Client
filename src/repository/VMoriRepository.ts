@@ -26,12 +26,14 @@ export default class VMoriRepository{
 
     async post<T>(url:string, data?:any, config?:AxiosRequestConfig): Promise<T>{
         if(config == null){
-            config = {}
+            config = { headers: {} }
         }
 
         //クロスドメインでset-cookieを有効化するために必要
         config.withCredentials = true
-        
+        //CSRF対策としてヘッダーに独自の値を設定し、プリフライトリクエスト発生させる
+        config.headers["vmori-csrf"] = "vmori-csrf"
+
         try{
             const res = await this.client.post(url, data, config)
             console.log(res.headers)
