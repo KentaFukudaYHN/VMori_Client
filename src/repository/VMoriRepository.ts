@@ -36,10 +36,8 @@ export default class VMoriRepository{
 
         try{
             const res = await this.client.post(url, data, config)
-            console.log(res.headers)
             return res.data
         }catch(error){
-            console.log(error.response.status)
             throw error
         }
     }
