@@ -4,3 +4,10 @@ export const isRequired = (value) => {
 
     return '入力必須です'
 }
+
+export const isRequiredNoMsg = (val) => {
+    if(val)
+        return true;
+    
+    return '';
+}

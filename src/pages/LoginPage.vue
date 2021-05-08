@@ -29,11 +29,11 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
-import VM_Modal from '@/components/VM_Modal.vue'
+import VM_Modal from '@/components/VM_Modal.vue';
 import VM_Input from '@/components/VM_Input.vue'
 import VMoriRepository from '@/repository/VMoriRepository';
 import { useForm } from 'vee-validate';
-import { isRequired } from '../commons/valid-rules';
+import { isRequired } from '@/commons/valid/valid-rules';
 
 export default defineComponent({
     name: 'login',
