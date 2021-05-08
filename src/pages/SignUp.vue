@@ -49,7 +49,7 @@
                 <img class="icon-title" src='assets/title_icon.png'>
                 <div class="form-item">
                     <label>メールアドレス</label>
-                    <VM_Input name="mail" type="text" @emit-input="inputMail" :rule="isRequiredEmail"/>
+                    <VM_Input name="mail" type="text" @emit-input="inputMail" @emit-blur="onBlurMail" :overrideErrMsg="overrideErrMsgMail" :rule="isRequiredEmail"/>
                 </div>
                 <div class="form-item">
                     <label>ユーザー名</label>
@@ -90,6 +90,7 @@ import SelectListItem from '@/commons/form/SelectListItem'
 import { useForm,useValidateForm } from 'vee-validate';
 import { isRequired, isRequiredNoMsg } from '@/commons/valid/valid-rules';
 import * as yup from 'yup'
+import repository from '@/repository/VMoriRepository'
 
 export default defineComponent({
     components: {
@@ -174,14 +175,38 @@ export default defineComponent({
                 birthdaySuccess = true;
             }
 
+            //メールアドレスの重複チェック
+            if(overrideErrMsgMail.value != ""){
+                return false
+             }
+
             return isSuccess && birthdaySuccess;
         }
 
         //アカウント作成データ送信
-        //const valid = useForm();
         const submit = async (val) => { 
-            if(await valid() == false){
+            if(await valid() == true){
+                const data ={
+                    Mail:mail,
+                    Password:password,
+                    Name:name,
+                    Year:String(year),
+                    Month:String(month),
+                    Day:String(day)
+                }
+
+                await new repository().post('account/regist',data)
                 return;
+            }
+        }
+
+        let overrideErrMsgMail = ref("")
+        const onBlurMail = async (val) =>{
+            var result = await new repository().get<boolean>('account/NotExitsMail?mail=' + mail)
+            if(result != true){
+                overrideErrMsgMail.value = "既に使用されているメールアドレスです"
+            }else{
+                overrideErrMsgMail.value = "";
             }
         }
         
@@ -200,7 +225,9 @@ export default defineComponent({
             isRequired,
             isRequiredNoMsg,
             isRequiredEmail: yup.string().email('メールアドレスの形式にしてください').required('入力必須です'),
-            isRequiredPasswod: yup.string().matches(/^(?=.*?[a-z])(?=.*?[A-Z])(?=.*?\d)[a-zA-Z\d]{8,100}$/,{ message: '8文字以上で半角英数字大文字を含む必要があります' })
+            isRequiredPasswod: yup.string().matches(/^(?=.*?[a-z])(?=.*?[A-Z])(?=.*?\d)[a-zA-Z\d]{8,100}$/,{ message: '8文字以上で半角英数字大文字を含む必要があります' }).required('入力必須です'),
+            overrideErrMsgMail,
+            onBlurMail
         }
     },
 })

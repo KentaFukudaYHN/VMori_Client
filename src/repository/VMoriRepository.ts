@@ -33,6 +33,7 @@ export default class VMoriRepository{
         config.withCredentials = true
         //CSRF対策としてヘッダーに独自の値を設定し、プリフライトリクエスト発生させる
         config.headers["vmori-csrf"] = "vmori-csrf"
+        config.headers["Content-Type"] = 'application/json'
 
         try{
             const res = await this.client.post(url, data, config)

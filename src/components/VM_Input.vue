@@ -20,13 +20,15 @@
             :type="type"
             :value="value"
             @input="emitInput"
-            @blur="handleChange"
+            @blur="emitBlur"
+            @change="handleBlur"
         />
         <img v-if="showIcon && showPasswordIcon" @click="clickShowPasswordIcon" class="show-password-icon" src="assets/show-password.png"/>
         <img v-if="showIcon && hidePasswordIcon" @click="clickHidePasswordIcon" class="show-password-icon" src="assets/hide-password.png"/>
     </div>
 
-    <span class="valid-msg" >{{errorMessage}}</span>
+    <span v-if="!overrideErrMsg" class="valid-msg" >{{errorMessage}}</span>
+    <span class="valid-msg" >{{overrideErrMsg}}</span>
 </template>
 
 <script lang="ts">
@@ -55,6 +57,9 @@ export default defineComponent({
         },
         type:{
             type:String
+        },
+        overrideErrMsg:{
+            type: String
         }
     },
     setup(props: Props, context: SetupContext) {
@@ -77,6 +82,11 @@ export default defineComponent({
             context.emit('emit-input', event.target.value)
         }
 
+        const emitBlur = (event) =>{
+            handleChange(event)
+            context.emit('emit-blur', event.target.value)
+        }
+
         if(props.type == 'password'){
             isTypePassword = true;
             showPasswordIcon.value = true;
@@ -96,11 +106,12 @@ export default defineComponent({
 
         return {
             emitInput,
+            emitBlur,
             errorMessage,
+            handleChange,
             value,
             name: props.name,
             type,
-            handleChange,
             showPasswordIcon,
             hidePasswordIcon,
             showIcon,
