@@ -5,7 +5,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
-import VM_Confirm from '@/components/VM_ConfirmationModal.vue'
+import VM_Confirm from '@/components/VM_ConfirmModal.vue'
 
 export default defineComponent({
     components:{

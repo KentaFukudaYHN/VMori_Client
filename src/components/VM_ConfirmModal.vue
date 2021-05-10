@@ -17,7 +17,7 @@
     <VM_Modal>
         <template v-slot:content >
             <div class="confirm-container">
-                <div class="confirm-header">{{ title }}</div>
+                <h2 class="confirm-header">{{ title }}</h2>
                 <div class="confirm-msg">{{ msg }}</div>
                 <div class="confirm-footer">
                     <button class="btn-primary" @click="onClickBtn">{{ btnTxt }}</button>

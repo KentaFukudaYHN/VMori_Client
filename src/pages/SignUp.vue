@@ -85,7 +85,7 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
 import VM_Modal from '@/components/VM_Modal.vue'
-import VM_Confirm from '@/components/VM_ConfirmationModal.vue'
+import VM_Confirm from '@/components/VM_ConfirmModal.vue'
 import VM_Input from '@/components/VM_Input.vue'
 import VM_Select from '@/components/VM_Select.vue'
 import SelectListItem from '@/commons/form/SelectListItem'
@@ -155,6 +155,7 @@ export default defineComponent({
        //メールアドレス本人確認モーダルでOKをクリック
        const onClickConfirmBtn = () =>{
            //Home画面にリダイレクト
+           
        }
 
         //Formデータ

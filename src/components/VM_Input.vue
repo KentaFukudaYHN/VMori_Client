@@ -19,6 +19,7 @@
             :name="name"
             :type="type"
             :value="value"
+            :placeholder="placeholder"
             @input="emitInput"
             @blur="emitBlur"
             @change="handleBlur"
@@ -40,7 +41,8 @@ type Props = {
   rule: () => boolean,
   name: string,
   value: string,
-  type: string
+  type: string,
+  placeholder: string
 };
 
 export default defineComponent({
@@ -56,6 +58,9 @@ export default defineComponent({
             type: String
         },
         type:{
+            type:String
+        },
+        placeholder:{
             type:String
         },
         overrideErrMsg:{
