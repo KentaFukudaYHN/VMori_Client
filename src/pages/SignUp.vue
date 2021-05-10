@@ -43,7 +43,7 @@
 </style>
 
 <template>
-    <VM_Modal>
+    <VM_Modal v-if="showSignUpModal"  id="signUpModal">
         <template v-slot:content>
             <div class="signup-container">
                 <img class="icon-title" src='assets/title_icon.png'>
@@ -79,11 +79,13 @@
             </div>
         </template>
     </VM_Modal>
+    <VM_Confirm v-if="showConfirmModal" :title="confirmTitle" :msg="confirmMsg" @emit-clickBtn="onClickConfirmBtn"/>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
 import VM_Modal from '@/components/VM_Modal.vue'
+import VM_Confirm from '@/components/VM_ConfirmationModal.vue'
 import VM_Input from '@/components/VM_Input.vue'
 import VM_Select from '@/components/VM_Select.vue'
 import SelectListItem from '@/commons/form/SelectListItem'
@@ -96,14 +98,14 @@ export default defineComponent({
     components: {
         VM_Modal,
         VM_Input,
-        VM_Select
+        VM_Select,
+        VM_Confirm
     },
     setup() {
 
         /*
             初期データの生成
         */
-
         //年のselect用データの生成
         const yearsItems = Array<SelectListItem>();
         const currentyYear = new Date().getFullYear()
@@ -141,9 +143,19 @@ export default defineComponent({
             dayItems.push({Value: i, Text: val})
         }
 
+        const showSignUpModal = ref(true);
+        const showConfirmModal = ref(false);
+        const confirmMsg = ref('');
+        const confirmTitle = "メールアドレスの本人確認"
+
         /*
             Function
         */
+
+       //メールアドレス本人確認モーダルでOKをクリック
+       const onClickConfirmBtn = () =>{
+           //Home画面にリダイレクト
+       }
 
         //Formデータ
         let mail = ref('')
@@ -196,6 +208,17 @@ export default defineComponent({
                 }
 
                 await new repository().post('account/regist',data)
+                
+                //メールアドレス本人確認メッセージダイアログの表示
+                const now = new Date();
+                const date = new Date();
+                date.setDate(now.getDate() + 1);
+                confirmMsg.value = "メールアドレスがご本人のものであることを確認するために、" + mail + "に確認のメールを送信しました。 \r\n" +
+                    date.getFullYear() + "年" + (date.getMonth() + 1) + "月" + date.getDate() + "日" + date.getHours() + "時" + date.getMinutes() + "分"+ "までに添付されているurlにアクセスして確認をお願いします。 \r\n\r\n" +
+                    "※いつでもアカウント情報画面で認証メールを送ることができます。";
+
+                showSignUpModal.value = false;
+                showConfirmModal.value = true;
                 return;
             }
         }
@@ -211,6 +234,11 @@ export default defineComponent({
         }
         
         return{
+            showSignUpModal,
+            showConfirmModal,
+            confirmMsg,
+            confirmTitle,
+            onClickConfirmBtn,
             yearsItems,
             monthItems,
             dayItems,

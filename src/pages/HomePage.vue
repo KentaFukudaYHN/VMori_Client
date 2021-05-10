@@ -16,7 +16,7 @@
 <template>
 <div class="outer">
     <div class="inner">
-        <h1>Vミレバ</h1>
+        <h1>Vtuberの森</h1>
     </div>
 </div>
 </template>

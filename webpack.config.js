@@ -58,6 +58,7 @@ module.exports = {
         contentBase: __dirname + '/dist',
         publicPath: '/',
         noInfo: true,
-        port: 3000
+        port: 3000,
+        historyApiFallback: true
     }
 }
