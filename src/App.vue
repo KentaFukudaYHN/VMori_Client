@@ -1,5 +1,9 @@
 <template>
-    <router-view/>
+    <Suspense>
+        <template #default>
+            <router-view/>
+        </template>
+    </Suspense>
 </template>
 
 <script lang="ts">

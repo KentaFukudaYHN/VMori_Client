@@ -19,7 +19,6 @@ export default class VMoriRepository{
             const res = await this.client.get(url, config)
             return res.data
         }catch(error){
-            console.log(error.response.status)
             throw error
         }
     }

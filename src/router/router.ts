@@ -1,8 +1,8 @@
 import { createRouter, createWebHistory, useRouter as BaseRouter } from 'vue-router'
 import Home from '@/pages/HomePage.vue'
 import Login from '@/pages/LoginPage.vue'
-import SignUp from '@/pages/SignUp.vue'
-import AppReqMail from '@/pages/AppReqMail.vue'
+import SignUp from '@/pages/SignUpPage.vue'
+import AppReqMail from '@/pages/AppReqMailPage.vue'
 import Test from '@/pages/Test.vue'
 
 const route = [
