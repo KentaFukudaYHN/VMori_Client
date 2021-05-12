@@ -82,7 +82,7 @@ export default defineComponent({
          */
         //Tokenが有効かどうか確認
         var token = useRoute().query.token
-        var result = await new repository().get<boolean>('account/checkappreqmail?token=' + token)
+        var result = await new repository().get<boolean>('auth/checkappreqmail?token=' + token)
         if(!result){
             showModal.value = false
             showTokenErrConfirm.value = true
@@ -95,7 +95,7 @@ export default defineComponent({
         const onClickSubmitBtn = async () =>{
             
             if(useForm().validate()){
-                const result = await new repository().post<AppReqMailRes>('account/AppReqMail',{
+                const result = await new repository().post<AppReqMailRes>('auth/AppReqMail',{
                     Password: password.value,
                     Token: token
                 })
