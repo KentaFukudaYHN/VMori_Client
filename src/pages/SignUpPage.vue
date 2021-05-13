@@ -49,11 +49,11 @@
                 <img class="icon-title" src='assets/title_icon.png'>
                 <div class="form-item">
                     <label>メールアドレス</label>
-                    <VM_Input name="mail" type="text" @emit-input="inputMail" @emit-blur="onBlurMail" :overrideErrMsg="overrideErrMsgMail" :rule="isRequiredEmail"/>
+                    <VM_Input name="mail" type="text" @emit-input="inputMail" @emit-blur="onBlurInputMail" :overrideErrMsg="overrideErrMsgMail" :rule="isRequiredEmail"/>
                 </div>
                 <div class="form-item">
                     <label>ユーザー名</label>
-                    <VM_Input name="name" type="text" @emit-input="inputName" :rule="isRequired"/>
+                    <VM_Input name="name" type="text" @emit-input="inputName" @emit-blur="onBlurInputName" :overrideErrMsg="overrideErrMsgName" :rule="isRequired"/>
                 </div>
                 <div class="form-item">
                     <label>パスワード</label>
@@ -188,17 +188,47 @@ export default defineComponent({
                 birthdaySuccess = true;
             }
 
-            //メールアドレスの重複チェック
-            if(overrideErrMsgMail.value != ""){
-                return false
-             }
-
             return isSuccess && birthdaySuccess;
+        }
+
+        let overrideErrMsgMail = ref("")
+        let overrideErrMsgName = ref("")
+
+        //メールInputのBlurで、独自のエラーメッセージを消す
+        const onBlurInputMail = (val) =>{
+            overrideErrMsgMail.value = ""
+        }
+
+        //名前InputのBlurで、独自のエラーメッセージを消す
+        const onBlurInputName = (val) =>{
+            overrideErrMsgName.value = "";
         }
 
         //アカウント作成データ送信
         const submit = async (val) => { 
             if(await valid() == true){
+
+                //登録可能なメールアドレスかチェック
+                var isMailOk = await new repository().get<boolean>('account/CanRegistMail?mail=' + mail);
+                if(isMailOk == false){
+                    overrideErrMsgMail.value = "既に使用されているメールアドレスです"
+                }else{
+                    overrideErrMsgMail.value = ""
+                }
+
+                //登録可能な名前かチェック
+                var isNameOk = await new repository().get<boolean>('account/CanRegistName?nail=' + name); 
+                if(isNameOk == false){
+                    overrideErrMsgName.value = "この名前は使われすぎています"
+                }else{
+                    overrideErrMsgName.value = ""
+                }
+
+                if(!isMailOk || !isNameOk){
+                    return;
+                }
+
+                //Postデータの生成・送信
                 const data ={
                     Mail:mail,
                     Password:password,
@@ -223,16 +253,6 @@ export default defineComponent({
                 return;
             }
         }
-
-        let overrideErrMsgMail = ref("")
-        const onBlurMail = async (val) =>{
-            var result = await new repository().get<boolean>('account/NotExitsMail?mail=' + mail)
-            if(result != true){
-                overrideErrMsgMail.value = "既に使用されているメールアドレスです"
-            }else{
-                overrideErrMsgMail.value = "";
-            }
-        }
         
         return{
             showSignUpModal,
@@ -250,13 +270,15 @@ export default defineComponent({
             changeMonth,
             changeDay,
             birthdayErrorMessage,
+            onBlurInputMail,
+            onBlurInputName,
             submit,
             isRequired,
             isRequiredNoMsg,
             isRequiredEmail: yup.string().email('メールアドレスの形式にしてください').required('入力必須です'),
             isRequiredPasswod: yup.string().matches(/^(?=.*?[a-z])(?=.*?[A-Z])(?=.*?\d)[a-zA-Z\d]{8,100}$/,{ message: '8文字以上で半角英数字大文字を含む必要があります' }).required('入力必須です'),
             overrideErrMsgMail,
-            onBlurMail
+            overrideErrMsgName
         }
     },
 })
