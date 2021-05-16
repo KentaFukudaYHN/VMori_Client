@@ -3,6 +3,7 @@ import Home from '@/pages/HomePage.vue'
 import Login from '@/pages/LoginPage.vue'
 import SignUp from '@/pages/SignUpPage.vue'
 import AppReqMail from '@/pages/AppReqMailPage.vue'
+import Account from '@/pages/Account.vue'
 import Test from '@/pages/Test.vue'
 
 const route = [
@@ -25,6 +26,11 @@ const route = [
         path: '/AppReqMail',
         name: 'AppReqMail',
         component: AppReqMail
+    },
+    {
+        path: '/Account',
+        name: 'Account',
+        component: Account
     },
     {
         path: '/Test',

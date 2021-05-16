@@ -20,6 +20,8 @@ export default class VMoriRepository{
             return res.data
         }catch(error){
             throw error
+            console.log(error)
+            debugger
         }
     }
 
@@ -39,7 +41,14 @@ export default class VMoriRepository{
             return res.data
         }catch(error){
             throw error
+            console.log(error)
+            debugger
         }
+    }
+
+    //エラーの内容によってRouting
+    private CheckErrorRouting(){
+
     }
 
     constructor(){

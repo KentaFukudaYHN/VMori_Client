@@ -9,3 +9,9 @@
  * (c) 2021 Evan You
  * @license MIT
  */
+
+/**
+  * vee-validate v4.3.5
+  * (c) 2021 Abdelrahman Awad
+  * @license MIT
+  */

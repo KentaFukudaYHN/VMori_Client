@@ -34,6 +34,7 @@ import VM_Input from '@/components/VM_Input.vue'
 import VMoriRepository from '@/repository/VMoriRepository';
 import { useForm } from 'vee-validate';
 import { isRequired } from '@/commons/valid/valid-rules';
+import { useRouter } from "../router/router";
 
 export default defineComponent({
     name: 'login',
@@ -55,6 +56,7 @@ export default defineComponent({
         }
 
         const valid = useForm();
+        const router = useRouter();
         const submit = async () => {
             if(valid.meta.value.valid == false){ return }
 
@@ -66,7 +68,10 @@ export default defineComponent({
                         Password:password
                     })
                     error.value = ''
+                    router.push('Account')
+
                 }catch(e){
+                    console.log(e)
                     if(e.response != undefined && e.response.status == 401) {
                         error.value = 'メールアドレスまたはパスワードが間違っています'
                     }else{

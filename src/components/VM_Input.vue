@@ -12,24 +12,26 @@
 
 </style>
 <template>
-    <div class="input-container">
-        <input 
-            class="form-input"
-            v-bind:class="{'valid-input': errorMessage != undefind && errorMessage.value != ''}"
-            :name="name"
-            :type="type"
-            :value="value"
-            :placeholder="placeholder"
-            @input="emitInput"
-            @blur="emitBlur"
-            @change="handleBlur"
-        />
-        <img v-if="showIcon && showPasswordIcon" @click="clickShowPasswordIcon" class="show-password-icon" src="assets/show-password.png"/>
-        <img v-if="showIcon && hidePasswordIcon" @click="clickHidePasswordIcon" class="show-password-icon" src="assets/hide-password.png"/>
-    </div>
+    <div>
+        <div class="input-container">
+            <input 
+                class="form-input"
+                v-bind:class="{'valid-input': errorMessage != undefind && errorMessage.value != ''}"
+                :name="name"
+                :type="type"
+                :value="value"
+                :placeholder="placeholder"
+                @input="emitInput"
+                @blur="emitBlur"
+                @change="handleBlur"
+            />
+            <img v-if="showIcon && showPasswordIcon" @click="clickShowPasswordIcon" class="show-password-icon" src="assets/show-password.png"/>
+            <img v-if="showIcon && hidePasswordIcon" @click="clickHidePasswordIcon" class="show-password-icon" src="assets/hide-password.png"/>
+        </div>
 
-    <span v-if="!overrideErrMsg" class="valid-msg" >{{errorMessage}}</span>
-    <span class="valid-msg" >{{overrideErrMsg}}</span>
+        <span v-if="!overrideErrMsg" class="valid-msg" >{{errorMessage}}</span>
+        <span class="valid-msg" >{{overrideErrMsg}}</span>
+    </div>
 </template>
 
 <script lang="ts">
