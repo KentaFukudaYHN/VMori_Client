@@ -1,6 +1,7 @@
 type SelectListItem = {
     Value: String | Number,
-    Text: String
+    Text: String,
+    Selected: boolean
 }
 
 export default SelectListItem

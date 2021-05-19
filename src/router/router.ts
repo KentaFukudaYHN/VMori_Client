@@ -8,11 +8,6 @@ import Test from '@/pages/Test.vue'
 
 const route = [
     {
-        path: '/test',
-        name: 'Home',
-        component: Home
-    },
-    {
         path: '/Login',
         name: 'Login',
         component: Login

@@ -1,11 +1,14 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios'
 import { textChangeRangeIsUnchanged } from 'typescript'
+import { useRouter } from '@/router/router'
+import { Router } from 'vue-router'
 
 const BASE_URL = process.env.API_URL
 
 
 export default class VMoriRepository{
     private client: AxiosInstance
+    private router: Router
 
     async get<T>(url:string, config?:AxiosRequestConfig) : Promise<T>{
         if(config == null){
@@ -17,11 +20,13 @@ export default class VMoriRepository{
 
         try{
             const res = await this.client.get(url, config)
+
+            this.CheckErrorRouting(res.status)
+
             return res.data
         }catch(error){
-            throw error
             console.log(error)
-            debugger
+            throw error
         }
     }
 
@@ -38,22 +43,32 @@ export default class VMoriRepository{
 
         try{
             const res = await this.client.post(url, data, config)
+            
+            this.CheckErrorRouting(res.status)
+
             return res.data
         }catch(error){
-            throw error
             console.log(error)
-            debugger
+            throw error
         }
     }
 
     //エラーの内容によってRouting
-    private CheckErrorRouting(){
-
+    CheckErrorRouting(status: number){
+        switch(status){
+            case 401:
+                this.router.push('Login')
+                break;
+        }
     }
 
-    constructor(){
+    constructor(router: Router){
+        this.router = router;
         this.client = axios.create({
-            baseURL: BASE_URL
+            baseURL: BASE_URL,
+            validateStatus: function(status){
+                return status < 500 //500系以外は正常としてあつかう
+            }
         })
     }
 }

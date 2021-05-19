@@ -1,1 +1,4 @@
 export const INITIALIZE_RECOMMEND_VIDEOS = "INITIALIZZE_RECOMMEND_VIDEOS"
+export namespace Account {
+    export const INITIALIZE_ACCOUNT = "INITIALIZE_ACCOUNT"
+}

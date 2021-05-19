@@ -5,12 +5,12 @@
 <template>
     <div>
         <select 
-            v-bind:class="{'valid-input': errorMessage != undefind && errorMessage.value != ''}"
+            v-bind:class="{'valid-input': errorMessage != undefined && errorMessage.value != ''}"
             class="form-select" 
             :name="name" 
             @change="emitChange">
 
-            <option v-for="item in items" :value="item.value" :key="item.value">
+            <option v-for="item in items" :value="item.value" :key="item.value" :selected="item.Selected">
                 {{item.Text}}
             </option>
 
@@ -39,7 +39,7 @@ export default defineComponent({
             type: Object as PropType<SelectListItem[]>
         },
         rule:{
-            type: () => Object　as Prop<boolean>,
+            type: [Object, Function] as PropType<Function | any>,
         },
     },
     setup(props: Props, context:SetupContext) {

@@ -83,12 +83,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, onMounted } from 'vue'
 import VM_Modal from '@/components/VM_Modal.vue'
 import VM_Confirm from '@/components/VM_ConfirmModal.vue'
 import VM_Input from '@/components/VM_Input.vue'
 import VM_Select from '@/components/VM_Select.vue'
 import SelectListItem from '@/commons/form/SelectListItem'
+import { useRouter } from '@/router/router'
 import { useForm,useValidateForm } from 'vee-validate';
 import { isRequired, isRequiredNoMsg } from '@/commons/valid/valid-rules';
 import * as yup from 'yup'
@@ -102,6 +103,10 @@ export default defineComponent({
         VM_Confirm
     },
     setup() {
+        const form = useForm();
+        onMounted(() =>{
+            setTimeout(() => form.resetForm())
+        })
 
         /*
             初期データの生成
@@ -109,17 +114,18 @@ export default defineComponent({
         //年のselect用データの生成
         const yearsItems = Array<SelectListItem>();
         const currentyYear = new Date().getFullYear()
-        yearsItems.push({ Value: '', Text: '' })
+        yearsItems.push({ Value: '', Text: '', Selected: false })
         for(let i=0;i<130;i++){
             yearsItems.push({
                 Value: currentyYear - i,
                 Text: String(currentyYear -i)
+                , Selected: false
             })
         }
 
         //月のselect用データの生成
         const monthItems = Array<SelectListItem>();
-        monthItems.push({ Value: '', Text: '' })
+        monthItems.push({ Value: '', Text: '', Selected: false  })
         for(let i=1;i<=12;i++){
             let val = ''
             if(i<10){
@@ -127,12 +133,12 @@ export default defineComponent({
             }else{
                 val = String(i)
             }
-            monthItems.push({Value: i, Text: val})
+            monthItems.push({Value: i, Text: val, Selected: false })
         }
 
         //日にちのselect用データの生成
         const dayItems = Array<SelectListItem>();
-        dayItems.push({ Value: '', Text: '' });
+        dayItems.push({ Value: '', Text: '', Selected: false  });
         for(let i=1;i<=31;i++){
             let val = ''
             if(i<10){
@@ -140,7 +146,7 @@ export default defineComponent({
             }else{
                 val = String(i)
             }
-            dayItems.push({Value: i, Text: val})
+            dayItems.push({Value: i, Text: val, Selected: false })
         }
 
         const showSignUpModal = ref(true);
@@ -174,7 +180,6 @@ export default defineComponent({
 
         //バリデーションチェック
         let birthdayErrorMessage = ref('')
-        const form = useForm();
         const valid = async () => {
             const isSuccess = (await (form.validate())).valid
 
@@ -205,11 +210,12 @@ export default defineComponent({
         }
 
         //アカウント作成データ送信
+        const router = useRouter()
         const submit = async (val) => { 
             if(await valid() == true){
 
                 //登録可能なメールアドレスかチェック
-                var isMailOk = await new repository().get<boolean>('account/CanRegistMail?mail=' + mail);
+                var isMailOk = await new repository(router).get<boolean>('account/CanRegistMail?mail=' + mail);
                 if(isMailOk == false){
                     overrideErrMsgMail.value = "既に使用されているメールアドレスです"
                 }else{
@@ -217,7 +223,7 @@ export default defineComponent({
                 }
 
                 //登録可能な名前かチェック
-                var isNameOk = await new repository().get<boolean>('account/CanRegistName?nail=' + name); 
+                var isNameOk = await new repository(router).get<boolean>('account/CanRegistName?nail=' + name); 
                 if(isNameOk == false){
                     overrideErrMsgName.value = "この名前は使われすぎています"
                 }else{
@@ -238,7 +244,7 @@ export default defineComponent({
                     Day:String(day)
                 }
 
-                await new repository().post('account/regist',data)
+                await new repository(router).post('account/regist',data)
                 
                 //メールアドレス本人確認メッセージダイアログの表示
                 const now = new Date();
@@ -253,7 +259,7 @@ export default defineComponent({
                 return;
             }
         }
-        
+
         return{
             showSignUpModal,
             showConfirmModal,

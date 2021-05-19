@@ -1,11 +1,9 @@
 <style lang="scss" scoped>
 .modal {
-    &-overlay {
+    &-backlayer{
         display: flex;
-        align-items: center;
-        justify-content: center;
         position: fixed;
-        z-index: 30;
+        z-index: 20;
         top: 0;
         left: 0;
         width: 100%;
@@ -14,6 +12,15 @@
     }
 
     &-window {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: fixed;
+        z-index: 30;
+        top: 50%;
+        left: 50%;
+        margin: auto;
+        transform: translateX(-50%) translateY(-50%);
         background: #fff;
         border-radius: 4px;
         overflow: hidden;
@@ -22,6 +29,7 @@
 
     &-content {
         padding: 40px 40px;
+        z-index: 40;
     }
 }
 
@@ -36,6 +44,7 @@
 </style>
 
 <template>
+    <div class="modal-backlayer" @click="outsideClick"></div>
     <transition name="modal" appear>
         <div class="modal-overlay">
             <div class="modal-window">
@@ -48,11 +57,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, SetupContext } from 'vue'
 
 export default defineComponent({
-    setup() {
-        
+    emits: ['emit-outsideClick'],
+    setup(proprs: any, context: SetupContext) {
+        return {
+            outsideClick: () => { context.emit('emit-outsideClick') }
+        }
     },
 })
 </script>

@@ -35,6 +35,10 @@ import VMoriRepository from '@/repository/VMoriRepository';
 import { useForm } from 'vee-validate';
 import { isRequired } from '@/commons/valid/valid-rules';
 import { useRouter } from "../router/router";
+import { useStore } from '@/store/store'
+import { Account } from '@/store/actionTypes'
+import { AccountApiRes } from '@/apiReqRes/Account';
+import { AccountStoreReq } from '@/storeReqRes/Account';
 
 export default defineComponent({
     name: 'login',
@@ -56,20 +60,20 @@ export default defineComponent({
         }
 
         const valid = useForm();
+        const store = useStore();
         const router = useRouter();
         const submit = async () => {
             if(valid.meta.value.valid == false){ return }
 
             if(mail != '' || password != ''){
                 //ログインリクエスト
+                const repository = new VMoriRepository(router);
                 try{
-                    let res = await new VMoriRepository().post('auth/login',{
+                    //ログイン
+                    let res = await repository.post('auth/login',{
                         Mail:mail,
                         Password:password
                     })
-                    error.value = ''
-                    router.push('Account')
-
                 }catch(e){
                     console.log(e)
                     if(e.response != undefined && e.response.status == 401) {
@@ -80,6 +84,10 @@ export default defineComponent({
 
                     return;
                 }
+                
+                //アカウント情報画面に遷移 @ToDo
+                error.value = ''
+                router.push('Account')
             }
         }
 

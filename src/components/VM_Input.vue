@@ -16,14 +16,15 @@
         <div class="input-container">
             <input 
                 class="form-input"
-                v-bind:class="{'valid-input': errorMessage != undefind && errorMessage.value != ''}"
+                v-bind:class="{'valid-input': errorMessage != undefined && errorMessage.value != ''}"
                 :name="name"
                 :type="type"
                 :value="value"
                 :placeholder="placeholder"
+                @keyup="onKeyup"
                 @input="emitInput"
                 @blur="emitBlur"
-                @change="handleBlur"
+                @click="emitClick"
             />
             <img v-if="showIcon && showPasswordIcon" @click="clickShowPasswordIcon" class="show-password-icon" src="assets/show-password.png"/>
             <img v-if="showIcon && hidePasswordIcon" @click="clickHidePasswordIcon" class="show-password-icon" src="assets/hide-password.png"/>
@@ -35,50 +36,70 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, SetupContext } from 'vue'
-import { useField } from 'vee-validate';
-import { boolean } from 'yup/lib/locale';
+import { defineComponent, ref, SetupContext, watch, PropType } from 'vue'
+import { useField, ErrorMessage, ValidationResult} from 'vee-validate';
 
 type Props = {
   rule: () => boolean,
   name: string,
   value: string,
   type: string,
-  placeholder: string
+  placeholder: string,
+  overrideErrMsg: string
 };
 
 export default defineComponent({
     name: 'vm_input',
     props: {
         rule:{
-            type: () => boolean,
+            type: [Object, Function] as PropType<Function | any>,
         },
         name:{
-            type: String
+            type: String,
+            default: '',
         },
         value:{
-            type: String
+            type: String,
+            default: '',
         },
         type:{
-            type:String
+            type:String,
+            default: '',
         },
         placeholder:{
-            type:String
+            type:String,
+            default: '',
         },
         overrideErrMsg:{
-            type: String
+            type: String,
+            default: '',
         }
     },
+    emits: ['emit-input', 'emit-blur', 'emit-click'],
     setup(props: Props, context: SetupContext) {
-        const { errorMessage, value, handleChange } = useField(props.name, props.rule)
-        value.value = props.value;
 
+        let rule = props.rule
+        if(rule == null){
+            rule = () => { return true }
+        }
+        
+        const { errorMessage, value, handleChange, resetField, errors } = useField(props.name, rule)
+        
+        if(props.value != null && props.value != ''){
+            value.value = props.value;
+        }
+        
         let type = ref(props.type)
         let isTypePassword = false;
         let showIcon = ref(false);
         let showPasswordIcon = ref(false);
         let hidePasswordIcon = ref(false);
         
+        const onKeyup = (event) => {
+            //パスワードの場合は全角禁止
+            value.value = (value.value as string).replace(/[^a-zA-Z0-9 -/:-@\[-~]*$/, '')
+        }
+
         const emitInput = (event) =>{
             if(isTypePassword && event.target.value != ''){
                 showIcon.value = true;
@@ -92,6 +113,10 @@ export default defineComponent({
         const emitBlur = (event) =>{
             handleChange(event)
             context.emit('emit-blur', event.target.value)
+        }
+
+        const emitClick = (event) => {
+            context.emit('emit-click')
         }
 
         if(props.type == 'password'){
@@ -111,9 +136,15 @@ export default defineComponent({
             type.value = 'password'
         }
 
+        watch(() => props.value, (newVal, oldVal) => {
+            value.value = newVal
+        })
+
         return {
             emitInput,
             emitBlur,
+            emitClick,
+            onKeyup,
             errorMessage,
             handleChange,
             value,
@@ -123,7 +154,9 @@ export default defineComponent({
             hidePasswordIcon,
             showIcon,
             clickShowPasswordIcon,
-            clickHidePasswordIcon
+            clickHidePasswordIcon,
+            placeholder: props.placeholder,
+            overrideErrMsg: props.overrideErrMsg
         }
     },
 })

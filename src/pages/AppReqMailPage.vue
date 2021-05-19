@@ -57,7 +57,7 @@ import VM_Input from '@/components/VM_Input.vue'
 import { useForm } from 'vee-validate'
 import { useRoute, useRouter  } from 'vue-router'
 import repository from '@/repository/VMoriRepository'
-import { AppReqMailRes } from '@/reqRes/AppReqMailReqRes'
+import { AppReqMailApiRes } from '@/apiReqRes/Account'
 import * as yup from 'yup'
 
 export default defineComponent({
@@ -81,8 +81,9 @@ export default defineComponent({
          * 初期化処理
          */
         //Tokenが有効かどうか確認
+        var router = useRouter()
         var token = useRoute().query.token
-        var result = await new repository().get<boolean>('auth/checkappreqmail?token=' + token)
+        var result = await new repository(router).get<boolean>('auth/checkappreqmail?token=' + token)
         if(!result){
             showModal.value = false
             showTokenErrConfirm.value = true
@@ -95,7 +96,7 @@ export default defineComponent({
         const onClickSubmitBtn = async () =>{
             
             if(useForm().validate()){
-                const result = await new repository().post<AppReqMailRes>('auth/AppReqMail',{
+                const result = await new repository(router).post<AppReqMailApiRes>('auth/AppReqMail',{
                     Password: password.value,
                     Token: token
                 })
