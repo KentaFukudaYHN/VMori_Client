@@ -5,7 +5,7 @@
   "author": "",
   "scripts": {
     "build": "webpack",
-    "start": "webpack-cli serve --mode development"
+    "start": "webpack-cli serve --mode development --https"
   },
   "main": "main.js",
   "dependencies": {
