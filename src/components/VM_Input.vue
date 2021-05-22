@@ -97,7 +97,9 @@ export default defineComponent({
         
         const onKeyup = (event) => {
             //パスワードの場合は全角禁止
-            value.value = (value.value as string).replace(/[^a-zA-Z0-9 -/:-@\[-~]*$/, '')
+            if(type.value == 'password'){
+                value.value = (value.value as string).replace(/[^a-zA-Z0-9 -/:-@\[-~]*$/, '')
+            }
         }
 
         const emitInput = (event) =>{

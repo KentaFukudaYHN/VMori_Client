@@ -21,7 +21,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, Prop, PropType, SetupContext, ref, computed } from 'vue'
+import { defineComponent, PropType, SetupContext, watch } from 'vue'
 import { useField } from 'vee-validate';
 import SelectListItem from '@/commons/form/SelectListItem'
 
@@ -42,9 +42,20 @@ export default defineComponent({
             type: [Object, Function] as PropType<Function | any>,
         },
     },
+    emits: ['emit-change'],
     setup(props: Props, context:SetupContext) {
 
         let { errorMessage, value, handleChange} = useField(props.name, props.rule)
+
+        //初期値が指定されていれば設定
+        let isSelected = false;
+        props.items.forEach(item => {
+            if(item.Selected){
+                value.value = item.Value
+                isSelected = true
+                context.emit('emit-change', item.Value)
+            }
+        });
 
         /**
          *  Emit
@@ -57,7 +68,9 @@ export default defineComponent({
         }
 
         //初期表示ではchangeイベントが発火されず、親コンポーネントで値が空になるので、emitを発生させて防ぐ
-        context.emit('emit-change', props.items[0].Value)
+        if(!isSelected){
+            context.emit('emit-change', props.items[0].Value)
+        }
 
         return{
             name: props.name,

@@ -51,9 +51,13 @@
 }
 .changemodal{
     min-width: 320px;
+    padding: 0px 40px;
     &-title{
         text-align: center;
-        margin: 0 0 20px 0;
+        margin: 0;
+    }
+    &-content{
+        margin: 20px 0 0 0;
     }
     &-btn-update{
         margin-bottom: 0;
@@ -86,7 +90,7 @@
                 </div>
             </div>
             <div class="setting-list-change-btn .aligin-center">
-                <button class="btn-normal-mini">変更</button>
+                <button class="btn-normal-mini" @click="showChangeNameModal">変更</button>
             </div>
         </li>
         <li class="setting-list-item">
@@ -97,7 +101,7 @@
                 </div>
             </div>
             <div class="setting-list-change-btn .aligin-center">
-                <button class="btn-normal-mini">変更</button>
+                <button class="btn-normal-mini" @click="showChangeBirthdayModal">変更</button>
             </div>
         </li>
         <li class="setting-list-item">
@@ -127,14 +131,55 @@
         </li>
     </ul>
 
+    <!-- 生年月日変更モーダル -->
+    <vm-modal v-if="changeBirthday.showModal" @emit-outsideClick="hideChangeBirthdayModal">
+        <template v-slot:content>
+            <div class="changemodal">
+                <h3 class="changemodal-title">生年月日の変更</h3>
+                <div class="changemodal-content">
+                    <div class="form-item">
+                        <label>生年月日を設定してください</label>
+                        <vm-select  @emit-change-year="changeBirthdayYear" @emit-change-month="changeBirthdayMonth" @emit-change-date="changeBirthdayDate" 
+                            :selectedYear="changeBirthday.year" :selectedMonth="changeBirthday.month" :selectedDay="changeBirthday.date" 
+                            :nameYear="changeBirthday.nameYear" :nameMonth="changeBirthday.nameMonth" :nameDate="changeBirthday.nameDate"/>
+                        <span v-if="changeBirthday.overrideErrMsg != ''" class="valid-msg">{{ changeBirthday.overrideErrMsg }}</span>
+                    </div>
+                </div>
+                    <div class="form-item changemodal-btn-update">
+                        <button class="btn-primary" @click="updateBirthday">更新</button>
+                    </div>
+            </div>
+        </template>
+    </vm-modal>
+
+    <!-- 名前変更モーダル -->
+    <vm-modal v-if="changeName.showModal" @emit-outsideClick="hideChangeNameModal">
+        <template v-slot:content>
+            <div class="changemodal">
+                <h3 class="changemodal-title">名前の変更</h3>
+                <div class="changemodal-content">
+                    <div class="form-item">
+                        <label>新しい名前を入力してください</label>
+                        <vm-input name="newname" type="text" @emit-input="onInputName" :overrideErrMsg="changeName.overrideErrMsg" :rule="isRequired"/>
+                    </div>
+                </div>
+                <div class="form-item changemodal-btn-update">
+                    <button class="btn-primary" @click="updateName">更新</button>
+                </div>
+            </div>
+        </template>
+    </vm-modal>
+
     <!-- メールアドレス変更モーダル -->
     <vm-modal v-if="changeMail.showModal" @emit-outsideClick="hideChangeMailModal">
         <template v-slot:content>
             <div class="changemodal">
                 <h3 class="changemodal-title">メールアドレスの変更</h3>
-                <div class="form-item">
-                    <label>新しいメールアドレスを入力してください</label>
-                    <vm-input name="newmail" type="text" @emit-input="onInputMail" :overrideErrMsg="changeMail.overrideErrMsg" :rule="mailRule"/>
+                <div class="changemodal-content">
+                    <div class="form-item">
+                        <label>新しいメールアドレスを入力してください</label>
+                        <vm-input name="newmail" type="text" @emit-input="onInputMail" :overrideErrMsg="changeMail.overrideErrMsg" :rule="mailRule"/>
+                    </div>
                 </div>
                 <div class="form-item changemodal-btn-update">
                     <button class="btn-primary" @click="updateMail">更新</button>
@@ -148,9 +193,11 @@
         <template v-slot:content>
             <div class="changemodal">
                 <h3 class="changemodal-title">パスワードの変更</h3>
-                <div class="form-item">
-                    <label>新しいパスワードを入力してください</label>
-                    <vm-input name="newpassword" @emit-input="onInputPassword" type="password" :rule="passwordRule"/>
+                <div class="changemodal-content">
+                    <div class="form-item">
+                        <label>新しいパスワードを入力してください</label>
+                        <vm-input name="newpassword" @emit-input="onInputPassword" type="password" :rule="passwordRule"/>
+                    </div>
                 </div>
                 <div class="form-item changemodal-btn-update">
                     <button class="btn-primary" @click="updatePassword">更新</button>
@@ -168,7 +215,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, ref, Ref, toRefs, onMounted, reactive } from 'vue'
+import { defineComponent, toRefs, reactive } from 'vue'
 import VM_Header from '@/components/VM_VideoHeader.vue'
 import VM_Input from '@/components/VM_Input.vue'
 import VM_Birthday from '@/components/VM_Birthday.vue'
@@ -184,7 +231,7 @@ import { Account } from '@/store/actionTypes'
 import { Store } from 'node_modules/vuex/types'
 import { useRouter } from '@/router/router'
 import { PublicFormContext, useForm } from 'vee-validate'
-import { passwordRule, mailRule } from '@/commons/valid/valid-rules'
+import { passwordRule, mailRule, isRequired } from '@/commons/valid/valid-rules'
 import { AuthService } from '@/services/AuthServices'
 
 const state = toRefs(reactive({
@@ -196,13 +243,28 @@ const state = toRefs(reactive({
         mail: '',
         password: ''
     },
-    changePassword:{
-        password: '',
+    changeName: {
+        name: '',
         showModal: false,
         overrideErrMsg: '',
     },
+    changeBirthday: {
+        year: '',
+        month: '',
+        date: '',
+        showModal: false,
+        overrideErrMsg: '',
+        nameYear: 'new-birthday-year',
+        nameMonth: 'new-birthday-month',
+        nameDate: 'new-birthday-date'
+    },
     changeMail:{
         mail: '',
+        showModal: false,
+        overrideErrMsg: '',
+    },
+    changePassword:{
+        password: '',
         showModal: false,
         overrideErrMsg: '',
     },
@@ -238,18 +300,7 @@ export default defineComponent({
         const form = useForm()
         const repository = new Repository(router)
 
-        //アカウント情報取得
-        let accountApiRes = await repository.get<AccountApiRes>("account/get")
-
-        //storeにアカウント情報を保存
-        setAccount(store, accountApiRes.data)
-        //formデータ
-        state.account.value.name = accountApiRes.data.name
-        state.account.value.year = accountApiRes.data.birthdayYear
-        state.account.value.month = accountApiRes.data.birthdayMonth
-        state.account.value.date = accountApiRes.data.birthdayDate
-        state.account.value.mail = accountApiRes.data.mail
-        state.account.value.password = '**********'
+        await getAccount(repository, store)
 
         //パスワード変更モーダル
         state.changePassword.value.password = ''
@@ -263,18 +314,32 @@ export default defineComponent({
         return {
             //アカウント表示情報
             account: state.account.value,
-            //パスワード変更モーダル,
-            changePassword: state.changePassword.value,
-            onInputPassword: (val) => {  state.changePassword.value.password = val },
-            updatePassword: async () => { await _updatePassword(form, repository) },
-            showChangePasswordModal: () => {  state.changePassword.value.showModal = true },
-            hideChangePasswordModal: () => { state.changePassword.value.showModal = false },
+            //名前変更モーダル
+            changeName: state.changeName.value,
+            showChangeNameModal: () => { state.changeName.value.showModal = true },
+            hideChangeNameModal: () => { state.changeName.value.showModal = false },
+            onInputName: (val) => { state.changeName.value.name = val },
+            updateName: async () => { await _updateName(repository, store, form) },
+            //生年月日変更モーダル
+            changeBirthday: state.changeBirthday.value,
+            showChangeBirthdayModal: () => { _showChangeBirthdayModal() },
+            updateBirthday: async () => { await _updateBirthday(repository, store, form) },
+            changeBirthdayYear: (val) => { state.changeBirthday.value.year = val },
+            changeBirthdayMonth: (val) => { state.changeBirthday.value.month = val },
+            changeBirthdayDate: (val) => { state.changeBirthday.value.date = val },
+            hideChangeBirthdayModal: () => { state.changeBirthday.value.showModal = false },
             //メール変更モダール
             changeMail: state.changeMail.value,
             onInputMail: (val) => { state.changeMail.value.mail = val },
             updateMail: async ()  => { await _updateMail(form, repository) },
             showChangeMailModal: () => { state.changeMail.value.showModal = true },
             hideChangeMailModal: () => { state.changeMail.value.showModal = false },
+            //パスワード変更モーダル,
+            changePassword: state.changePassword.value,
+            onInputPassword: (val) => {  state.changePassword.value.password = val },
+            updatePassword: async () => { await _updatePassword(form, repository) },
+            showChangePasswordModal: () => {  state.changePassword.value.showModal = true },
+            hideChangePasswordModal: () => { state.changePassword.value.showModal = false },
             //メールアドレスの本人認証
             appReqMail: state.appReqMail.value,
             showAppReqMail: () => { _showAppReqMail() },
@@ -285,29 +350,98 @@ export default defineComponent({
             closeResultConfirm: () => { closeResultConfirm() },
             //validation
             passwordRule,
-            mailRule
+            mailRule,
+            isRequired
         }
     },
 })
 
-//Storeにアカウント情報を登録
-async function setAccount(store: Store<any>, accountApiRes: AccountApiRes) {    
-    //アカウント情報登録
-    let accountStoreRes: AccountStoreReq = {
-        displayID: accountApiRes.displayID,
-        name: accountApiRes.name,
-        mail: accountApiRes.mail,
-        icon: accountApiRes.icon,
-        birthdayYear: accountApiRes.birthdayYear,
-        birthdayMonth: accountApiRes.birthdayMonth,
-        birthdayDate: accountApiRes.birthdayDate,
-        isLogin: true
-    }
+//アカウント情報を取得
+async function getAccount (repository: Repository, store:Store<any>){
+        //アカウント情報取得
+        let accountApiRes = await repository.get<AccountApiRes>("account/get")
 
-    store.dispatch(Account.INITIALIZE_ACCOUNT, accountStoreRes)
+        //storeにアカウント情報を保存
+        const accountStoreRes: AccountStoreReq = {
+            displayID: accountApiRes.data.displayID,
+            name: accountApiRes.data.name,
+            mail: accountApiRes.data.mail,
+            icon: accountApiRes.data.icon,
+            birthdayYear: accountApiRes.data.birthdayYear,
+            birthdayMonth: accountApiRes.data.birthdayMonth,
+            birthdayDate: accountApiRes.data.birthdayDate,
+            isLogin: true
+        }
+        store.dispatch(Account.INITIALIZE_ACCOUNT, accountStoreRes)
+
+        //formデータ
+        state.account.value.name = accountApiRes.data.name
+        state.account.value.year = accountApiRes.data.birthdayYear
+        state.account.value.month = accountApiRes.data.birthdayMonth
+        state.account.value.date = accountApiRes.data.birthdayDate
+        state.account.value.mail = accountApiRes.data.mail
+        state.account.value.password = '**********'
 }
 
-//アカウント情報をAPIに送信
+//名前変更
+async function _updateName(repository: Repository, store: Store<any>, form:PublicFormContext<Record<string, any>>){
+    if((await form.validateField('newname')).valid == false){
+        return;
+    }
+
+    const result = await repository.post<boolean>('account/updatename',{
+        Name: state.changeName.value.name
+    })
+
+    //名前変更モーダルを閉じる
+    state.changeName.value.showModal = false
+
+    if(result.data && result.isOk()){
+        showResultConfirm('名前の変更', '名前を変更しました！', ConfirmKinds.Normal)
+        getAccount(repository, store)
+    }else{
+        showResultConfirm('名前の変更', "申し訳ございません、原因不明のエラーが発生しました。\r\n再度名前の変更をおこなってください", ConfirmKinds.Error)
+    }
+}
+
+//生年月日変更モーダル表示
+function _showChangeBirthdayModal(){
+    state.changeBirthday.value.year = state.account.value.year
+    state.changeBirthday.value.month = state.account.value.month
+    state.changeBirthday.value.date = state.account.value.date
+    state.changeBirthday.value.showModal = true
+}
+
+//生年月日変更
+async function _updateBirthday(repository: Repository, store: Store<any>, form:PublicFormContext<Record<string, any>>,){
+
+    const valid = !(await form.validateField(state.changeBirthday.value.nameYear)).valid ||
+                    !(await form.validateField(state.changeBirthday.value.nameMonth)).valid ||
+                    !(await form.validateField(state.changeBirthday.value.nameDate)).valid
+    if(valid){
+        state.changeBirthday.value.overrideErrMsg='入力必須です'
+        return;
+    }else{
+        state.changeBirthday.value.overrideErrMsg = ''
+    }
+
+    const result = await repository.post<boolean>('account/updatebirthday', {
+        Year: state.changeBirthday.value.year,
+        Month: state.changeBirthday.value.month,
+        Date: state.changeBirthday.value.date
+    })
+
+    //生年月日変更モーダルを閉じる
+    state.changeBirthday.value.showModal = false;
+
+    if(result.data && result.status == 200){
+        showResultConfirm('生年月日の変更', '生年月日を変更しました！', ConfirmKinds.Normal)
+        //アカウント情報再取得
+        getAccount(repository, store)
+    }else{
+        showResultConfirm('生年月日の変更', "申し訳ございません、原因不明のエラーが発生しました。\r\n再度生年月日の変更をおこなってください", ConfirmKinds.Error)
+    }
+}
 
 //メールの本人認証モーダル表示
 async function _showAppReqMail(){
