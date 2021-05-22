@@ -7,9 +7,8 @@
         text-align: center;
         border:solid 1px $form-border-color;
         padding:5px 15px;
-        box-sizing: border-box;
         border-radius: 5px;
-        box-shadow: inset 0 1px 1px  rgba(0, 0, 0, .08);
+        box-shadow: inset 0 1px 1px  rgba(0, 0, 0, 0.1);
 
     }
     & input{
@@ -20,7 +19,7 @@
 
 <template>
     <div class="form-file">
-        <label @click="onClickLabel">選択</label>
+        <label @click="onClickLabel">{{text}}</label>
         <input ref="file" 
             type="file"
             :accept="accept"
@@ -34,12 +33,17 @@ import { defineComponent, ref } from 'vue'
 
 type Props = {
     accept: string
+    text: string
 }
 
 export default defineComponent({
     props:{
         accept:{
             type: String
+        },
+        text:{
+            type:String,
+            default: '選択'
         }
     },
     setup(props: Props) {
@@ -69,7 +73,8 @@ export default defineComponent({
             //ref
             file,
             //property
-            accept: props.accept
+            accept: props.accept,
+            text: props.text
         }
     },
 })

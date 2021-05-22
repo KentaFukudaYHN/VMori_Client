@@ -16,7 +16,7 @@
         <div class="input-container">
             <input 
                 class="form-input"
-                v-bind:class="{'valid-input': errorMessage != undefined && errorMessage.value != ''}"
+                v-bind:class="{'valid-input': isValid}"
                 :name="name"
                 :type="type"
                 :value="value"
@@ -36,8 +36,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, SetupContext, watch, PropType } from 'vue'
-import { useField, ErrorMessage, ValidationResult} from 'vee-validate';
+import { defineComponent, ref, SetupContext, watch, PropType, computed } from 'vue'
+import { useField } from 'vee-validate';
 
 type Props = {
   rule: () => boolean,
@@ -83,7 +83,7 @@ export default defineComponent({
             rule = () => { return true }
         }
         
-        const { errorMessage, value, handleChange, resetField, errors } = useField(props.name, rule)
+        const { errorMessage, value, handleChange } = useField(props.name, rule)
         
         if(props.value != null && props.value != ''){
             value.value = props.value;
@@ -140,6 +140,11 @@ export default defineComponent({
             value.value = newVal
         })
 
+        let overrideErrMsg = ref(props.overrideErrMsg)
+        watch(() => props.overrideErrMsg, (newVal, oldVal) =>{
+            overrideErrMsg.value = newVal
+        } )
+
         return {
             emitInput,
             emitBlur,
@@ -156,7 +161,12 @@ export default defineComponent({
             clickShowPasswordIcon,
             clickHidePasswordIcon,
             placeholder: props.placeholder,
-            overrideErrMsg: props.overrideErrMsg
+            overrideErrMsg,
+            isValid: computed(() =>{
+                var isErr = errorMessage.value != undefined && errorMessage.value != ''
+                var isOverrideErr = overrideErrMsg.value != undefined && overrideErrMsg.value != ''
+                return isErr || isOverrideErr
+            })
         }
     },
 })

@@ -1,7 +1,6 @@
-import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios'
-import { textChangeRangeIsUnchanged } from 'typescript'
-import { useRouter } from '@/router/router'
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import { Router } from 'vue-router'
+import { BaseApiRes } from '@/apiReqRes/BaseApiRes' 
 
 const BASE_URL = process.env.API_URL
 
@@ -10,7 +9,7 @@ export default class VMoriRepository{
     private client: AxiosInstance
     private router: Router
 
-    async get<T>(url:string, config?:AxiosRequestConfig) : Promise<T>{
+    async get<T>(url:string, config?:AxiosRequestConfig) : Promise<BaseApiRes<T>>{
         if(config == null){
             config = {}
         }
@@ -22,15 +21,14 @@ export default class VMoriRepository{
             const res = await this.client.get(url, config)
 
             this.CheckErrorRouting(res.status)
-
-            return res.data
+            return this.CreateBaseApiRes(res)
         }catch(error){
             console.log(error)
             throw error
         }
     }
 
-    async post<T>(url:string, data?:any, config?:AxiosRequestConfig): Promise<T>{
+    async post<T>(url:string, data?:any, config?:AxiosRequestConfig): Promise<BaseApiRes<T>>{
         if(config == null){
             config = { headers: {} }
         }
@@ -45,8 +43,7 @@ export default class VMoriRepository{
             const res = await this.client.post(url, data, config)
             
             this.CheckErrorRouting(res.status)
-
-            return res.data
+            return this.CreateBaseApiRes<T>(res)
         }catch(error){
             console.log(error)
             throw error
@@ -60,6 +57,15 @@ export default class VMoriRepository{
                 this.router.push('Login')
                 break;
         }
+    }
+
+    //レスポンスデータの生成
+    CreateBaseApiRes<T>(res: AxiosResponse<any>){
+        const apiRes = new BaseApiRes<T>()
+        apiRes.status = res.status
+        apiRes.data = res.data
+
+        return apiRes
     }
 
     constructor(router: Router){

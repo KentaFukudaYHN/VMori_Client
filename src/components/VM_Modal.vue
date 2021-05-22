@@ -44,16 +44,18 @@
 </style>
 
 <template>
-    <div class="modal-backlayer" @click="outsideClick"></div>
-    <transition name="modal" appear>
-        <div class="modal-overlay">
-            <div class="modal-window">
-                <div class="modal-content">
-                    <slot name="content"></slot>
+    <div>
+        <div class="modal-backlayer" @click="outsideClick"></div>
+        <transition name="modal" appear>
+            <div class="modal-overlay">
+                <div class="modal-window">
+                    <div class="modal-content">
+                        <slot name="content"></slot>
+                    </div>
                 </div>
             </div>
-        </div>
-    </transition>
+        </transition>
+    </div>
 </template>
 
 <script lang="ts">

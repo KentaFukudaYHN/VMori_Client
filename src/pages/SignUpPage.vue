@@ -79,7 +79,7 @@
             </div>
         </template>
     </VM_Modal>
-    <VM_Confirm v-if="showConfirmModal" :title="confirmTitle" :msg="confirmMsg" @emit-clickBtn="onClickConfirmBtn"/>
+    <VM_Confirm v-if="showConfirmModal" :title="confirmTitle" :msg="confirmMsg" @emit-clickBtn="onClickConfirmBtn" :minWidth="'700px'"/>
 </template>
 
 <script lang="ts">
@@ -94,6 +94,7 @@ import { useForm,useValidateForm } from 'vee-validate';
 import { isRequired, isRequiredNoMsg } from '@/commons/valid/valid-rules';
 import * as yup from 'yup'
 import repository from '@/repository/VMoriRepository'
+import { AuthService }  from '@/services/AuthServices'
 
 export default defineComponent({
     components: {
@@ -215,22 +216,22 @@ export default defineComponent({
             if(await valid() == true){
 
                 //登録可能なメールアドレスかチェック
-                var isMailOk = await new repository(router).get<boolean>('account/CanRegistMail?mail=' + mail);
-                if(isMailOk == false){
+                var resMailOk = await new repository(router).get<boolean>('account/CanRegistMail?mail=' + mail);
+                if(resMailOk.data == false){
                     overrideErrMsgMail.value = "既に使用されているメールアドレスです"
                 }else{
                     overrideErrMsgMail.value = ""
                 }
 
                 //登録可能な名前かチェック
-                var isNameOk = await new repository(router).get<boolean>('account/CanRegistName?nail=' + name); 
-                if(isNameOk == false){
+                var resNameOk = await new repository(router).get<boolean>('account/CanRegistName?nail=' + name); 
+                if(resNameOk.data == false){
                     overrideErrMsgName.value = "この名前は使われすぎています"
                 }else{
                     overrideErrMsgName.value = ""
                 }
 
-                if(!isMailOk || !isNameOk){
+                if(!resMailOk.data || !resNameOk.data){
                     return;
                 }
 
@@ -247,12 +248,7 @@ export default defineComponent({
                 await new repository(router).post('account/regist',data)
                 
                 //メールアドレス本人確認メッセージダイアログの表示
-                const now = new Date();
-                const date = new Date();
-                date.setDate(now.getDate() + 1);
-                confirmMsg.value = "メールアドレスがご本人のものであることを確認するために、" + mail + "に確認のメールを送信しました。 \r\n" +
-                    date.getFullYear() + "年" + (date.getMonth() + 1) + "月" + date.getDate() + "日" + date.getHours() + "時" + date.getMinutes() + "分"+ "までに添付されているurlにアクセスして確認をお願いします。 \r\n\r\n" +
-                    "※いつでもアカウント情報画面で認証メールを送ることができます。";
+                confirmMsg.value = new AuthService().CreateAppReqMsg(mail.value)
 
                 showSignUpModal.value = false;
                 showConfirmModal.value = true;

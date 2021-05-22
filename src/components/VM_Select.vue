@@ -47,13 +47,6 @@ export default defineComponent({
         let { errorMessage, value, handleChange} = useField(props.name, props.rule)
 
         /**
-         * Computed
-         */
-        // const error = computed(() =>{
-        //     return valid
-        // })
-
-        /**
          *  Emit
          */
 

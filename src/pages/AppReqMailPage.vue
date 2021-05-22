@@ -101,8 +101,8 @@ export default defineComponent({
                     Token: token
                 })
                 
-                if(result.success == false){
-                    errorMsg.value = result.errMsg;
+                if(result.data.success == false){
+                    errorMsg.value = result.data.errMsg;
                     showModal.value = false;
                     showSubmitErrConfirm.value = true
                 }else{

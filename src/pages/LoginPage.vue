@@ -74,20 +74,21 @@ export default defineComponent({
                         Mail:mail,
                         Password:password
                     })
-                }catch(e){
-                    console.log(e)
-                    if(e.response != undefined && e.response.status == 401) {
+
+                    if(res.status == 200){
+                        //アカウント情報画面に遷移 @ToDo
+                        error.value = ''
+                        router.push('Account')
+                    }else if(res.status == 401){
                         error.value = 'メールアドレスまたはパスワードが間違っています'
                     }else{
                         error.value = '原因不明のエラーが発生しました、時間をおいて試してください'
                     }
 
-                    return;
+                }catch(e){
+                    console.log(e)
+                    error.value = '原因不明のエラーが発生しました、時間をおいて試してください'
                 }
-                
-                //アカウント情報画面に遷移 @ToDo
-                error.value = ''
-                router.push('Account')
             }
         }
 

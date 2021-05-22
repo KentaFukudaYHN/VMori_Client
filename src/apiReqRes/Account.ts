@@ -6,7 +6,8 @@ export type AccountApiRes = {
     icon: string,
     birthdayYear: string,
     birthdayMonth: string,
-    birthdayDate: string
+    birthdayDate: string,
+    appMail: boolean
 }
 
 //メールアドレス本人認証レスポンス

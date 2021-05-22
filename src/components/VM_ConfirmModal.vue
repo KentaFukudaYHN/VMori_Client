@@ -1,37 +1,64 @@
 <style lang="scss">
     .confirm{
         &-container{
-            min-width:700px;
+            // min-width:700px;
+            padding: 0 50px;
+            min-width: 700px;
         }
-        &-header{
+        &-title{
+            display: block;
+            margin-bottom: 50px;
+            color: #12a5ff;
+            font-weight: bold;
+            width: 100%;
+            &::after{
+                content: '';
+                display: block;
+                height: 2px;
+                background-color: #12a5ff;
+                border-radius: 10px;
+            }
+        }
+        &-btn-ok{
             text-align: center;
-            font-size: 1em;
-            font-weight: 100;
         }
         &-msg{
             white-space: pre-wrap;
-            margin: 30px auto 30px auto;
+            // margin: 30px auto 30px auto;
         }
         &-footer{
-            margin-top: 30px;
+            margin-top: 50px;
+            width:100%;
+            display: flex;
+            justify-content:flex-end;
         }
-        &-title-error{
-            color:red;
+        &-title{
+            &-error{
+                color:red;
+            }
+            &-success{
+                color: $theme-color;
+            }
         }
-        &-msg-error{
-            color: red;
+        &-msg{
+            &-error{
+                color: red;
+            }
+            &-success{
+                color:$theme-color
+            }
         }
     }
 </style>
 
 <template>
-    <VM_Modal>
+    <VM_Modal @emit-outsideClick="outsideClick">
         <template v-slot:content >
-            <div class="confirm-container">
-                <h2 class="confirm-header" :class="{'confirm-title-error': isErrorKinds}">{{ title }}</h2>
-                <div class="confirm-msg" :class="{'confirm-msg-error': isErrorKinds}">{{ msg }}</div>
+            <div class="confirm-container" :style="styles"> 
+                <span v-if="title != ''" class="confirm-title" :class="{'confirm-title-error': isErrorKinds, 'confirm-title-success': isSuccess}">{{ title }}</span>
+                <div class="confirm-msg" :class="{'confirm-msg-error': isErrorKinds,  'confirm-msg-success': isSuccess }">{{ msg }}</div>
                 <div v-if="hideBtn == false" class="confirm-footer">
-                    <button class="btn-primary" @click="onClickBtn">{{ btnTxt }}</button>
+                    <button class="btn-primary confirm-btn-ok" @click="onClickBtn">{{ btnTxt }}</button>
                 </div>
             </div>
         </template>
@@ -41,7 +68,6 @@
 <script lang="ts">
 import { defineComponent, SetupContext, ref, PropType } from 'vue'
 import VM_Modal from '@/components/VM_Modal.vue'
-import { boolean } from 'node_modules/yup/lib/locale';
 import { ConfirmKinds } from '@/commons/enum'
 
 
@@ -50,7 +76,9 @@ type Props = {
   msg: string,
   btnTxt: string,
   hideBtn: boolean,
-  kinds: ConfirmKinds
+  kinds: ConfirmKinds,
+  minWidth: string,
+  padding: string
 };
 export default defineComponent({
     components:{
@@ -74,9 +102,15 @@ export default defineComponent({
         kinds: {
             type: Object as PropType<ConfirmKinds>,
             default: ConfirmKinds.Normal
-        }
+        },
+        minWidth:{
+            type: String
+        },
+        padding:{
+            type: String,
+        },
     },
-    emits: ['emit-clickBtn'],
+    emits: ['emit-clickBtn', 'emit-outsideClick'],
     setup(props: Props, context: SetupContext) {
 
         /**
@@ -91,13 +125,22 @@ export default defineComponent({
             context.emit('emit-clickBtn')
         }
 
+        const outsideClick = () =>{
+            context.emit('emit-outsideClick')
+        }
+
         return{
             title: props.title,
             msg: props.msg,
             btnTxt: props.btnTxt,
             isErrorKinds: props.kinds == ConfirmKinds.Error,
+            isSuccess: props.kinds == ConfirmKinds.Success,
             hideBtn: props.hideBtn,
-            onClickBtn
+            onClickBtn,
+            styles: {
+                'min-width': props.minWidth,
+                'padding': props.padding
+            }
         }
     },
 })
