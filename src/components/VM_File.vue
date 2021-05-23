@@ -29,7 +29,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, SetupContext } from 'vue'
 
 type Props = {
     accept: string
@@ -46,7 +46,8 @@ export default defineComponent({
             default: '選択'
         }
     },
-    setup(props: Props) {
+    emits:['emit-change'],
+    setup(props: Props, context: SetupContext) {
         /**
         * 初期化処理
          */
@@ -62,7 +63,7 @@ export default defineComponent({
             (<HTMLInputElement>e.target).value = ""
         }
         const onChangeFile = (e: Event) => {
-            const target = (<HTMLInputElement>e.target).value
+            context.emit('emit-change', e.target as HTMLInputElement)
         }
 
         return{

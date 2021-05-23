@@ -10,6 +10,10 @@
             display: flex;
             align-items: middle;
             margin:10px 0;
+
+            & .user-icon{
+                width:100px;
+            }
         }
         &-content{
             width:510px;
@@ -63,9 +67,27 @@
         margin-bottom: 0;
         & button{
             width:100%;
+            max-width: 100%;
         }
     }
 }
+.cropper-area{
+    & img{
+        display: block;
+    }
+
+}
+
+    //cropperを円形にする
+    .cropper-area ::v-deep .cropper-view-box,
+    .cropper-face {
+        border-radius: 50% !important;
+    } 
+
+#cropperImg{
+    width:600px
+}
+
 </style>
 
 <template>
@@ -76,10 +98,10 @@
         <li class="setting-list-item">
             <div class="setting-list-content">
                 <label class="setting-list-label">アイコン</label>
-                <img src="assets/noset-icon.png">
+                <img class="user-icon" :src="account.icon">
             </div>
             <div class="setting-list-change-iconbtn">
-                <vm-file accept="image/jpeg, image/png" text="変更"/>
+                <vm-file accept="image/jpeg, image/png" text="変更" @emit-change="showTrimmingModal"/>
             </div>
         </li>
         <li class="setting-list-item">
@@ -130,6 +152,23 @@
             </div>
         </li>
     </ul>
+
+    <!-- 画像トリミングモーダル -->
+    <vm-modal v-show="cropper.showModal" @emit-outsideClick="hideTrimmingModal">
+        <template v-slot:content>
+            <h3>アイコンのトリミング</h3>
+            <div class="changemodal">
+                <div class="changemodal-content">
+                    <div class="cropper-area">
+                        <img ref="refImage" id="cropperImg" :src="cropper.src"/>
+                    </div>
+                </div>
+                <div class="form-item changemodal-btn-update">
+                    <button class="btn-primary" @click="updateIcon">OK</button>
+                </div>
+            </div>
+        </template>
+    </vm-modal>
 
     <!-- 生年月日変更モーダル -->
     <vm-modal v-if="changeBirthday.showModal" @emit-outsideClick="hideChangeBirthdayModal">
@@ -215,7 +254,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, toRefs, reactive } from 'vue'
+import { defineComponent, toRefs, reactive, ref, Ref } from 'vue'
 import VM_Header from '@/components/VM_VideoHeader.vue'
 import VM_Input from '@/components/VM_Input.vue'
 import VM_Birthday from '@/components/VM_Birthday.vue'
@@ -233,6 +272,7 @@ import { useRouter } from '@/router/router'
 import { PublicFormContext, useForm } from 'vee-validate'
 import { passwordRule, mailRule, isRequired } from '@/commons/valid/valid-rules'
 import { AuthService } from '@/services/AuthServices'
+import Cropper from 'cropperjs'
 
 const state = toRefs(reactive({
     account: {
@@ -241,7 +281,14 @@ const state = toRefs(reactive({
         month: '',
         date: '',
         mail: '',
+        icon: '',
         password: ''
+    },
+    cropper: {
+        cropper: null as Cropper,
+        src: '',
+        fileName: '',
+        showModal: false,
     },
     changeName: {
         name: '',
@@ -291,7 +338,7 @@ export default defineComponent({
         'vm-select': VM_Birthday,
         'vm-file': VM_File,
         'vm-modal': VM_Modal,
-        'vm-confirm': VM_Confirm
+        'vm-confirm': VM_Confirm,
     },
     async setup() {
         //初期化処理
@@ -299,6 +346,7 @@ export default defineComponent({
         const router = useRouter()
         const form = useForm()
         const repository = new Repository(router)
+        const refImage = ref(null)
 
         await getAccount(repository, store)
 
@@ -314,6 +362,12 @@ export default defineComponent({
         return {
             //アカウント表示情報
             account: state.account.value,
+            //アイコンの変更
+            cropper: state.cropper.value,
+            refImage,
+            updateIcon: () => { _updateIcon(repository, store) },
+            showTrimmingModal: (e) => { _showTrimmingModal(e, refImage.value) },
+            hideTrimmingModal: () =>  { state.cropper.value.showModal = false },
             //名前変更モーダル
             changeName: state.changeName.value,
             showChangeNameModal: () => { state.changeName.value.showModal = true },
@@ -380,7 +434,56 @@ async function getAccount (repository: Repository, store:Store<any>){
         state.account.value.month = accountApiRes.data.birthdayMonth
         state.account.value.date = accountApiRes.data.birthdayDate
         state.account.value.mail = accountApiRes.data.mail
+        state.account.value.icon = accountApiRes.data.icon
         state.account.value.password = '**********'
+}
+
+//画像のトリミング
+function _showTrimmingModal(fileInput: HTMLInputElement, refImage: HTMLImageElement){
+    const target =  fileInput.files[0]
+    if(!target.type.match('image/jp.*') &&!target.type.match('image/png')) {
+        return;
+    }
+    state.cropper.value.fileName = target.name
+    const fileReader = new FileReader()
+    fileReader.onload = () => {
+        const dataUrl = fileReader.result
+        state.cropper.value.src = dataUrl as string
+        console.log(dataUrl)
+        refImage.src =  dataUrl as string
+        state.cropper.value.showModal = true
+        state.cropper.value.cropper = new Cropper(refImage, {
+            viewMode: 2,
+            aspectRatio: 1,
+            dragMode: 'none',
+        })
+
+        fileInput.value = ''
+    }
+    fileReader.readAsDataURL(target)
+}
+
+//画像のアップロード
+async function _updateIcon(repository: Repository, store: Store<any>) {
+    const base64 = state.cropper.value.cropper.getCroppedCanvas()
+                    .toDataURL()
+                    .split(',')[1]
+    //アイコンのアップロード
+    var result = await repository.post<boolean>('account/registicon',{
+        base64: base64,
+        name: state.cropper.value.fileName
+    })
+
+    state.cropper.value.cropper.destroy()
+    state.cropper.value.showModal = false
+
+    if(result.isOk()){
+        getAccount(repository, store)
+        showResultConfirm('ユーザーアイコンの更新', 'ユーザーアイコンを更新しました！', ConfirmKinds.Normal)
+    }else{
+        showResultConfirm('ユーザーアイコンの更新', '申し訳ございません、原因不明のエラーが発生しました。\r\n再度ユーザーアイコンの変更をおこなってください', ConfirmKinds.Error)
+    }
+
 }
 
 //名前変更
