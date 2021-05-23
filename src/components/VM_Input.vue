@@ -15,6 +15,8 @@
     <div>
         <div class="input-container">
             <input 
+                tabindex="0"
+                :disabled="disabled"
                 class="form-input"
                 v-bind:class="{'valid-input': isValid}"
                 :name="name"
@@ -36,7 +38,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, SetupContext, watch, PropType, computed } from 'vue'
+import { defineComponent, ref, Ref, SetupContext, watch, PropType, computed } from 'vue'
 import { useField } from 'vee-validate';
 
 type Props = {
@@ -46,7 +48,9 @@ type Props = {
   type: string,
   placeholder: string,
   overrideErrMsg: string
+  disabled: boolean
 };
+
 
 export default defineComponent({
     name: 'vm_input',
@@ -73,6 +77,10 @@ export default defineComponent({
         overrideErrMsg:{
             type: String,
             default: '',
+        },
+        disabled: {
+            type: Boolean,
+            default: false
         }
     },
     emits: ['emit-input', 'emit-blur', 'emit-click'],
@@ -157,6 +165,7 @@ export default defineComponent({
             value,
             name: props.name,
             type,
+            disabled: props.disabled,
             showPasswordIcon,
             hidePasswordIcon,
             showIcon,

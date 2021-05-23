@@ -18,6 +18,20 @@
                 background-color: #12a5ff;
                 border-radius: 10px;
             }
+
+            &-error{
+                color:red;
+                &::after{
+                    content: '';
+                    display: block;
+                    height: 2px;
+                    background-color: red;
+                    border-radius: 10px;
+                }
+            }
+            &-success{
+                color: $theme-color;
+            }
         }
         &-btn-ok{
             text-align: center;
@@ -31,14 +45,6 @@
             width:100%;
             display: flex;
             justify-content:flex-end;
-        }
-        &-title{
-            &-error{
-                color:red;
-            }
-            &-success{
-                color: $theme-color;
-            }
         }
         &-msg{
             &-error{

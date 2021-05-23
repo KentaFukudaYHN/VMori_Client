@@ -54,10 +54,9 @@
     }
 }
 .changemodal{
-    min-width: 320px;
-    padding: 0px 40px;
+    min-width: 400px;
+    padding: 0px 0px;
     &-title{
-        text-align: center;
         margin: 0;
     }
     &-content{
@@ -108,7 +107,7 @@
             <div class="setting-list-content">
                 <label class="setting-list-label">名前</label>
                 <div class="form-item setting-name">
-                    <vm-input name="name" :value="account.name" type="text" @emit-input="onInputName"/>
+                    <vm-input :disabled="true" name="name" :value="account.name" type="text" @emit-input="onInputName"/>
                 </div>
             </div>
             <div class="setting-list-change-btn .aligin-center">
@@ -119,7 +118,7 @@
             <div class="setting-list-content">
                 <label class="setting-list-label">生年月日</label>
                 <div class="form-item setting-birthday">
-                    <vm-select  :selectedYear="account.year" :selectedMonth="account.month" :selectedDay="account.date" />
+                    <vm-select :disabled="true" :selectedYear="account.year" :selectedMonth="account.month" :selectedDay="account.date" />
                 </div>
             </div>
             <div class="setting-list-change-btn .aligin-center">
@@ -130,21 +129,21 @@
             <div class="setting-list-content">
                 <label class="setting-list-label">メールアドレス</label>
                 <div class="form-item setting-mail">
-                    <vm-input name="mail" :value="account.mail" type="text" @emit-input="onInputMail"/>
+                    <vm-input :disabled="true" name="mail" :value="account.mail" type="text" @emit-input="onInputMail"/>
                 </div>
             </div>
             <div class="setting-list-change-btn .aligin-center">
-                <button class="btn-primary-mini color-red" @click="showAppReqMail">認証</button>
+                <button class="btn-normal-mini" @click="showChangeMailModal">変更</button>
             </div>
             <div class="setting-list-change-btn .aligin-center">
-                <button class="btn-normal-mini" @click="showChangeMailModal">変更</button>
+                <button v-if="account.appMail == false" class="btn-primary-mini color-red" @click="showAppReqMail">認証</button>
             </div>
         </li>
         <li class="setting-list-item">
             <div class="setting-list-content">
                 <label class="setting-list-label">パスワード</label>
                 <div class="form-item setting-password">
-                    <vm-input name="password" :value="account.password" type="password"/>
+                    <vm-input :disabled="true" name="password" :value="account.password" type="password"/>
                 </div>
             </div>
             <div class="setting-list-change-btn .aligin-center">
@@ -156,7 +155,7 @@
     <!-- 画像トリミングモーダル -->
     <vm-modal v-show="cropper.showModal" @emit-outsideClick="hideTrimmingModal">
         <template v-slot:content>
-            <h3>アイコンのトリミング</h3>
+            <h3 class="title-success">アイコンのトリミング</h3>
             <div class="changemodal">
                 <div class="changemodal-content">
                     <div class="cropper-area">
@@ -171,10 +170,10 @@
     </vm-modal>
 
     <!-- 生年月日変更モーダル -->
-    <vm-modal v-if="changeBirthday.showModal" @emit-outsideClick="hideChangeBirthdayModal">
+    <vm-modal v-show="changeBirthday.showModal" @emit-outsideClick="hideChangeBirthdayModal">
         <template v-slot:content>
             <div class="changemodal">
-                <h3 class="changemodal-title">生年月日の変更</h3>
+                <h3 class="changemodal-title title-success">生年月日の変更</h3>
                 <div class="changemodal-content">
                     <div class="form-item">
                         <label>生年月日を設定してください</label>
@@ -192,14 +191,14 @@
     </vm-modal>
 
     <!-- 名前変更モーダル -->
-    <vm-modal v-if="changeName.showModal" @emit-outsideClick="hideChangeNameModal">
+    <vm-modal v-show="changeName.showModal" @emit-outsideClick="hideChangeNameModal">
         <template v-slot:content>
             <div class="changemodal">
-                <h3 class="changemodal-title">名前の変更</h3>
+                <h3 class="changemodal-title title-success">名前の変更</h3>
                 <div class="changemodal-content">
                     <div class="form-item">
                         <label>新しい名前を入力してください</label>
-                        <vm-input name="newname" type="text" @emit-input="onInputName" :overrideErrMsg="changeName.overrideErrMsg" :rule="isRequired"/>
+                        <vm-input id="test" name="newname" type="text" @emit-input="onInputName" :overrideErrMsg="changeName.overrideErrMsg" :rule="isRequired"/>
                     </div>
                 </div>
                 <div class="form-item changemodal-btn-update">
@@ -210,10 +209,10 @@
     </vm-modal>
 
     <!-- メールアドレス変更モーダル -->
-    <vm-modal v-if="changeMail.showModal" @emit-outsideClick="hideChangeMailModal">
+    <vm-modal v-show="changeMail.showModal" @emit-outsideClick="hideChangeMailModal">
         <template v-slot:content>
             <div class="changemodal">
-                <h3 class="changemodal-title">メールアドレスの変更</h3>
+                <h3 class="changemodal-title title-success">メールアドレスの変更</h3>
                 <div class="changemodal-content">
                     <div class="form-item">
                         <label>新しいメールアドレスを入力してください</label>
@@ -228,10 +227,10 @@
     </vm-modal>
 
     <!-- パスワード変更モーダル -->
-    <vm-modal v-if="changePassword.showModal" @emit-outsideClick="hideChangePasswordModal">
+    <vm-modal v-show="changePassword.showModal" @emit-outsideClick="hideChangePasswordModal">
         <template v-slot:content>
             <div class="changemodal">
-                <h3 class="changemodal-title">パスワードの変更</h3>
+                <h3 class="changemodal-title title-success">パスワードの変更</h3>
                 <div class="changemodal-content">
                     <div class="form-item">
                         <label>新しいパスワードを入力してください</label>
@@ -282,7 +281,8 @@ const state = toRefs(reactive({
         date: '',
         mail: '',
         icon: '',
-        password: ''
+        password: '',
+        appMail: false
     },
     cropper: {
         cropper: null as Cropper,
@@ -346,6 +346,7 @@ export default defineComponent({
         const router = useRouter()
         const form = useForm()
         const repository = new Repository(router)
+
         const refImage = ref(null)
 
         await getAccount(repository, store)
@@ -370,7 +371,7 @@ export default defineComponent({
             hideTrimmingModal: () =>  { state.cropper.value.showModal = false },
             //名前変更モーダル
             changeName: state.changeName.value,
-            showChangeNameModal: () => { state.changeName.value.showModal = true },
+            showChangeNameModal: () => { _showChangeNameModal() },
             hideChangeNameModal: () => { state.changeName.value.showModal = false },
             onInputName: (val) => { state.changeName.value.name = val },
             updateName: async () => { await _updateName(repository, store, form) },
@@ -386,13 +387,13 @@ export default defineComponent({
             changeMail: state.changeMail.value,
             onInputMail: (val) => { state.changeMail.value.mail = val },
             updateMail: async ()  => { await _updateMail(form, repository) },
-            showChangeMailModal: () => { state.changeMail.value.showModal = true },
+            showChangeMailModal: () => { _showChangeMailModal() },
             hideChangeMailModal: () => { state.changeMail.value.showModal = false },
             //パスワード変更モーダル,
             changePassword: state.changePassword.value,
             onInputPassword: (val) => {  state.changePassword.value.password = val },
             updatePassword: async () => { await _updatePassword(form, repository) },
-            showChangePasswordModal: () => {  state.changePassword.value.showModal = true },
+            showChangePasswordModal: () => {  _showChangePasswordModal() },
             hideChangePasswordModal: () => { state.changePassword.value.showModal = false },
             //メールアドレスの本人認証
             appReqMail: state.appReqMail.value,
@@ -424,7 +425,8 @@ async function getAccount (repository: Repository, store:Store<any>){
             birthdayYear: accountApiRes.data.birthdayYear,
             birthdayMonth: accountApiRes.data.birthdayMonth,
             birthdayDate: accountApiRes.data.birthdayDate,
-            isLogin: true
+            appMail: accountApiRes.data.appMail,
+            isLogin: true,
         }
         store.dispatch(Account.INITIALIZE_ACCOUNT, accountStoreRes)
 
@@ -435,6 +437,7 @@ async function getAccount (repository: Repository, store:Store<any>){
         state.account.value.date = accountApiRes.data.birthdayDate
         state.account.value.mail = accountApiRes.data.mail
         state.account.value.icon = accountApiRes.data.icon
+        state.account.value.appMail = accountApiRes.data.appMail
         state.account.value.password = '**********'
 }
 
@@ -486,6 +489,15 @@ async function _updateIcon(repository: Repository, store: Store<any>) {
 
 }
 
+//名前変更モーダル表示
+function _showChangeNameModal(){
+    state.changeName.value.showModal = true;
+
+    setTimeout(() =>{
+        document.getElementsByName('newname')[0].focus()
+    }, 0)
+}
+
 //名前変更
 async function _updateName(repository: Repository, store: Store<any>, form:PublicFormContext<Record<string, any>>){
     if((await form.validateField('newname')).valid == false){
@@ -499,7 +511,7 @@ async function _updateName(repository: Repository, store: Store<any>, form:Publi
     //名前変更モーダルを閉じる
     state.changeName.value.showModal = false
 
-    if(result.data && result.isOk()){
+    if(false){
         showResultConfirm('名前の変更', '名前を変更しました！', ConfirmKinds.Normal)
         getAccount(repository, store)
     }else{
@@ -577,6 +589,15 @@ async function _appReqMail(repository: Repository){
     }
 }
 
+//メールアドレス変更モーダルの表示
+function _showChangeMailModal(){
+    state.changeMail.value.showModal = true
+    setTimeout(() =>{
+        document.getElementsByName('newmail')[0].focus()
+    }, 0)
+
+}
+
 //メールアドレスの更新
 async function _updateMail(from:PublicFormContext<Record<string, any>>, repository: Repository){
     //バリデーションチェック
@@ -605,6 +626,13 @@ async function _updateMail(from:PublicFormContext<Record<string, any>>, reposito
 
         }
     }
+}
+
+function _showChangePasswordModal(){
+    state.changePassword.value.showModal = true
+    setTimeout(() =>{
+        document.getElementsByName('newpassword')[0].focus()
+    }, 0)
 }
 
 //パスワードの更新

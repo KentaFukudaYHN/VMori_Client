@@ -24,7 +24,8 @@ export const store = createStore<State>({
             icon: "",
             birthdayYear: "",
             birthdayMonth: "",
-            birthdayDate: ""
+            birthdayDate: "",
+            appMail: false,
     }
     },
     mutations:{
@@ -43,7 +44,8 @@ export const store = createStore<State>({
                 mail: req.mail,
                 birthdayYear: req.birthdayYear,
                 birthdayMonth: req.birthdayMonth,
-                birthdayDate: req.birthdayDate
+                birthdayDate: req.birthdayDate,
+                appMail: req.appMail
             }
             commit(MutaitonTypes.AccountModule.INIT_ACCOUNT, module)
         }

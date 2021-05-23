@@ -6,5 +6,6 @@ export type AccountStoreReq = {
     birthdayYear: string,
     birthdayMonth: string,
     birthdayDate: string,
+    appMail: boolean,
     isLogin: boolean
 }

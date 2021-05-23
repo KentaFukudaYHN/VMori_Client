@@ -6,5 +6,6 @@ export type AccountModule = {
     icon: string,
     birthdayYear: string,
     birthdayMonth: string,
-    birthdayDate: string
+    birthdayDate: string,
+    appMail: boolean
 } 

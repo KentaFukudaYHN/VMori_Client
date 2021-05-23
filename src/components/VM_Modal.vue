@@ -44,7 +44,7 @@
 </style>
 
 <template>
-    <div>
+    <div class="modal">
         <div class="modal-backlayer" @click="outsideClick"></div>
         <transition name="modal" appear>
             <div class="modal-overlay">

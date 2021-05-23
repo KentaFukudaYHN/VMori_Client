@@ -27,11 +27,11 @@
 
 <template>
     <div class="birthday-container">
-        <vm-select class="birthday-year" :name="nameYear" @emit-change="changeYear" :items="yearItems" :rule="isRequiredNoMsg"/>
+        <vm-select :disabled="disabled" class="birthday-year" :name="nameYear" @emit-change="changeYear" :items="yearItems" :rule="isRequiredNoMsg"/>
         <span>年</span>
-        <vm-select class="birthday-month" :name="nameMonth" @emit-change="changeMonth" :items="monthItems" :rule="isRequiredNoMsg"/>
+        <vm-select :disabled="disabled" class="birthday-month" :name="nameMonth" @emit-change="changeMonth" :items="monthItems" :rule="isRequiredNoMsg"/>
         月
-        <vm-select class="birthday-day" :name="nameDate" @emit-change="changeDay" :items="dayItems" :rule="isRequiredNoMsg"/>
+        <vm-select :disabled="disabled" class="birthday-day" :name="nameDate" @emit-change="changeDay" :items="dayItems" :rule="isRequiredNoMsg"/>
         日
     </div>
 </template>
@@ -48,7 +48,8 @@ type Props = {
     selectedDay: string
     nameYear: string,
     nameMonth: string,
-    nameDate: string
+    nameDate: string,
+    disabled: boolean,
 }
 
 export default defineComponent({
@@ -77,6 +78,10 @@ export default defineComponent({
         nameDate: {
             type: String,
             default: 'birthday-date'
+        },
+        disabled: {
+            type: Boolean,
+            default: false
         }
     },
     setup(props: Props, context: SetupContext) {
@@ -151,7 +156,9 @@ export default defineComponent({
             changeMonth,
             changeDay,
             //バリデーション
-            isRequiredNoMsg
+            isRequiredNoMsg,
+            //disabled
+            disabled: props.disabled
         }
     },
 })

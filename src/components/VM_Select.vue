@@ -5,6 +5,7 @@
 <template>
     <div>
         <select 
+            :disabled="disabled"
             v-bind:class="{'valid-input': errorMessage != undefined && errorMessage.value != ''}"
             class="form-select" 
             :name="name" 
@@ -29,6 +30,7 @@ type Props = {
     name: string,
     items: SelectListItem[],
     rule: () => true,
+    disabled: boolean
 };
 export default defineComponent({
     props:{
@@ -41,6 +43,10 @@ export default defineComponent({
         rule:{
             type: [Object, Function] as PropType<Function | any>,
         },
+        disabled: {
+            type: Boolean,
+            default: false
+        }
     },
     emits: ['emit-change'],
     setup(props: Props, context:SetupContext) {
@@ -77,6 +83,7 @@ export default defineComponent({
             items: props.items,
             emitChange,
             value,
+            disabled: props.disabled,
             errorMessage,
             handleChange
         }
