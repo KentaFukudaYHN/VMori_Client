@@ -6,7 +6,7 @@ import * as ActionTypes from './actionTypes'
 import { AccountStoreReq } from '@/storeReqRes/Account'
 
 //stateの型定義
-type State = {
+export type State = {
     account: AccountModule
 }
 
@@ -46,6 +46,10 @@ export const store = createStore<State>({
                 birthdayMonth: req.birthdayMonth,
                 birthdayDate: req.birthdayDate,
                 appMail: req.appMail
+            }
+            debugger
+            if(module.icon == null || module.icon == ''){
+                module.icon = 'assets/icon_default.png'
             }
             commit(MutaitonTypes.AccountModule.INIT_ACCOUNT, module)
         }

@@ -9,8 +9,9 @@
     .link-font{
         font-size: 14px;
     }
-    .small-font{
-        font-size: 14px;
+
+    .btn-primary{
+        width:100%;
     }
 }
 .icon-title{
@@ -104,7 +105,8 @@ export default defineComponent({
         VM_Confirm
     },
     setup() {
-        const form = useForm();
+        const form = useForm()
+        const router = useRouter()
         onMounted(() =>{
             setTimeout(() => form.resetForm())
         })
@@ -161,8 +163,8 @@ export default defineComponent({
 
        //メールアドレス本人確認モーダルでOKをクリック
        const onClickConfirmBtn = () =>{
-           //Home画面にリダイレクト
-           
+           //Home画面にリダイレクト @ToDo
+            router.push('account')
        }
 
         //Formデータ
@@ -172,7 +174,7 @@ export default defineComponent({
         let year = ''
         let month = ''
         let day = '';
-        const inputMail = (val) => { mail = val }
+        const inputMail = (val) => { mail.value = val }
         const inputName = (val) => { name = val }
         const inputPassword = (val) => { password = val }
         const changeYear = (val) => { year = val }
@@ -211,12 +213,11 @@ export default defineComponent({
         }
 
         //アカウント作成データ送信
-        const router = useRouter()
         const submit = async (val) => { 
             if(await valid() == true){
 
                 //登録可能なメールアドレスかチェック
-                var resMailOk = await new repository(router).get<boolean>('account/CanRegistMail?mail=' + mail);
+                var resMailOk = await new repository(router).get<boolean>('account/CanRegistMail?mail=' + mail.value);
                 if(resMailOk.data == false){
                     overrideErrMsgMail.value = "既に使用されているメールアドレスです"
                 }else{
@@ -237,7 +238,7 @@ export default defineComponent({
 
                 //Postデータの生成・送信
                 const data ={
-                    Mail:mail,
+                    Mail:mail.value,
                     Password:password,
                     Name:name,
                     Year:String(year),

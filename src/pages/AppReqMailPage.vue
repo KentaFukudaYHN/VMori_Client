@@ -10,6 +10,9 @@
     
     &-content{
         margin: 0 50px;
+        & .btn-primary{
+            width: 100%;
+        }
     }
     &-form{
         margin: 40px auto 0 auto;
@@ -106,7 +109,7 @@ export default defineComponent({
                     showModal.value = false;
                     showSubmitErrConfirm.value = true
                 }else{
-                    useRouter().push('Home')
+                    router.push('Home')
                 }
             }
 

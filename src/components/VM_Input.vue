@@ -96,7 +96,7 @@ export default defineComponent({
         if(props.value != null && props.value != ''){
             value.value = props.value;
         }
-        
+
         let type = ref(props.type)
         let isTypePassword = false;
         let showIcon = ref(false);
@@ -105,7 +105,7 @@ export default defineComponent({
         
         const onKeyup = (event) => {
             //パスワードの場合は全角禁止
-            if(type.value == 'password'){
+            if(isTypePassword && value.value != undefined){
                 value.value = (value.value as string).replace(/[^a-zA-Z0-9 -/:-@\[-~]*$/, '')
             }
         }

@@ -1,10 +1,11 @@
 import { createRouter, createWebHistory, useRouter as BaseRouter } from 'vue-router'
-import Home from '@/pages/HomePage.vue'
 import Login from '@/pages/LoginPage.vue'
 import SignUp from '@/pages/SignUpPage.vue'
 import AppReqMail from '@/pages/AppReqMailPage.vue'
 import Account from '@/pages/Account.vue'
 import Test from '@/pages/Test.vue'
+import ResetPassword from '@/pages/ResetPasswordPage.vue'
+import ResetReqPassword from '@/pages/ResetReqPasswordPage.vue'
 
 const route = [
     {
@@ -26,6 +27,17 @@ const route = [
         path: '/Account',
         name: 'Account',
         component: Account
+    },
+    {
+        path: '/ResetPassword',
+        name: 'ResetPassword',
+        component: ResetPassword
+
+    },
+    {
+        path: '/ResetReqPassword',
+        name: 'ResetReqPassword',
+        component: ResetReqPassword
     },
     {
         path: '/Test',

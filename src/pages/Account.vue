@@ -264,7 +264,7 @@ import { ConfirmKinds }  from '@/commons/enum'
 import Repository from '@/repository/VMoriRepository'
 import { AccountApiRes } from '@/apiReqRes/Account'
 import { AccountStoreReq } from '@/storeReqRes/Account'
-import { useStore } from '@/store/store'
+import { useStore, State } from '@/store/store'
 import { Account } from '@/store/actionTypes'
 import { Store } from 'node_modules/vuex/types'
 import { useRouter } from '@/router/router'
@@ -412,7 +412,7 @@ export default defineComponent({
 })
 
 //アカウント情報を取得
-async function getAccount (repository: Repository, store:Store<any>){
+async function getAccount (repository: Repository, store:Store<State>){
         //アカウント情報取得
         let accountApiRes = await repository.get<AccountApiRes>("account/get")
 
@@ -431,13 +431,13 @@ async function getAccount (repository: Repository, store:Store<any>){
         store.dispatch(Account.INITIALIZE_ACCOUNT, accountStoreRes)
 
         //formデータ
-        state.account.value.name = accountApiRes.data.name
-        state.account.value.year = accountApiRes.data.birthdayYear
-        state.account.value.month = accountApiRes.data.birthdayMonth
-        state.account.value.date = accountApiRes.data.birthdayDate
-        state.account.value.mail = accountApiRes.data.mail
-        state.account.value.icon = accountApiRes.data.icon
-        state.account.value.appMail = accountApiRes.data.appMail
+        state.account.value.name = store.state.account.name
+        state.account.value.year = store.state.account.birthdayYear
+        state.account.value.month = store.state.account.birthdayMonth
+        state.account.value.date = store.state.account.birthdayDate
+        state.account.value.mail = store.state.account.mail
+        state.account.value.icon = store.state.account.icon
+        state.account.value.appMail = store.state.account.appMail
         state.account.value.password = '**********'
 }
 
@@ -511,7 +511,7 @@ async function _updateName(repository: Repository, store: Store<any>, form:Publi
     //名前変更モーダルを閉じる
     state.changeName.value.showModal = false
 
-    if(false){
+    if(result.data && result.isOk()){
         showResultConfirm('名前の変更', '名前を変更しました！', ConfirmKinds.Normal)
         getAccount(repository, store)
     }else{
@@ -582,7 +582,7 @@ async function _appReqMail(repository: Repository){
     //メールアドレスの本人認証リクエスト
     var result = await repository.get<boolean>("auth/createappreqmail")
 
-    if(result.data){
+    if(result.data && result.isOk()){
         showResultConfirm('メールアドレスの本人認証', new AuthService().CreateAppReqMsg(state.account.value.mail), ConfirmKinds.Normal)
     }else{
         showResultConfirm('メールアドレスの本人認証', "申し訳ございません、原因不明のエラーが発生しました。\r\n再度メールアドレスの本人認証をおこなってください", ConfirmKinds.Error)

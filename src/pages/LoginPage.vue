@@ -1,27 +1,39 @@
 <style lang="scss" scoped>
-.icon-title{
-    display: block;
-    margin: 0 auto 50px auto;
+.login-container{
+    min-width: 330px;
+    & .icon-title{
+        display: block;
+        margin: 0 auto 50px auto;
+    }
+    & .btn-login{
+        width:100%;
+    }
+
+    & .from-item-password{
+        margin-bottom: 0;
+    }
 }
 </style>
 
 <template>
     <VM_Modal>
         <template v-slot:content>
-            <img class="icon-title" src='assets/title_icon.png'>
-            <div class="form-item">
-                <label>メールアドレス</label>
-                <VM_Input name="mail" type="text" @emit-input="mailInput" :rule="isRequired"/>
-            </div>
-            <div class="form-item">
-                <label>パスワード</label>
-                <VM_Input name="password" type="text" @emit-input="passwordInput" :rule="isRequired"/>
-            </div>
-
-            <span class="valid-msg">{{error}}</span>
-
-            <div class="form-item">
-                <input @click="submit" class="btn-primary" type="button" value="ログイン">
+            <div class="login-container">
+                <img class="icon-title" src='assets/title_icon.png'>
+                <div class="form-item">
+                    <label>メールアドレス</label>
+                    <VM_Input name="mail" type="text" @emit-input="mailInput" :rule="isRequired"/>
+                </div>
+                <div class="form-item from-item-password">
+                    <label>パスワード</label>
+                    <VM_Input name="password" type="password" @emit-input="passwordInput" :rule="isRequired"/>
+                </div>
+                <span class="valid-msg">{{error}}</span>
+                <p class="small-font"><router-link to="/ResetReqPassword">パスワードをお忘れですか？</router-link></p>
+                <div class="form-item">
+                    <input @click="submit" class="btn-primary btn-login" type="button" value="ログイン">
+                </div>
+                <p class="small-font">アカウントを作りますか？  <router-link to="/SignUp">登録</router-link></p>
             </div>
         </template>
     </VM_Modal>
