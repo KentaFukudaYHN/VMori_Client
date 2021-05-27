@@ -273,8 +273,6 @@ async function _submitPassword(repository: Repository, router: Router){
         return;
     }
 
-    debugger
-
     var result = await repository.post<LetterAndSuccessRes>('auth/ChangeReqPassword',{
         Mail: state.mailForm.value.mail,
         Token: state.codeModal.value.code,
