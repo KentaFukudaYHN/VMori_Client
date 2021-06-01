@@ -25,11 +25,22 @@
         border-radius: 4px;
         overflow: hidden;
         min-width: 400px;
+        max-height: 100%;
     }
 
     &-content {
         padding: 40px 40px;
         z-index: 40;
+        max-height: 80%;
+        overflow: scroll;
+        /* IE, Edge 対応 */
+        -ms-overflow-style: none;
+        /* Firefox 対応 */
+        scrollbar-width: none;
+    }
+
+    &-content::-webkit-scrollbar {
+        display:none;
     }
 }
 

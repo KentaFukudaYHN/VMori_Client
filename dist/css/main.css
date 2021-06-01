@@ -1,3 +1,4 @@
+@charset "UTF-8";
 body {
   font-family: 'Roboto', sans-serif;
   font-size: 16px;
@@ -31,6 +32,19 @@ a {
 .form-item label {
   display: block;
   margin: 0 0 5px 0;
+}
+
+.form-textarea {
+  display: block;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  width: 100%;
+  border-radius: 3px;
+  height: 80px;
+  padding: 10px;
+  resize: none;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.08);
+          box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.08);
 }
 
 .form-input {
@@ -91,10 +105,31 @@ input:disabled:hover {
   background: #ccc;
 }
 
+textarea:disabled {
+  background: #ccc;
+  color: #545454;
+}
+
+textarea:disabled:hover {
+  background: #ccc;
+}
+
 select:disabled {
   background: #CCC;
   opacity: 1;
   color: #545454;
+}
+
+.icon-video-up {
+  cursor: pointer;
+  width: 50px;
+  height: 50px;
+  border: none;
+  background-size: contain;
+  background-image: url("../assets/icon_videoup3.png");
+  background-position: center;
+  margin-right: 20px;
+  background-repeat: no-repeat;
 }
 
 .btn-primary-mini {
@@ -190,6 +225,51 @@ select:disabled {
 
 .user-icon {
   border-radius: 50%;
+}
+
+.postscript-container {
+  position: relative;
+  margin: 20px auto 10px auto;
+  background-image: repeating-linear-gradient(0deg, #127DD6, #127DD6 3px, white 3px, white 6px), repeating-linear-gradient(90deg, #127DD6, #127DD6 3px, white 3px, white 6px), repeating-linear-gradient(180deg, #127DD6, #127DD6 3px, white 3px, white 6px), repeating-linear-gradient(270deg, #127DD6, #e993ff 3px, white 3px, white 6px);
+  background-size: 3px 100%, 100% 3px, 3px 100% , 100% 3px;
+  background-position: 0 0, 0 0, 100% 0, 0 100%;
+  background-repeat: no-repeat;
+  padding: 50px 20px;
+}
+
+.postscript-title {
+  position: absolute;
+  top: -10px;
+  left: -7px;
+  width: 30%;
+  display: block;
+  height: 30px;
+  /*リボンの高さ*/
+  line-height: 30px;
+  /*リボンの高さ*/
+  padding: 0px 30px;
+  color: #fff;
+  background-color: #127DD6;
+  border-radius: 5px;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+}
+
+.postscript-title::after {
+  position: absolute;
+  content: '';
+  width: 0px;
+  height: 0px;
+  z-index: 1;
+}
+
+.postscript-title:after {
+  top: 0;
+  right: 0;
+  border-radius: 0 0 0 10px;
+  border-width: 15px 20px 15px 0px;
+  border-color: transparent #fff transparent transparent;
+  border-style: solid;
 }
 
 .valid-input {

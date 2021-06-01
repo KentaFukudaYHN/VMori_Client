@@ -1,0 +1,10 @@
+version: '3.4'
+
+services:
+    vue:
+        build:
+            context: .
+            args:
+                - API_URL=${API_URL}
+        ports:
+            - 8080:80

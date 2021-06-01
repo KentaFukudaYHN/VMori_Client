@@ -1,4 +1,4 @@
-<style lang="scss">
+<style lang="scss" scoped>
     .confirm{
         &-container{
             // min-width:700px;

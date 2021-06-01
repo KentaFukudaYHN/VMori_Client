@@ -4,7 +4,6 @@ import { BaseApiRes } from '@/apiReqRes/BaseApiRes'
 
 const BASE_URL = process.env.API_URL
 
-
 export default class VMoriRepository{
     private client: AxiosInstance
     private router: Router

@@ -1,16 +1,24 @@
-FROM node:lts-alpine
+# ビルド環境
+FROM node:lts-alpine as build-stage
 
-RUN npm install -g http-server
-
+ARG API_URL
+RUN echo $API_URL
 WORKDIR /app
-
-#package.jsonとpavakge-lock.jsonをコピー
 COPY package*.json ./
-
 RUN npm install
-
 COPY . .
-
 RUN npm run build
 
-CMD [ "http-server", "dist" ]
+# 本番環境
+FROM nginx:stable-alpine as production-stage
+COPY --from=build-stage /app/dist /usr/share/nginx/html
+COPY ./nginx/conf.d/ /etc/nginx/conf.d/
+
+RUN apk add openssh
+
+WORKDIR /app
+COPY startup.sh /app
+COPY sshd_config /etc/ssh/
+
+EXPOSE 80 2222
+CMD /app/startup.sh

@@ -26,11 +26,16 @@ export const store = createStore<State>({
             birthdayMonth: "",
             birthdayDate: "",
             appMail: false,
-    }
+        }
+    },
+    getters:{
+        accounticon: state => {
+            return state.account.icon
+        }
     },
     mutations:{
         [MutaitonTypes.AccountModule.INIT_ACCOUNT](state, module: AccountModule){
-            state.account = module;
+            state.account = module
         },
     },
     actions:{
@@ -47,7 +52,7 @@ export const store = createStore<State>({
                 birthdayDate: req.birthdayDate,
                 appMail: req.appMail
             }
-            debugger
+
             if(module.icon == null || module.icon == ''){
                 module.icon = 'assets/icon_default.png'
             }

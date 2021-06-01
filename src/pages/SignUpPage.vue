@@ -248,7 +248,7 @@ export default defineComponent({
 
                 await new repository(router).post('account/regist',data)
                 
-                //メールアドレス本人確認メッセージダイアログの表示
+                //メールアドレス本人確認メッセージダイアログの表示 @ToDo エラー処理を追加
                 confirmMsg.value = new AuthService().CreateAppReqMsg(mail.value)
 
                 showSignUpModal.value = false;
