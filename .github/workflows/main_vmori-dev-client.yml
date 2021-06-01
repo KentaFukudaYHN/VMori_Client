@@ -30,7 +30,7 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         push: true
-        tags: ${{ secrets.AzureAppService_ContainerUsername_bca84fa877254f93b44b5e097f6956e1 }}/vmori/vue:latest}
+        tags: ${{ secrets.AzureAppService_ContainerUsername_bca84fa877254f93b44b5e097f6956e1 }}/vmori/vue}
         file: ./Dockerfile
 
   deploy:
