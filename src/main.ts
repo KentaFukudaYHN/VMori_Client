@@ -4,6 +4,9 @@ import { key, store } from '@/store/store'
 import { router } from '@/router/router'
 const app = createApp(App)
 
+console.log("てすとおお")
+
+
 app.use(store, key)
 app.use(router)
 
