@@ -1,0 +1,84 @@
+@charset "UTF-8";
+
+//form
+$form-border-color: #B2B2B2;
+$form-border-sel-color: #129ed6;
+$form-input-border-radius:3px;
+.form{
+    &-item{
+        margin: 15px 0;
+        label{
+            display: block;
+            margin: 0 0 5px 0;
+        }
+    }
+    &-textarea{
+        display: block;
+        box-sizing: border-box;
+        width: 100%;
+        border-radius: $form-input-border-radius;
+        height: 80px;
+        padding: 10px;
+        resize: none;
+        box-shadow: inset 0 1px 1px  rgba(0, 0, 0, .08);
+    }
+    &-input{
+        display: block;
+        border:solid 1px $form-border-color;
+        width: 100%;
+        padding:10px 10px;
+        box-sizing: border-box;
+        border-radius: $form-input-border-radius;
+        box-shadow: inset 0 1px 1px  rgba(0, 0, 0, .08);
+        &:focus{
+            outline: 0;
+            border: none;
+            box-shadow: 0 0 0 1px $form-border-sel-color;
+            border-radius: $form-input-border-radius;
+        }
+    }
+    &-select{
+        background-image: url(../../assets/selectbox-sankaku.png);
+        background-repeat: no-repeat;
+        background-size: 12px 10px;
+        background-position: right 10px center;
+        -webkit-appearance: none;
+        appearance: none;
+        border:solid 1px $form-border-color;
+        padding: 10px 40px 10px 12px;
+        box-sizing: border-box;
+        border-radius: $form-input-border-radius;
+        box-shadow: inset 0 1px 1px  rgba(0, 0, 0, .08);
+        width:100%;
+        &:focus{
+            outline: 0;
+            border: none;
+            box-shadow: 0 0 0 1px $form-border-sel-color;
+            border-radius: $form-input-border-radius;
+        }
+        //IEのセレクトボックスの矢印を無効
+        &::-ms-expand{
+            display: none;
+        }
+    }
+}
+
+input:disabled{
+    background:#ccc;
+    color:#545454;
+    &:hover{
+        background:#ccc;
+    }
+}
+textarea:disabled{
+    background:#ccc;
+    color:#545454;
+    &:hover{
+        background:#ccc;
+    }
+}
+select:disabled{
+    background: #CCC;
+    opacity: 1;
+    color:#545454;
+}

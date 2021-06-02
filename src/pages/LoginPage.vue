@@ -1,6 +1,5 @@
 <style lang="scss" scoped>
 .login-container{
-    min-width: 330px;
     & .icon-title{
         display: block;
         margin: 0 auto 30px auto;

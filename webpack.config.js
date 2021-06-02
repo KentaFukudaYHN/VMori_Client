@@ -42,7 +42,7 @@ module.exports = {
                         loader: 'sass-resources-loader',
                         options: {
                             resources:[
-                                path.resolve(__dirname, './src/share-variable.scss')
+                                path.resolve(__dirname, './dist/css/vue-global.scss')
                             ]
                         }
                     }

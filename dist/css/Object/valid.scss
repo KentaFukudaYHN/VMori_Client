@@ -1,0 +1,11 @@
+@charset "UTF-8";
+
+.valid {
+    &-input{
+        border-color: red !important;
+    }
+    &-msg{
+        color: #D24443;
+        font-size: 14px;
+        }
+}

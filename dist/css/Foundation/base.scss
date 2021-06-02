@@ -1,0 +1,73 @@
+//サイトを構成する上で、デザインの基本の下地、土台となるスタイルを定義
+//基本的にタグ自体にスタイルを定義する
+//クラスなしの状態でも最低限の表示になることを心がける
+@charset "UTF-8";
+body {
+  font-family: "Nico Moji";
+  // font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  margin: 0;
+}
+
+h2 {
+  font-family: 'Roboto', sans-serif;
+  font-size: 20px;
+}
+
+h3 {
+  font-family: 'Roboto', sans-serif;
+  font-size: 13px;
+  font-weight: 100;
+}
+
+a {
+  text-decoration: none;
+  color: #127DD6;
+}
+
+/*
+* Form
+*/
+
+input {
+  height: 34px;
+}
+
+//input
+input:disabled {
+    background: #ccc;
+    color: #545454;
+  }
+  
+input:disabled:hover {
+    background: #ccc;
+}
+
+//textarea
+textarea:disabled {
+    background: #ccc;
+    color: #545454;
+}
+
+textarea:disabled:hover {
+    background: #ccc;
+}
+
+//select
+select:disabled {
+    background: #CCC;
+    opacity: 1;
+    color: #545454;
+}
+
+.select:focus {
+    outline: 0;
+    border: none;
+    -webkit-box-shadow: 0 0 0 1px #129ed6;
+            box-shadow: 0 0 0 1px #129ed6;
+    border-radius: 3px;
+  }
+  
+.select::-ms-expand {
+    display: none;
+}

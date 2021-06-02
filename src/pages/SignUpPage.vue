@@ -1,11 +1,6 @@
 <style lang="scss">
 .signup-container{
-    width: 400px;
-    padding: 0 50px;
     margin: 0 auto 0 auto;
-    @media(max-width:780px){
-    }
-
     .link-font{
         font-size: 14px;
     }
@@ -17,29 +12,6 @@
 .icon-title{
     display: block;
     margin: 0 auto 50px auto;
-}
-.birthday 
-{
-    margin: 0;
-    &-container{
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-
-    }
-    &-year {
-        @extend .birthday;
-        width: 30%;
-        select{
-            width: 100%;
-        }
-    }
-    &-month{
-        @extend .birthday;
-    }
-    &-day{
-        @extend .birthday;
-    }
 }
 </style>
 
@@ -62,6 +34,11 @@
                 </div>
                 <div class="form-item">
                     <label>生年月日</label>
+                    <div class="form-item setting-birthday">
+                        <VM_Birthday @emit-change-year="changeYear" @emit-change-month="changeMonth" @emit-change-date="changeDay"/>
+                        <span class="valid-msg" >{{birthdayErrorMessage}}</span>
+                    </div>
+                    <!-- <label>生年月日</label>
                     <div class="birthday-container">
                         <VM_Select class="birthday-year" name="year" @emit-change="changeYear" :items="yearsItems" :rule="isRequiredNoMsg"/>
                         <span>年</span>
@@ -70,7 +47,7 @@
                         <VM_Select class="birthday-day" name="day" @emit-change="changeDay" :items="dayItems" :rule="isRequiredNoMsg"/>
                         日
                     </div>
-                    <span class="valid-msg" >{{birthdayErrorMessage}}</span>
+                    <span class="valid-msg" >{{birthdayErrorMessage}}</span> -->
                 </div>
                 <div class="form-item">
                     <input @click="submit" class="btn-primary" type="button" value="アカウント作成">
@@ -89,6 +66,7 @@ import VM_Modal from '@/components/VM_Modal.vue'
 import VM_Confirm from '@/components/VM_ConfirmModal.vue'
 import VM_Input from '@/components/VM_Input.vue'
 import VM_Select from '@/components/VM_Select.vue'
+import VM_Birthday from '@/components/VM_Birthday.vue'
 import SelectListItem from '@/commons/form/SelectListItem'
 import { useRouter } from '@/router/router'
 import { useForm,useValidateForm } from 'vee-validate';
@@ -102,7 +80,8 @@ export default defineComponent({
         VM_Modal,
         VM_Input,
         VM_Select,
-        VM_Confirm
+        VM_Confirm,
+        VM_Birthday
     },
     setup() {
         const form = useForm()

@@ -1,0 +1,63 @@
+//再利用可能なボタンのcss
+@charset "UTF-8";
+@import "../Foundation/valiable";
+
+$form-border-sel-color: #129ed6;
+
+.btn-primary{
+    cursor: pointer;
+    display: block;
+    color:#fff;
+    border: none;
+    text-align: center;
+    border-radius: 3px;
+    margin:0;
+    background:linear-gradient(to bottom, #2c79ce 0, #226bc7 100%);
+    &:hover{
+        background: #1c5191;
+    }
+    &:focus{
+        border: none;
+        box-shadow: 0 0 0 1px $form-border-sel-color;
+        border-radius: 3px;
+    }
+}
+
+.btn-primary-mini{
+    @extend .btn-primary;
+    border:solid 1px $theme-color;
+    border-radius: 5px;
+    padding: 5px 15px;
+    width:100%;
+    background:linear-gradient(to bottom, #2c79ce 0, #226bc7 100%);
+    &:hover{
+        @extend .btn-primary:hover;
+    }
+    &:focus{
+        @extend .btn-primary:focus;
+        border-radius: 5px;
+    }
+}
+
+
+.btn-normal-mini{
+    cursor: pointer;
+    text-align: center;
+    border:solid 1px #B2B2B2;
+    padding:5px 15px;
+    box-sizing: border-box;
+    border-radius: 5px;
+    box-shadow: inset 0 1px 1px  rgba(0, 0, 0, .08);
+}
+
+.btn-danger-mini{
+    cursor: pointer;
+    text-align: center;
+    border:solid 1px #B2B2B2;
+    background-color: red;
+    color: #fff;
+    padding:5px 15px;
+    box-sizing: border-box;
+    border-radius: 5px;
+    box-shadow: inset 0 1px 1px  rgba(0, 0, 0, .08);
+}

@@ -1,0 +1,49 @@
+@charset "UTF-8";
+//追記コメント
+.postscript{
+    &-container{
+        position: relative;
+        margin: 20px auto 10px auto;
+        background-image:
+            repeating-linear-gradient(0deg, $theme-color, $theme-color 3px, white 3px, white 6px), // left
+            repeating-linear-gradient(90deg, $theme-color, $theme-color 3px, white 3px, white 6px), // top
+            repeating-linear-gradient(180deg, $theme-color, $theme-color 3px, white 3px, white 6px), // right
+            repeating-linear-gradient(270deg, $theme-color, rgb(233, 147, 255) 3px, white 3px, white 6px) // bottom
+        ;
+        background-size: 3px 100%, 100% 3px, 3px 100% , 100% 3px;
+        background-position: 0 0, 0 0, 100% 0, 0 100%;
+        background-repeat: no-repeat;
+        padding: 50px 20px;
+    }
+
+    &-title{
+        position: absolute;
+        top: -10px;
+        left: -7px;
+        width:30%;
+        display: block;
+        height: 30px;/*リボンの高さ*/
+        line-height: 30px;/*リボンの高さ*/
+        padding: 0px 30px;
+        color: #fff;
+        background-color: $theme-color;
+        border-radius: 5px;
+        box-sizing: border-box;
+        
+        &::after{
+            position: absolute;
+            content: '';
+            width: 0px;
+            height: 0px;
+            z-index: 1;
+        }
+        &:after{
+            top: 0;
+            right: 0;
+            border-radius: 0 0 0 10px;
+            border-width: 15px 20px 15px 0px;
+            border-color: transparent #fff transparent transparent;
+            border-style: solid;
+        }
+    }
+}

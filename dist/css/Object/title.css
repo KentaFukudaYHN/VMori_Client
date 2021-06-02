@@ -1,0 +1,16 @@
+.title-success {
+  display: block;
+  margin-bottom: 50px;
+  color: #12a5ff;
+  font-weight: bold;
+  width: 100%;
+}
+
+.title-success::after {
+  content: '';
+  display: block;
+  height: 2px;
+  background-color: #12a5ff;
+  border-radius: 10px;
+}
+/*# sourceMappingURL=title.css.map */

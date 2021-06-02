@@ -10,16 +10,19 @@
     }
     &-year {
         @extend .birthday;
-        width: 30%;
-        select{
-            width: 100%;
-        }
+        width:100%;
+        min-width: 85px;
+        margin-right: 5px;
     }
     &-month{
         @extend .birthday;
+        min-width: 70px;
+        margin: 0 5px;
     }
     &-day{
         @extend .birthday;
+        min-width: 70px;
+        margin: 0 5px;
     }
 }
 
