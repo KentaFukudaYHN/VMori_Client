@@ -3,7 +3,7 @@
     min-width: 330px;
     & .icon-title{
         display: block;
-        margin: 0 auto 50px auto;
+        margin: 0 auto 30px auto;
     }
     & .btn-login{
         width:100%;

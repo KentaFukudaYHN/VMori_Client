@@ -24,7 +24,7 @@
         background: #fff;
         border-radius: 4px;
         overflow: hidden;
-        min-width: 400px;
+        // min-width: 400px;
         max-height: 100%;
     }
 
