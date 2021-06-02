@@ -1,6 +1,9 @@
 <style lang="scss" scoped>
 .account-container{
     margin: 0 50px 0 50px;
+    @include tab{
+        margin: 0 10px 0 10px;
+    }
 }
 .setting{
     &-list{
@@ -14,37 +17,74 @@
             & .user-icon{
                 width:100px;
             }
+
+            @include tab{
+                flex-direction: column;
+            }
         }
         &-content{
-            width:510px;
+            width:360px;
             display: flex;
             align-items: middle;
             margin:10px 0;
+
+            @include tab{
+                //モバイル表示の場合は順番を変更 
+                width: 100%;
+                order:3;
+            }
+
         }
         &-label{
             display: flex;
             align-items: center;
             margin: 0 10px 0 0px;
             width:150px;
+
+            @include tab{
+                width: 100%;
+                justify-content: space-between;
+            }
         }
         &-change-iconbtn{
             margin-left: 20px;
             display: flex;
             align-items: flex-end;
             margin-bottom: 10px;
+
+            @include tab{
+                display: none;
+            }
         }
         &-change-btn{
             display: flex;
             margin-left: 20px;
             align-items: center;
+            & button{
+                width: 60px;
+            }
 
+            @include tab{
+                display: none;
+            }
+        }
+
+        //モバイル用のボタン
+        &-change-btn-sp{
+            display: none;
+            @include tab{
+                display: inline-block;
+            }
         }
     }
     &-name{
-        width : 214px;
+        width : 322px;
     }
     &-birthday{
-        width: 350px
+        width: 350px;
+        @include tab{
+            width: 100%;
+        }
     }
     &-mail{
         width: 322px;
@@ -95,8 +135,13 @@
     <h2>アカウント情報</h2>
     <ul class="setting-list">
         <li class="setting-list-item">
+            <div class="setting-list-label">
+                <label>アイコン</label>
+                <div class="setting-list-change-btn-sp">
+                    <button class="btn-normal-mini" @click="showTrimmingModal">変更</button>
+                </div>
+            </div>
             <div class="setting-list-content">
-                <label class="setting-list-label">アイコン</label>
                 <img class="user-icon" :src="account.icon">
             </div>
             <div class="setting-list-change-iconbtn">
@@ -104,8 +149,13 @@
             </div>
         </li>
         <li class="setting-list-item">
+            <div class="setting-list-label">
+                <label>名前</label>
+                <div class="setting-list-change-btn-sp">
+                    <button class="btn-normal-mini" @click="showChangeNameModal">変更</button>
+                </div>
+            </div>
             <div class="setting-list-content">
-                <label class="setting-list-label">名前</label>
                 <div class="form-item setting-name">
                     <vm-input :disabled="true" name="name" :value="account.name" type="text" @emit-input="onInputName"/>
                 </div>
@@ -115,8 +165,13 @@
             </div>
         </li>
         <li class="setting-list-item">
+            <div class="setting-list-label">
+                <label>生年月日</label>
+                <div class="setting-list-change-btn-sp">
+                    <button class="btn-normal-mini" @click="showChangeBirthdayModal">変更</button>
+                </div>
+            </div>
             <div class="setting-list-content">
-                <label class="setting-list-label">生年月日</label>
                 <div class="form-item setting-birthday">
                     <vm-select :disabled="true" :selectedYear="account.year" :selectedMonth="account.month" :selectedDay="account.date" />
                 </div>
@@ -126,8 +181,16 @@
             </div>
         </li>
         <li class="setting-list-item">
+            <div class="setting-list-label">
+                <label>メールアドレス</label>
+                <div class="setting-list-change-btn-sp">
+                    <button class="btn-normal-mini" @click="showChangeMailModal">変更</button>
+                </div>
+                <div v-if="account.appMail == false"  class="setting-list-change-btn-sp">
+                    <button class="btn-primary-mini" @click="showAppReqMail">認証</button>
+                </div>
+            </div>
             <div class="setting-list-content">
-                <label class="setting-list-label">メールアドレス</label>
                 <div class="form-item setting-mail">
                     <vm-input :disabled="true" name="mail" :value="account.mail" type="text" @emit-input="onInputMail"/>
                 </div>
@@ -140,8 +203,13 @@
             </div>
         </li>
         <li class="setting-list-item">
+            <div class="setting-list-label">
+                <label>パスワード</label>
+                <div class="setting-list-change-btn-sp">
+                    <button class="btn-normal-mini" @click="showChangeMailModal">変更</button>
+                </div>
+            </div>
             <div class="setting-list-content">
-                <label class="setting-list-label">パスワード</label>
                 <div class="form-item setting-password">
                     <vm-input :disabled="true" name="password" :value="account.password" type="password"/>
                 </div>
