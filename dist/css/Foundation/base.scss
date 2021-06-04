@@ -2,10 +2,14 @@
 //基本的にタグ自体にスタイルを定義する
 //クラスなしの状態でも最低限の表示になることを心がける
 @charset "UTF-8";
+@import "mixin";
 body {
   font-family: "Nico Moji";
   // font-family: 'Roboto', sans-serif;
   font-size: 16px;
+  @include sp{
+    font-size: 13px;
+  }
   margin: 0;
 }
 

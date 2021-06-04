@@ -31,6 +31,8 @@
             @include tab{
                 //モバイル表示の場合は順番を変更 
                 width: 100%;
+                max-width: 360px;
+                margin: auto;
                 order:3;
             }
 
@@ -60,9 +62,9 @@
             display: flex;
             margin-left: 20px;
             align-items: center;
-            & button{
-                width: 60px;
-            }
+            // & button{
+            //     width: 60px;
+            // }
 
             @include tab{
                 display: none;
@@ -96,6 +98,9 @@
 .changemodal{
     min-width: 400px;
     padding: 0px 0px;
+    @include tab{
+        min-width: 230px;
+    }
     &-title{
         margin: 0;
     }
@@ -124,7 +129,10 @@
     } 
 
 #cropperImg{
-    width:600px
+    width:80%;
+    @include tab{
+        width:250px;
+    }
 }
 
 </style>
@@ -138,7 +146,7 @@
             <div class="setting-list-label">
                 <label>アイコン</label>
                 <div class="setting-list-change-btn-sp">
-                    <button class="btn-normal-mini" @click="showTrimmingModal">変更</button>
+                    <vm-file accept="image/jpeg, image/png" text="変更" @emit-change="showTrimmingModal"/>
                 </div>
             </div>
             <div class="setting-list-content">
@@ -520,16 +528,47 @@ function _showTrimmingModal(fileInput: HTMLInputElement, refImage: HTMLImageElem
     fileReader.onload = () => {
         const dataUrl = fileReader.result
         state.cropper.value.src = dataUrl as string
-        console.log(dataUrl)
         refImage.src =  dataUrl as string
-        state.cropper.value.showModal = true
-        state.cropper.value.cropper = new Cropper(refImage, {
-            viewMode: 2,
-            aspectRatio: 1,
-            dragMode: 'none',
-        })
+    }
 
-        fileInput.value = ''
+    refImage.onload = () =>{
+        let width = refImage.width
+        let height = refImage.height
+
+        //横300px以上の画像はリサイズ
+        console.log("画像の幅 " + width)
+        if(width > 300){
+            height = Math.round(height * 300 / width)
+            width = 300
+
+            let canvas = document.createElement('canvas')
+            canvas.width = width
+            canvas.height = height
+            let ctx = canvas.getContext('2d')
+            ctx.drawImage(refImage, 0, 0, width, height)
+            ctx.canvas.toBlob((blob) => {
+                const imageFile = new File([blob], target.name,{
+                    type: target.type,
+                    lastModified: Date.now()
+                })
+                fileReader.readAsDataURL(imageFile)
+            }, target.type, 1)
+        }else{
+            state.cropper.value.showModal = true
+
+            //前のくろっぱーの情報が残るので、既にくろっぱーの情報あればデストロイ
+            if(state.cropper.value.cropper != null){
+                state.cropper.value.cropper.destroy()
+            }
+            state.cropper.value.cropper = new Cropper(refImage, {
+                viewMode: 2,
+                aspectRatio: 1,
+                dragMode: 'none',
+            })
+            fileInput.value = ''
+        }
+
+
     }
     fileReader.readAsDataURL(target)
 }

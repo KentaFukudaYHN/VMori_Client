@@ -6,6 +6,12 @@
   width: 100%;
 }
 
+@media (max-width: 748px) {
+  .title-success {
+    margin-bottom: 10px;
+  }
+}
+
 .title-success::after {
   content: '';
   display: block;

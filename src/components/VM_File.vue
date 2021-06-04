@@ -1,6 +1,5 @@
 <style lang="scss" scoped>
 .form-file{
-    width: 100px;
     & label{
         font-size: 13px;
         cursor: pointer;

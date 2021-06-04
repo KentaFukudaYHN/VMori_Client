@@ -1,8 +1,12 @@
 @charset "UTF-8";
+@import "../Foundation/mixin";
 
 .title-success{
     display: block;
     margin-bottom: 50px;
+    @include tab{
+        margin-bottom: 10px;
+    }
     color: #12a5ff;
     font-weight: bold;
     width: 100%;

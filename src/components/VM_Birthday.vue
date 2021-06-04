@@ -10,19 +10,27 @@
     }
     &-year {
         @extend .birthday;
-        width:100%;
         min-width: 85px;
         margin-right: 5px;
+        @include tab{
+            margin:0;
+        }
     }
     &-month{
         @extend .birthday;
         min-width: 70px;
         margin: 0 5px;
+        @include sp{
+            margin:0;
+        }
     }
     &-day{
         @extend .birthday;
         min-width: 70px;
         margin: 0 5px;
+        @include sp{
+            margin:0;
+        }
     }
 }
 
@@ -33,9 +41,9 @@
         <vm-select :disabled="disabled" class="birthday-year" :name="nameYear" @emit-change="changeYear" :items="yearItems" :rule="isRequiredNoMsg"/>
         <span>年</span>
         <vm-select :disabled="disabled" class="birthday-month" :name="nameMonth" @emit-change="changeMonth" :items="monthItems" :rule="isRequiredNoMsg"/>
-        月
+        <span>月</span>
         <vm-select :disabled="disabled" class="birthday-day" :name="nameDate" @emit-change="changeDay" :items="dayItems" :rule="isRequiredNoMsg"/>
-        日
+        <span>日</span>
     </div>
 </template>
 

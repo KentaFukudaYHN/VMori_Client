@@ -12,6 +12,7 @@ $form-border-sel-color: #129ed6;
     text-align: center;
     border-radius: 3px;
     margin:0;
+    height: 34px;
     background:linear-gradient(to bottom, #2c79ce 0, #226bc7 100%);
     &:hover{
         background: #1c5191;
@@ -43,6 +44,7 @@ $form-border-sel-color: #129ed6;
 .btn-normal-mini{
     cursor: pointer;
     text-align: center;
+    font-size:13px;
     border:solid 1px #B2B2B2;
     padding:5px 15px;
     box-sizing: border-box;
