@@ -3,16 +3,19 @@
 //クラスなしの状態でも最低限の表示になることを心がける
 @charset "UTF-8";
 @import "mixin";
+html{
+  height: 100%;
+}
 body {
   font-family: "Nico Moji";
   // font-family: 'Roboto', sans-serif;
-  font-size: 16px;
-  @include sp{
-    font-size: 13px;
-  }
+  font-size: 13px;
+  height:100%;
   margin: 0;
 }
-
+#app{
+  height:100%;
+}
 h2 {
   font-family: 'Roboto', sans-serif;
   font-size: 20px;

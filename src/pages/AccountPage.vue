@@ -1,4 +1,5 @@
 <style lang="scss" scoped>
+/* #region scss */
 .account-container{
     margin: 0 50px 0 50px;
     @include tab{
@@ -134,201 +135,207 @@
         width:250px;
     }
 }
-
+/* #endregion */
 </style>
 
 <template>
-<div class="account-container">
-    <vm-header/>
-    <h2>アカウント情報</h2>
-    <ul class="setting-list">
-        <li class="setting-list-item">
-            <div class="setting-list-label">
-                <label>アイコン</label>
-                <div class="setting-list-change-btn-sp">
-                    <vm-file accept="image/jpeg, image/png" text="変更" @emit-change="showTrimmingModal"/>
-                </div>
-            </div>
-            <div class="setting-list-content">
-                <img class="user-icon" :src="account.icon">
-            </div>
-            <div class="setting-list-change-iconbtn">
-                <vm-file accept="image/jpeg, image/png" text="変更" @emit-change="showTrimmingModal"/>
-            </div>
-        </li>
-        <li class="setting-list-item">
-            <div class="setting-list-label">
-                <label>名前</label>
-                <div class="setting-list-change-btn-sp">
-                    <button class="btn-normal-mini" @click="showChangeNameModal">変更</button>
-                </div>
-            </div>
-            <div class="setting-list-content">
-                <div class="form-item setting-name">
-                    <vm-input :disabled="true" name="name" :value="account.name" type="text" @emit-input="onInputName"/>
-                </div>
-            </div>
-            <div class="setting-list-change-btn .aligin-center">
-                <button class="btn-normal-mini" @click="showChangeNameModal">変更</button>
-            </div>
-        </li>
-        <li class="setting-list-item">
-            <div class="setting-list-label">
-                <label>生年月日</label>
-                <div class="setting-list-change-btn-sp">
-                    <button class="btn-normal-mini" @click="showChangeBirthdayModal">変更</button>
-                </div>
-            </div>
-            <div class="setting-list-content">
-                <div class="form-item setting-birthday">
-                    <vm-select :disabled="true" :selectedYear="account.year" :selectedMonth="account.month" :selectedDay="account.date" />
-                </div>
-            </div>
-            <div class="setting-list-change-btn .aligin-center">
-                <button class="btn-normal-mini" @click="showChangeBirthdayModal">変更</button>
-            </div>
-        </li>
-        <li class="setting-list-item">
-            <div class="setting-list-label">
-                <label>メールアドレス</label>
-                <div class="setting-list-change-btn-sp">
-                    <button class="btn-normal-mini" @click="showChangeMailModal">変更</button>
-                </div>
-                <div v-if="account.appMail == false"  class="setting-list-change-btn-sp">
-                    <button class="btn-primary-mini" @click="showAppReqMail">認証</button>
-                </div>
-            </div>
-            <div class="setting-list-content">
-                <div class="form-item setting-mail">
-                    <vm-input :disabled="true" name="mail" :value="account.mail" type="text" @emit-input="onInputMail"/>
-                </div>
-            </div>
-            <div class="setting-list-change-btn .aligin-center">
-                <button class="btn-normal-mini" @click="showChangeMailModal">変更</button>
-            </div>
-            <div class="setting-list-change-btn .aligin-center">
-                <button v-if="account.appMail == false" class="btn-primary-mini color-red" @click="showAppReqMail">認証</button>
-            </div>
-        </li>
-        <li class="setting-list-item">
-            <div class="setting-list-label">
-                <label>パスワード</label>
-                <div class="setting-list-change-btn-sp">
-                    <button class="btn-normal-mini" @click="showChangeMailModal">変更</button>
-                </div>
-            </div>
-            <div class="setting-list-content">
-                <div class="form-item setting-password">
-                    <vm-input :disabled="true" name="password" :value="account.password" type="password"/>
-                </div>
-            </div>
-            <div class="setting-list-change-btn .aligin-center">
-                <button class="btn-normal-mini" @click="showChangePasswordModal">変更</button>
-            </div>
-        </li>
-    </ul>
-
-    <!-- 画像トリミングモーダル -->
-    <vm-modal v-show="cropper.showModal" @emit-outsideClick="hideTrimmingModal">
-        <template v-slot:content>
-            <h3 class="title-success">アイコンのトリミング</h3>
-            <div class="changemodal">
-                <div class="changemodal-content">
-                    <div class="cropper-area">
-                        <img ref="refImage" id="cropperImg" :src="cropper.src"/>
+<!-- #region template -->
+<vm-guide>
+    <template v-slot:content>
+        <div class="account-container">
+            <h2>アカウント情報</h2>
+            <ul class="setting-list">
+                <li class="setting-list-item">
+                    <div class="setting-list-label">
+                        <label>アイコン</label>
+                        <div class="setting-list-change-btn-sp">
+                            <vm-file accept="image/jpeg, image/png" text="変更" @emit-change="showTrimmingModal"/>
+                        </div>
                     </div>
-                </div>
-                <div class="form-item changemodal-btn-update">
-                    <button class="btn-primary" @click="updateIcon">OK</button>
-                </div>
-            </div>
-        </template>
-    </vm-modal>
-
-    <!-- 生年月日変更モーダル -->
-    <vm-modal v-show="changeBirthday.showModal" @emit-outsideClick="hideChangeBirthdayModal">
-        <template v-slot:content>
-            <div class="changemodal">
-                <h3 class="changemodal-title title-success">生年月日の変更</h3>
-                <div class="changemodal-content">
-                    <div class="form-item">
-                        <label>生年月日を設定してください</label>
-                        <vm-select  @emit-change-year="changeBirthdayYear" @emit-change-month="changeBirthdayMonth" @emit-change-date="changeBirthdayDate" 
-                            :selectedYear="changeBirthday.year" :selectedMonth="changeBirthday.month" :selectedDay="changeBirthday.date" 
-                            :nameYear="changeBirthday.nameYear" :nameMonth="changeBirthday.nameMonth" :nameDate="changeBirthday.nameDate"/>
-                        <span v-if="changeBirthday.overrideErrMsg != ''" class="valid-msg">{{ changeBirthday.overrideErrMsg }}</span>
+                    <div class="setting-list-content">
+                        <img class="user-icon" :src="account.icon">
                     </div>
-                </div>
-                    <div class="form-item changemodal-btn-update">
-                        <button class="btn-primary" @click="updateBirthday">更新</button>
+                    <div class="setting-list-change-iconbtn">
+                        <vm-file accept="image/jpeg, image/png" text="変更" @emit-change="showTrimmingModal"/>
                     </div>
-            </div>
-        </template>
-    </vm-modal>
-
-    <!-- 名前変更モーダル -->
-    <vm-modal v-show="changeName.showModal" @emit-outsideClick="hideChangeNameModal">
-        <template v-slot:content>
-            <div class="changemodal">
-                <h3 class="changemodal-title title-success">名前の変更</h3>
-                <div class="changemodal-content">
-                    <div class="form-item">
-                        <label>新しい名前を入力してください</label>
-                        <vm-input id="test" name="newname" type="text" @emit-input="onInputName" :overrideErrMsg="changeName.overrideErrMsg" :rule="isRequired"/>
+                </li>
+                <li class="setting-list-item">
+                    <div class="setting-list-label">
+                        <label>名前</label>
+                        <div class="setting-list-change-btn-sp">
+                            <button class="btn-normal-mini" @click="showChangeNameModal">変更</button>
+                        </div>
                     </div>
-                </div>
-                <div class="form-item changemodal-btn-update">
-                    <button class="btn-primary" @click="updateName">更新</button>
-                </div>
-            </div>
-        </template>
-    </vm-modal>
-
-    <!-- メールアドレス変更モーダル -->
-    <vm-modal v-show="changeMail.showModal" @emit-outsideClick="hideChangeMailModal">
-        <template v-slot:content>
-            <div class="changemodal">
-                <h3 class="changemodal-title title-success">メールアドレスの変更</h3>
-                <div class="changemodal-content">
-                    <div class="form-item">
-                        <label>新しいメールアドレスを入力してください</label>
-                        <vm-input name="newmail" type="text" @emit-input="onInputMail" :overrideErrMsg="changeMail.overrideErrMsg" :rule="mailRule"/>
+                    <div class="setting-list-content">
+                        <div class="form-item setting-name">
+                            <vm-input :disabled="true" name="name" :value="account.name" type="text" @emit-input="onInputName"/>
+                        </div>
                     </div>
-                </div>
-                <div class="form-item changemodal-btn-update">
-                    <button class="btn-primary" @click="updateMail">更新</button>
-                </div>
-            </div>
-        </template>
-    </vm-modal>
-
-    <!-- パスワード変更モーダル -->
-    <vm-modal v-show="changePassword.showModal" @emit-outsideClick="hideChangePasswordModal">
-        <template v-slot:content>
-            <div class="changemodal">
-                <h3 class="changemodal-title title-success">パスワードの変更</h3>
-                <div class="changemodal-content">
-                    <div class="form-item">
-                        <label>新しいパスワードを入力してください</label>
-                        <vm-input name="newpassword" @emit-input="onInputPassword" type="password" :rule="passwordRule"/>
+                    <div class="setting-list-change-btn .aligin-center">
+                        <button class="btn-normal-mini" @click="showChangeNameModal">変更</button>
                     </div>
-                </div>
-                <div class="form-item changemodal-btn-update">
-                    <button class="btn-primary" @click="updatePassword">更新</button>
-                </div>
-            </div>
-        </template>
-    </vm-modal>
+                </li>
+                <li class="setting-list-item">
+                    <div class="setting-list-label">
+                        <label>生年月日</label>
+                        <div class="setting-list-change-btn-sp">
+                            <button class="btn-normal-mini" @click="showChangeBirthdayModal">変更</button>
+                        </div>
+                    </div>
+                    <div class="setting-list-content">
+                        <div class="form-item setting-birthday">
+                            <vm-select :disabled="true" :selectedYear="account.year" :selectedMonth="account.month" :selectedDay="account.date" />
+                        </div>
+                    </div>
+                    <div class="setting-list-change-btn .aligin-center">
+                        <button class="btn-normal-mini" @click="showChangeBirthdayModal">変更</button>
+                    </div>
+                </li>
+                <li class="setting-list-item">
+                    <div class="setting-list-label">
+                        <label>メールアドレス</label>
+                        <div class="setting-list-change-btn-sp">
+                            <button class="btn-normal-mini" @click="showChangeMailModal">変更</button>
+                        </div>
+                        <div v-if="account.appMail == false"  class="setting-list-change-btn-sp">
+                            <button class="btn-primary-mini" @click="showAppReqMail">認証</button>
+                        </div>
+                    </div>
+                    <div class="setting-list-content">
+                        <div class="form-item setting-mail">
+                            <vm-input :disabled="true" name="mail" :value="account.mail" type="text" @emit-input="onInputMail"/>
+                        </div>
+                    </div>
+                    <div class="setting-list-change-btn .aligin-center">
+                        <button class="btn-normal-mini" @click="showChangeMailModal">変更</button>
+                    </div>
+                    <div class="setting-list-change-btn .aligin-center">
+                        <button v-if="account.appMail == false" class="btn-primary-mini color-red" @click="showAppReqMail">認証</button>
+                    </div>
+                </li>
+                <li class="setting-list-item">
+                    <div class="setting-list-label">
+                        <label>パスワード</label>
+                        <div class="setting-list-change-btn-sp">
+                            <button class="btn-normal-mini" @click="showChangeMailModal">変更</button>
+                        </div>
+                    </div>
+                    <div class="setting-list-content">
+                        <div class="form-item setting-password">
+                            <vm-input :disabled="true" name="password" :value="account.password" type="password"/>
+                        </div>
+                    </div>
+                    <div class="setting-list-change-btn .aligin-center">
+                        <button class="btn-normal-mini" @click="showChangePasswordModal">変更</button>
+                    </div>
+                </li>
+            </ul>
 
-    <!-- 結果Confirm -->
-    <vm-confirm v-if='changeConfirm.showConfirm' :kinds="changeConfirm.kinds" :title="changeConfirm.title" :msg="changeConfirm.msg" @emit-clickBtn="closeResultConfirm"></vm-confirm>
+            <!-- 画像トリミングモーダル -->
+            <vm-modal v-show="cropper.showModal" @emit-outsideClick="hideTrimmingModal">
+                <template v-slot:content>
+                    <h3 class="title-success">アイコンのトリミング</h3>
+                    <div class="changemodal">
+                        <div class="changemodal-content">
+                            <div class="cropper-area">
+                                <img ref="refImage" id="cropperImg" :src="cropper.src"/>
+                            </div>
+                        </div>
+                        <div class="form-item changemodal-btn-update">
+                            <button class="btn-primary" @click="updateIcon">OK</button>
+                        </div>
+                    </div>
+                </template>
+            </vm-modal>
 
-    <!-- メールの本人認証Confirm -->
-    <vm-confirm v-if="appReqMail.showModal" :title="appReqMail.title" :msg="appReqMail.msg" :btnTxt="'送信する'" @emit-clickBtn="submitAppReqMail" @emit-outsideClick="closeAppReqMail"></vm-confirm>
-</div>
+            <!-- 生年月日変更モーダル -->
+            <vm-modal v-show="changeBirthday.showModal" @emit-outsideClick="hideChangeBirthdayModal">
+                <template v-slot:content>
+                    <div class="changemodal">
+                        <h3 class="changemodal-title title-success">生年月日の変更</h3>
+                        <div class="changemodal-content">
+                            <div class="form-item">
+                                <label>生年月日を設定してください</label>
+                                <vm-select  @emit-change-year="changeBirthdayYear" @emit-change-month="changeBirthdayMonth" @emit-change-date="changeBirthdayDate" 
+                                    :selectedYear="changeBirthday.year" :selectedMonth="changeBirthday.month" :selectedDay="changeBirthday.date" 
+                                    :nameYear="changeBirthday.nameYear" :nameMonth="changeBirthday.nameMonth" :nameDate="changeBirthday.nameDate"/>
+                                <span v-if="changeBirthday.overrideErrMsg != ''" class="valid-msg">{{ changeBirthday.overrideErrMsg }}</span>
+                            </div>
+                        </div>
+                            <div class="form-item changemodal-btn-update">
+                                <button class="btn-primary" @click="updateBirthday">更新</button>
+                            </div>
+                    </div>
+                </template>
+            </vm-modal>
+
+            <!-- 名前変更モーダル -->
+            <vm-modal v-show="changeName.showModal" @emit-outsideClick="hideChangeNameModal">
+                <template v-slot:content>
+                    <div class="changemodal">
+                        <h3 class="changemodal-title title-success">名前の変更</h3>
+                        <div class="changemodal-content">
+                            <div class="form-item">
+                                <label>新しい名前を入力してください</label>
+                                <vm-input id="test" name="newname" type="text" @emit-input="onInputName" :overrideErrMsg="changeName.overrideErrMsg" :rule="isRequired"/>
+                            </div>
+                        </div>
+                        <div class="form-item changemodal-btn-update">
+                            <button class="btn-primary" @click="updateName">更新</button>
+                        </div>
+                    </div>
+                </template>
+            </vm-modal>
+
+            <!-- メールアドレス変更モーダル -->
+            <vm-modal v-show="changeMail.showModal" @emit-outsideClick="hideChangeMailModal">
+                <template v-slot:content>
+                    <div class="changemodal">
+                        <h3 class="changemodal-title title-success">メールアドレスの変更</h3>
+                        <div class="changemodal-content">
+                            <div class="form-item">
+                                <label>新しいメールアドレスを入力してください</label>
+                                <vm-input name="newmail" type="text" @emit-input="onInputMail" :overrideErrMsg="changeMail.overrideErrMsg" :rule="mailRule"/>
+                            </div>
+                        </div>
+                        <div class="form-item changemodal-btn-update">
+                            <button class="btn-primary" @click="updateMail">更新</button>
+                        </div>
+                    </div>
+                </template>
+            </vm-modal>
+
+            <!-- パスワード変更モーダル -->
+            <vm-modal v-show="changePassword.showModal" @emit-outsideClick="hideChangePasswordModal">
+                <template v-slot:content>
+                    <div class="changemodal">
+                        <h3 class="changemodal-title title-success">パスワードの変更</h3>
+                        <div class="changemodal-content">
+                            <div class="form-item">
+                                <label>新しいパスワードを入力してください</label>
+                                <vm-input name="newpassword" @emit-input="onInputPassword" type="password" :rule="passwordRule"/>
+                            </div>
+                        </div>
+                        <div class="form-item changemodal-btn-update">
+                            <button class="btn-primary" @click="updatePassword">更新</button>
+                        </div>
+                    </div>
+                </template>
+            </vm-modal>
+
+            <!-- 結果Confirm -->
+            <vm-confirm v-if='changeConfirm.showConfirm' :kinds="changeConfirm.kinds" :title="changeConfirm.title" :msg="changeConfirm.msg" @emit-clickBtn="closeResultConfirm"></vm-confirm>
+
+            <!-- メールの本人認証Confirm -->
+            <vm-confirm v-if="appReqMail.showModal" :title="appReqMail.title" :msg="appReqMail.msg" :btnTxt="'送信する'" @emit-clickBtn="submitAppReqMail" @emit-outsideClick="closeAppReqMail"></vm-confirm>
+        </div>
+    </template>
+</vm-guide>
+<!-- #endregion -->
 </template>
 
 <script lang="ts">
+//#region import
 import { defineComponent, toRefs, reactive, ref, Ref } from 'vue'
 import VM_Header from '@/components/VM_VideoHeader.vue'
 import VM_Input from '@/components/VM_Input.vue'
@@ -336,19 +343,23 @@ import VM_Birthday from '@/components/VM_Birthday.vue'
 import VM_File from '@/components/VM_File.vue'
 import VM_Modal from '@/components/VM_Modal.vue'
 import VM_Confirm from '@/components/VM_ConfirmModal.vue'
+import c from '@/components/VM_GuideMenu.vue'
 import { ConfirmKinds }  from '@/commons/enum'
 import Repository from '@/repository/VMoriRepository'
 import { AccountApiRes } from '@/apiReqRes/Account'
 import { AccountStoreReq } from '@/storeReqRes/Account'
 import { useStore, State } from '@/store/store'
 import { Account } from '@/store/actionTypes'
-import { Store } from 'node_modules/vuex/types'
+import { Store } from 'vuex'
 import { useRouter } from '@/router/router'
 import { PublicFormContext, useForm } from 'vee-validate'
 import { passwordRule, mailRule, isRequired } from '@/commons/valid/valid-rules'
 import { AuthService } from '@/services/AuthServices'
 import Cropper from 'cropperjs'
+import VM_GuideMenuVue from '@/components/VM_GuideMenu.vue'
+//#endregion
 
+//#region state
 const state = toRefs(reactive({
     account: {
         name: '',
@@ -406,7 +417,9 @@ const state = toRefs(reactive({
         padding: ''
     }
 }))
+//#endregion
 
+//#region component
 export default defineComponent({
     components:{
         'vm-header': VM_Header,
@@ -415,6 +428,7 @@ export default defineComponent({
         'vm-file': VM_File,
         'vm-modal': VM_Modal,
         'vm-confirm': VM_Confirm,
+        'vm-guide': VM_GuideMenuVue
     },
     async setup() {
         //初期化処理
@@ -487,6 +501,9 @@ export default defineComponent({
     },
 })
 
+//#endregion
+
+//#region function
 //アカウント情報を取得
 async function getAccount (repository: Repository, store:Store<State>){
         //アカウント情報取得
@@ -779,4 +796,5 @@ function closeResultConfirm()
     state.changeResult.value.title = ''
     state.changeResult.value.msg = ''
 }
+//#endregion
 </script>

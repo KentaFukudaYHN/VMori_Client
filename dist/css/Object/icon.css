@@ -8,9 +8,19 @@
   height: 50px;
   border: none;
   background-size: contain;
-  background-image: url("../assets/icon_videoup3.png");
+  background-image: url("../../assets/icon_videoup3.png");
   background-position: center;
   margin-right: 20px;
+  background-repeat: no-repeat;
+}
+
+.btn-menu-hamburger {
+  cursor: pointer;
+  padding: 10px;
+  width: 40px;
+  border: none;
+  background-size: contain;
+  background-image: url("../../assets/hamburger.png");
   background-repeat: no-repeat;
 }
 /*# sourceMappingURL=icon.css.map */

@@ -3,7 +3,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin: 10px 0 30px 0;
+        margin: 10px 10px 30px 10px;
 
         & &-icon{
             min-width: 150px;
@@ -28,7 +28,7 @@
             display: flex;
             width:50%;
             min-width: 200px;
-            margin-left: 50px;
+            margin-left: 25px;
             &-input{
                 width:100%;
                 max-width: 800px;
@@ -50,11 +50,20 @@
                 }
             }
         }
+
+        & .btn-menu-hamburger{
+            margin-right: 20px;
+        }
+
+        & .header-title-container{
+            display: flex;
+        }
     }
 </style>
 <template>
     <header class="video-header">
-        <div>
+        <div class="header-title-container">
+            <button class="btn-menu-hamburger" @click="clickMenubtn"></button>
             <img class="icon-title" src='assets/title_icon.png'>
         </div>
         <div class="video-search">
@@ -73,7 +82,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, watch, ref, toRefs, reactive } from 'vue'
+import { defineComponent, computed, watch, ref, toRefs, reactive, SetupContext } from 'vue'
 import VM_Input from '@/components/VM_Input.vue'
 import VM_UploadVideo from '@/components/VM_UploadVideo.vue'
 import { useStore } from '@/store/store'
@@ -89,7 +98,8 @@ export default defineComponent({
         'vm-input': VM_Input,
         'vm-upload-video': VM_UploadVideo
     },
-    setup() {
+    emits:['emit-clickMenuBtn'],
+    setup(props, context: SetupContext) {
         const store = useStore()
 
         var iconBtnStyle = ref(createIconBtnStyle(store.getters.accounticon))
@@ -103,6 +113,8 @@ export default defineComponent({
             showUpVideoModal: () => { state.uploadVideo.value.showModal = true },
             hideUpVideoModal: () => { state.uploadVideo.value.showModal = false },
             iconBtnStyle: iconBtnStyle,
+            //メニューボタン
+            clickMenubtn: () => { context.emit("emit-clickMenuBtn") }
         }
     },
 })
