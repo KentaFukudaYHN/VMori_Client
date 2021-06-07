@@ -1,4 +1,4 @@
-import { VideoLanguageKinds, VideoPlatFormKinds } from "@/commons/enum";
+import { VideoGenreKinds, VideoLanguageKinds, VideoPlatFormKinds } from "@/commons/enum";
 
 export type GetUploadVideoRes = {
     //成功の有無
@@ -28,6 +28,8 @@ export type GetUploadVideoRes = {
 export type RegistUploadVideoReq = {
     //動画アップロードリクエストToken
     upReqYoutubeVideoToken: string,
+    //genre
+    genre: VideoGenreKinds
     //タグ
     tags: string[],
     //言語種類

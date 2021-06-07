@@ -5,6 +5,13 @@
         width: 720px;
         height: 600px;
         flex-wrap: wrap;
+        @include tab{
+            width:420px;
+        }
+        @include sp{
+            width: 200px;
+            display: table-caption;
+        }
     }
     &-item{
         display: flex;
@@ -17,6 +24,12 @@
         margin:10px;
         color:#fff;
         user-select: none;
+
+        @include sp{
+            width: 80%;
+            margin: 5px auto;
+            height: 30px;
+        }
     }
 }
 </style>

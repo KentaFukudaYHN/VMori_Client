@@ -8,8 +8,15 @@
         }
     }
     .upvideo{
+        @include tab{
+            display: table-caption;
+            margin-bottom: 20px;
+        }
         &-thmbnail-container{
             margin-top: 0;
+            @include tab{
+                text-align: center;
+            }
         }
         &-required{
             color: #fff;
@@ -28,6 +35,10 @@
             }
             @include tab{
                 display: block;
+                min-width: 400px;
+            }
+            @include sp{
+                min-width: 280px;
             }
             & .title-success{
                 margin-bottom: 15px;
@@ -54,9 +65,15 @@
         &-content{
             width:100%;
             margin: 0 0 0 20px;
+            @include tab{
+                margin:0;
+            }
         }
         &-thumbnail{
-            width:300px
+            width:300px;
+            @include sp{
+                width:250px;
+            }
         }
         &-platform-icon{
             width:80px;
@@ -104,7 +121,7 @@
 <template>
     <!-- #region urlモーダル -->
     <!-- Urlモーダル -->
-    <vm-modal v-if="urlModal.showModal" @emit-outsideClick="outsideClick">
+    <vm-modal v-if="false" @emit-outsideClick="outsideClick">
         <template v-slot:content>
             <div class="upurl-container">
                 <span class="title-success">動画のアップロード</span>
@@ -135,9 +152,9 @@
                 :kinds="confirmModal.kinds"/>
 
     <!-- 動画アップロード確認モーダル -->
-    <vm-modal v-if="true">
+    <vm-modal v-if="upVideoModal.showModal">
         <template v-slot:content>
-            <div>
+            <div class="upvideo">
                 <span class="title-success">動画のアップロード</span>
                 <div class="upvideo-progress-container">
                     <span class="upvideo-progress-item-select-permit">URL入力</span>
@@ -178,6 +195,7 @@
                                 </div>
                                 <button class="genre-picker-btn"></button>
                             </div>
+                            <span v-if="upVideoModal.showRequiredByGenre" class="valid-msg">※設定必須です</span>
                         </div>
                         <div class="form-item">
                             <label>タグ</label>
@@ -189,6 +207,7 @@
                                 @emit-change="onChangeLang"
                                 name="upvide-lang">
                             </vm-checkbox>
+                            <span v-if="upVideoModal.showRequiredByLang" class="valid-msg">※設定必須です</span>
                         </div>
                         <div class="form-item">
                             <label>翻訳の有無</label>
@@ -196,12 +215,14 @@
                         </div>
                         <div  v-if="showTransitionLang" class="form-item">
                             <label>翻訳した言葉<span class="upvideo-required">必須</span></label>
-                            <vm-checkbox :list="upVideoModal.langListForCheckBox" name="upvideo-transition-lang"></vm-checkbox>
+                            <vm-checkbox :list="upVideoModal.transitionLangListForCheckBox" name="upvideo-transition-lang"
+                                        @emit-change="onChangeTransitionLang"></vm-checkbox>
+                            <span v-if="upVideoModal.showRequiredByTransitionLang" class="valid-msg">※設定必須です</span>
                         </div>
                     </div>
                 </div>
                 <div class="upvideo-btn-ok">
-                    <button class="btn-primary">OK</button>
+                    <button class="btn-primary" @click="uploadRequest">OK</button>
                 </div>
             </div>
         </template>
@@ -236,8 +257,8 @@ const state = toRefs(reactive({
         displayData: {} as GetUploadVideoRes,
         requestData: {} as RegistUploadVideoReq,
         kinds: VideoGenreKinds.UnKnown,
-        kindsStr: () => { return VideoGenreKindsToString(state.uploadVideoModal.value.kinds) },
-        selKindsCss: () => { return 'genre-select-item genre-color-' + (VideoGenreKinds[state.uploadVideoModal.value.kinds]).toLowerCase()  },
+        kindsStr: () => { return VideoGenreKindsToString(state.uploadVideoModal.value.requestData.genre) },
+        selKindsCss: () => { return 'genre-select-item genre-color-' + (VideoGenreKinds[state.uploadVideoModal.value.requestData.genre]).toLowerCase()  },
         langListForCheckBox: [
             {
                 text: VideoLanguageKindsToString(VideoLanguageKinds.JP),
@@ -258,6 +279,26 @@ const state = toRefs(reactive({
                 selected: false,
             }
         ] as CheckBoxItem[],
+        transitionLangListForCheckBox: [
+            {
+                text: VideoLanguageKindsToString(VideoLanguageKinds.JP),
+                id: 'transitionLangJp',
+                val: VideoLanguageKinds.JP,
+                selected: false
+            },
+            {
+                text: VideoLanguageKindsToString(VideoLanguageKinds.English),
+                id: 'transitionLangEnglish',
+                val: VideoLanguageKinds.English,
+                selected: false
+            },
+            {
+                text: VideoLanguageKindsToString(VideoLanguageKinds.Other),
+                id: 'transitionLangOther',
+                val: VideoLanguageKinds.Other,
+                selected: false,
+            }
+        ] as CheckBoxItem[],
         transitionForRadioBox: [
             {
                 text: '翻訳あり',
@@ -272,7 +313,11 @@ const state = toRefs(reactive({
                 selected: true,
             }
         ] as RadioBoxItem[],
-        showModal: false
+        //エラーメッセージのフラグ
+        showRequiredByGenre: false,
+        showRequiredByLang: false,
+        showRequiredByTransitionLang: false,
+        showModal: true
     },
     confirmModal:{
         showModal: false,
@@ -300,7 +345,7 @@ export default defineComponent({
     setup(proprs: any, context: SetupContext) {
         const repository = new Repository(useRouter())
 
-
+        state.uploadVideoModal.value.requestData.genre = VideoGenreKinds.UnKnown
 
         return{
             //Url入力モーダル
@@ -324,7 +369,11 @@ export default defineComponent({
             onChangeLang: (list) => { onChangeLang(list) },
             //翻訳の有無
             onChangeTransition: (val) =>{ onChangeTransition(val) },
-            showTransitionLang: computed(() => { return state.uploadVideoModal.value.requestData.isTranslation })
+            showTransitionLang: computed(() => { return state.uploadVideoModal.value.requestData.isTranslation }),
+            //翻訳の言語選択
+            onChangeTransitionLang: (list) => { onChangeTransitionLang(list) },
+            //動画のアップロードリクエスト
+            uploadRequest: () => { uploadRequest() }
         }
     },
 })
@@ -372,7 +421,7 @@ function showGenreModal(){
 function selectedGenre(kinds: VideoGenreKinds){
     state.genreModal.value.showModal = false
     state.uploadVideoModal.value.showModal = true
-    state.uploadVideoModal.value.kinds = kinds
+    state.uploadVideoModal.value.requestData.genre = kinds
 }
 
 //タグの追加
@@ -400,6 +449,65 @@ function onChangeTransition(val: string){
         state.uploadVideoModal.value.requestData.isTranslation = true
     }else{
         state.uploadVideoModal.value.requestData.isTranslation = false
+    }
+}
+
+//翻訳した言葉を選択
+function onChangeTransitionLang(selectedList: string[]){
+    state.uploadVideoModal.value.requestData.langForTranslation = new Array() as VideoLanguageKinds[]
+    selectedList.forEach(item => {
+        state.uploadVideoModal.value.requestData.langForTranslation.push(Number(item))
+    })
+}
+
+//動画のアップロード
+function uploadRequest(){
+    /** 入力検査  */
+    let isOk = true
+    const reqData = state.uploadVideoModal.value.requestData
+    //ジャンルは選択されているか
+    if(reqData.genre == null || reqData.genre == VideoGenreKinds.UnKnown){
+        isOk = false
+        state.uploadVideoModal.value.showRequiredByGenre = true
+    }else{
+        state.uploadVideoModal.value.showRequiredByGenre = false
+    }
+
+    //話している言語は設定されているか
+    if(reqData.langes == null || reqData.langes.length == 0){
+        isOk = false
+        state.uploadVideoModal.value.showRequiredByLang = true
+    }else{
+        state.uploadVideoModal.value.showRequiredByLang = false
+    }
+
+    //翻訳が設定されている場合、翻訳した言葉が選択されているか
+    if(reqData.isTranslation && (reqData.langForTranslation == null || reqData.langForTranslation.length == 0)){
+        isOk = false
+        state.uploadVideoModal.value.showRequiredByTransitionLang = true
+    }else{
+        state.uploadVideoModal.value.showRequiredByTransitionLang = false
+    }
+
+    //タグの数チェック
+    if(reqData.tags != null && reqData.tags.length > 5){
+        isOk = false
+    }
+    //タグの文字数チェック
+    if(reqData.tags != null && reqData.tags.length > 0){
+        reqData.tags.forEach(tag => {
+            if(tag.length > 20){
+                isOk = false
+            }
+        })
+    }
+
+    //Token設定
+    reqData.upReqYoutubeVideoToken = state.uploadVideoModal.value.displayData.upReqYoutubeVideoToken
+
+    //データの送信
+    if(isOk){
+
     }
 }
 </script>

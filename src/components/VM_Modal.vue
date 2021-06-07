@@ -23,20 +23,19 @@
         transform: translateX(-50%) translateY(-50%);
         background: #fff;
         border-radius: 4px;
-        overflow: hidden;
         // min-width: 400px;
         max-height: 100%;
+        overflow-y:auto;
     }
 
     &-content {
         padding: 40px 40px;
         z-index: 40;
-        max-height: 80%;
-        overflow: scroll;
-        /* IE, Edge 対応 */
-        -ms-overflow-style: none;
-        /* Firefox 対応 */
-        scrollbar-width: none;
+        max-height: 95vh;
+        @include tab{
+            max-height: 80vh;
+            padding: 15px 15px;
+        }
     }
 
     &-content::-webkit-scrollbar {
