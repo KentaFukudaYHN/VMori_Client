@@ -1,1 +1,46 @@
-/* No CSS *//*# sourceMappingURL=postscript.css.map */
+@charset "UTF-8";
+.postscript-container {
+  position: relative;
+  margin: 20px auto 10px auto;
+  background-image: repeating-linear-gradient(0deg, #127DD6, #127DD6 3px, white 3px, white 6px), repeating-linear-gradient(90deg, #127DD6, #127DD6 3px, white 3px, white 6px), repeating-linear-gradient(180deg, #127DD6, #127DD6 3px, white 3px, white 6px), repeating-linear-gradient(270deg, #127DD6, #e993ff 3px, white 3px, white 6px);
+  background-size: 3px 100%, 100% 3px, 3px 100% , 100% 3px;
+  background-position: 0 0, 0 0, 100% 0, 0 100%;
+  background-repeat: no-repeat;
+  padding: 50px 20px;
+}
+
+.postscript-title {
+  position: absolute;
+  top: -10px;
+  left: -7px;
+  width: 30%;
+  display: block;
+  height: 30px;
+  /*リボンの高さ*/
+  line-height: 30px;
+  /*リボンの高さ*/
+  padding: 0px 30px;
+  color: #fff;
+  background-color: #127DD6;
+  border-radius: 5px;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+}
+
+.postscript-title::after {
+  position: absolute;
+  content: '';
+  width: 0px;
+  height: 0px;
+  z-index: 1;
+}
+
+.postscript-title:after {
+  top: 0;
+  right: 0;
+  border-radius: 0 0 0 10px;
+  border-width: 15px 20px 15px 0px;
+  border-color: transparent #fff transparent transparent;
+  border-style: solid;
+}
+/*# sourceMappingURL=postscript.css.map */

@@ -1,0 +1,87 @@
+.genre-picker-btn {
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  border: none;
+  background-size: contain;
+  background-image: url("../../assets/icon-genre-picker.png");
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.genre-color-unknown {
+  background: gray;
+}
+
+.genre-color-smalltalk {
+  background: #FFC312;
+}
+
+.genre-color-short {
+  background: #aed01f;
+}
+
+.genre-color-entertainment {
+  background: #12CBC4;
+}
+
+.genre-color-game {
+  background: #FFC312;
+}
+
+.genre-color-music {
+  background: #FDA7DF;
+}
+
+.genre-color-dance {
+  background: #ED4C67;
+}
+
+.genre-color-radio {
+  background: #FFC312;
+}
+
+.genre-color-animal {
+  background: #F79F1F;
+}
+
+.genre-color-nature {
+  background: #A3CB38;
+}
+
+.genre-color-cooking {
+  background: #1289A7;
+}
+
+.genre-color-travel {
+  background: #D980FA;
+}
+
+.genre-color-outdoor {
+  background: #B53471;
+}
+
+.genre-color-sports {
+  background: #EE5A24;
+}
+
+.genre-color-politics {
+  background: #009432;
+}
+
+.genre-color-craft {
+  background: #0652DD;
+}
+
+.genre-color-course {
+  background: #9980FA;
+}
+
+.genre-color-mmd {
+  background: #006266;
+}
+
+.genre-color-other {
+  background: #FFC312;
+}
+/*# sourceMappingURL=videoGenre.css.map */

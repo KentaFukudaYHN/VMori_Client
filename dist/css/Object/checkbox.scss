@@ -1,0 +1,66 @@
+@charset "UTF-8";
+@import "../Foundation/valiable";
+
+.checkbox{
+    &-container{
+        display: flex;
+    }
+
+    &-item{
+        margin-right: 15px;
+
+        & input[type="checkbox"]{
+            //元々のチェックボックス非表示
+            display: none;
+        }
+
+        //チェックボックスの変わりを成すラベル
+        & input[type="checkbox"]+label{
+            cursor: pointer;
+            display: inline-block;
+            position: relative;
+            padding-left: 25px;
+            padding-right: 10px;
+            user-select: none;
+        }
+
+        /* ラベルの左に表示させる正方形のボックス□ */
+        & input[type="checkbox"]+label::before{
+            content: "";
+            position: absolute;
+            display: block;
+            box-sizing: border-box;
+            width: 15px;
+            height: 15px;
+            margin-top: -7px;
+            left: 0;
+            top: 50%;
+            border: 1px solid;
+            border-radius: 1px;
+            border-color:  #585753; /* 枠の色変更 お好きな色を */
+            background-color: #FFF; /* 背景の色変更 お好きな色を */
+        }
+
+        /*チェックが入った時の正方形のボックスの色*/
+        & input[type="checkbox"]:checked+label::before{
+            border:none;
+            background-color: $theme-color;
+        }
+        /* チェックが入った時のレ点 */
+        & input[type="checkbox"]:checked+label::after{
+            content: "";
+            position: absolute;
+            display: block;
+            box-sizing: border-box;
+            width: 12px;
+            height: 6px;
+            margin-top: -5px;
+            top: 50%;
+            left: 1px;
+            transform: rotate(-45deg);
+            border-bottom: 2px solid;
+            border-left: 2px solid;
+            border-color:  #fff; /* チェックの色変更 お好きな色を */
+        }
+    }
+}

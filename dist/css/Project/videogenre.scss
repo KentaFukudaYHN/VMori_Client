@@ -1,0 +1,91 @@
+@charset "UTF-8";
+
+.genre-picker-btn{
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    border:none;
+    background-size: contain;
+    background-image: url('../../assets/icon-genre-picker.png');
+    background-position: center;
+    background-repeat:no-repeat;
+}
+
+.genre-color{
+    &-unknown{
+        background: gray;
+    }
+    //雑談
+    &-smalltalk{
+        background: #FFC312;
+
+    }
+    //ショートムービー
+    &-short{
+        background: #aed01f;
+    }
+    //エンターテイメント
+    &-entertainment{
+        background: #12CBC4;
+    }
+    //game
+    &-game{
+        background: #FFC312;
+    }
+    //音楽
+    &-music{
+        background: #FDA7DF;
+    }
+    //ダンス
+    &-dance {
+        background: #ED4C67;
+    }
+    //ラジオ
+    &-radio {
+        background: #FFC312;
+    }
+    //動物
+    &-animal {
+        background: #F79F1F;
+    }
+    //自然
+    &-nature {
+        background: #A3CB38;
+    }
+    //料理
+    &-cooking {
+        background: #1289A7;
+    }
+    //旅行
+    &-travel {
+        background: #D980FA;
+    }
+    //アウトドア
+    &-outdoor {
+        background: #B53471;
+    }
+    //スポーツ
+    &-sports {
+        background: #EE5A24;
+    }
+    //政治・社会・時事
+    &-politics {
+        background: #009432;
+    }
+    //技術・工作
+    &-craft {
+        background: #0652DD;
+    }
+    //解説・講座
+    &-course {
+        background: #9980FA;
+    }
+    //MMD
+    &-mmd {
+        background: #006266;
+    }
+    //その他
+    &-other {
+        background: #FFC312;
+    }  
+}

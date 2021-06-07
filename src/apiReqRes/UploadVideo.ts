@@ -1,17 +1,41 @@
-import { VideoPlatFormKinds } from "@/commons/enum";
+import { VideoLanguageKinds, VideoPlatFormKinds } from "@/commons/enum";
 
 export type GetUploadVideoRes = {
+    //成功の有無
     success: boolean,
+    //エラーメッセージ
     errMsg: string,
+    //エラー種類
     errKinds: UploadVideoErrKinds,
+    //動画プラットフォーム種類
     platFormKinds: VideoPlatFormKinds,
+    //動画タイトル
     videoTitle: string,
+    //チャンネルタイトル
     chanelTitle: string,
+    //動画リンク
     videoLink: string,
+    //サムネイルリンク
     thumbnailLink: string,
+    //動画説明
     description: string,
-    unReqYoutubeVideoToken: string,
-    publishDateTime: Date
+    //動画アップロードリクエストToken
+    upReqYoutubeVideoToken: string,
+    //元動画投稿日時
+    publishDateTime: Date,
+}
+
+export type RegistUploadVideoReq = {
+    //動画アップロードリクエストToken
+    upReqYoutubeVideoToken: string,
+    //タグ
+    tags: string[],
+    //言語種類
+    langes: VideoLanguageKinds[],
+    //翻訳の有無
+    isTranslation: boolean
+    //翻訳の言語
+    langForTranslation: VideoLanguageKinds[]
 }
 
 export enum UploadVideoErrKinds {

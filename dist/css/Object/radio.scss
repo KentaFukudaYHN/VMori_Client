@@ -1,0 +1,42 @@
+@charset "UTF-8";
+@import "../Foundation/valiable";
+
+.radio{
+    &-container{
+        display: flex;
+    }
+    &-item{
+        display: flex;
+        align-items: center;
+
+        & input[type="radio"]{
+            display: none;
+        }
+
+        &  input[type="radio"]+label{
+            cursor: pointer;
+            display: inline-block;
+            position: relative;
+            user-select: none;
+            background-color: gray;
+            color:#fff;
+            padding:5px;
+        }
+
+        &:first-of-type input[type="radio"]+label{
+            border-radius: 3px 0 0 3px;
+            padding-left: 15px;
+            padding-right: 10px;
+        }
+
+        &:last-of-type input[type="radio"]+label{
+            border-radius: 0 3px 3px 0;
+            padding-left: 10px;
+            padding-right: 15px;
+        }
+
+        & input[type="radio"]:checked+label{
+            background-color: $theme-color;
+        }
+    }
+}
