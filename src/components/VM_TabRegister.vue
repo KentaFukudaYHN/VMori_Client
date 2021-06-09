@@ -36,7 +36,7 @@
             <button class="tag-btn-add" @click="addTag">追加</button>
         </div>
         <div class="tag-add-container">
-            <div v-for="tag in tagList" :key="tag" class="tag-add-item" @click="deleteTag">
+            <div v-for="tag in tagList" :key="tag" class="tag-add-item" @click="deleteTag(tag)">
                  <span>{{tag}}</span>
                  <span class="tag-item-batsu">×</span>
             </div>
@@ -45,7 +45,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, SetupContext } from 'vue'
+import { defineComponent, PropType, ref, SetupContext, watch } from 'vue'
 import VM_Input from '@/components/VM_Input.vue'
 
 const tagList = ref(new Array() as string[])
@@ -55,7 +55,43 @@ export default defineComponent({
         'vm-input': VM_Input
     },
     emits:['emit-add', 'emit-delete'],
+    props:{
+        inputText:{
+            type: String,
+            default: ''
+        },
+        list:{
+            type: Object as PropType<string[]>,
+            default: new Array() as string[]
+        }
+    },
     setup(props, context: SetupContext) {
+        
+        inputText.value = props.inputText
+        if(props.list != null){
+            if(tagList.value.length > 0){
+                tagList.value.splice(0,tagList.value.length)
+            }
+            props.list.forEach(x => {
+                tagList.value.push(x)
+            })
+        }
+
+        watch(() => props.inputText, (newVal, oldVal) => {
+            inputText.value = newVal
+        })
+
+        watch(() => props.list, (newVal, oldVal) => {
+            if(tagList.value.length > 0){
+                tagList.value.splice(0, tagList.value.length)
+            }
+            if(newVal != null && newVal.length > 0){
+                newVal.forEach(x =>{
+                    tagList.value.push(x)
+                })
+            }
+        })
+
         return{
             //入力テキスト
             inputText,
@@ -72,18 +108,10 @@ export default defineComponent({
 })
 
 function addTag(context: SetupContext){
-    if(inputText.value == '' || inputText.value.length > 20){
-        return;
-    }
-    
-    tagList.value.push(inputText.value)
     context.emit('emit-add', inputText.value)
     inputText.value = ''
-
 }
 function deleteTag(tag: string, context: SetupContext){
-    const index = tagList.value.indexOf(tag)
     context.emit('emit-delete', tag)
-    tagList.value.splice(index, 1)
 }
 </script>

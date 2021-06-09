@@ -62,7 +62,8 @@ module.exports = {
         new VueLoaderPlugin(),
         new webpack.DefinePlugin({
             'process.env':{
-                'API_URL': JSON.stringify(process.env.API_URL)
+                'API_URL': JSON.stringify(process.env.API_URL),
+                'Support_Mail': JSON.stringify(process.env.Mail__SupportMailAddress)
             }
         })
     ],

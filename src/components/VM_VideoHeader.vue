@@ -78,7 +78,7 @@
         </div>
     </header>
     <vm-upload-video v-if="uploadVideo.showModal"
-                @emit-outsideClick="hideUpVideoModal"></vm-upload-video>
+                @emit-clickCloseBtn="hideUpVideoModal"></vm-upload-video>
 </template>
 
 <script lang="ts">

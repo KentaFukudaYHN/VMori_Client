@@ -33,55 +33,59 @@
   background: #FDA7DF;
 }
 
-.genre-color-dance {
+.genre-color-mad {
   background: #ED4C67;
 }
 
-.genre-color-radio {
+.genre-color-dance {
   background: #FFC312;
 }
 
-.genre-color-animal {
+.genre-color-radio {
   background: #F79F1F;
 }
 
-.genre-color-nature {
+.genre-color-animal {
   background: #A3CB38;
 }
 
-.genre-color-cooking {
+.genre-color-nature {
   background: #1289A7;
 }
 
-.genre-color-travel {
+.genre-color-cooking {
   background: #D980FA;
 }
 
-.genre-color-outdoor {
+.genre-color-travel {
   background: #B53471;
 }
 
-.genre-color-sports {
+.genre-color-outdoor {
   background: #EE5A24;
 }
 
-.genre-color-politics {
+.genre-color-sports {
   background: #009432;
 }
 
-.genre-color-craft {
+.genre-color-politics {
   background: #0652DD;
 }
 
-.genre-color-course {
+.genre-color-craft {
   background: #9980FA;
 }
 
-.genre-color-mmd {
+.genre-color-course {
   background: #006266;
 }
 
-.genre-color-other {
+.genre-color-mmd {
   background: #FFC312;
+}
+
+.genre-color-other {
+  background: #1B1464;
 }
 /*# sourceMappingURL=videoGenre.css.map */

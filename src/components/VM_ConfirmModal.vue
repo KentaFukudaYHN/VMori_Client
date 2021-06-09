@@ -4,6 +4,15 @@
             // min-width:700px;
             padding: 0 50px;
             min-width: 700px;
+            @include pc{
+                min-width: 500px;
+            }
+            @include tab{
+                min-width: 300px;
+            }
+            @include sp{
+                min-width: 200px;
+            }
         }
         &-title{
             display: block;

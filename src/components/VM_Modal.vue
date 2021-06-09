@@ -26,6 +26,25 @@
         // min-width: 400px;
         max-height: 100%;
         overflow-y:auto;
+
+        & .modal-closebtn {
+            display: block;
+            cursor: pointer;
+            z-index: 999;
+            position: absolute;
+            padding: 5px 5px;
+            width: 15px;
+            height: 15px;
+            line-height: 15px;
+            border-radius: 3px;
+            text-align: center;
+            top: 12px;
+            right: 18px;
+            background-color: transparent;
+            color: #b2b2b2;
+            font-weight: bold;
+            font-size: 30px;
+        }
     }
 
     &-content {
@@ -58,7 +77,8 @@
         <div class="modal-backlayer" @click="outsideClick"></div>
         <transition name="modal" appear>
             <div class="modal-overlay">
-                <div class="modal-window">
+                <div class="modal-window" :class="{'modal-closebtn': showCloseBtn}">
+                    <span v-if="showCloseBtn" class="modal-closebtn" @click="cliclCloseBtn">×</span>
                     <div class="modal-content">
                         <slot name="content"></slot>
                     </div>
@@ -69,13 +89,25 @@
 </template>
 
 <script lang="ts">
+import { boolean } from 'node_modules/yup/lib/locale'
 import { defineComponent, SetupContext } from 'vue'
 
+type Props = {
+    showCloseBtn: boolean
+}
 export default defineComponent({
-    emits: ['emit-outsideClick'],
-    setup(proprs: any, context: SetupContext) {
+    emits: ['emit-outsideClick', 'emit-clickCloseBtn'],
+    props:{
+        showCloseBtn: {
+            type: Boolean,
+            default: false
+        }
+    },
+    setup(props: Props, context: SetupContext) {
         return {
-            outsideClick: () => { context.emit('emit-outsideClick') }
+            outsideClick: () => { context.emit('emit-outsideClick') },
+            cliclCloseBtn: () => { context.emit('emit-clickCloseBtn') },
+            showCloseBtn: props.showCloseBtn
         }
     },
 })

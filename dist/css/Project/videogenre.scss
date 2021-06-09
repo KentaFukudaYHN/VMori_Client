@@ -11,6 +11,7 @@
     background-repeat:no-repeat;
 }
 
+//https://flatuicolors.com/palette/nl
 .genre-color{
     &-unknown{
         background: gray;
@@ -36,56 +37,73 @@
     &-music{
         background: #FDA7DF;
     }
+    //MMD
+    &-mad {
+        background: #ED4C67;
+
+    }
     //ダンス
     &-dance {
-        background: #ED4C67;
+        background: #FFC312;
+
     }
     //ラジオ
     &-radio {
-        background: #FFC312;
+        background: #F79F1F;
+
     }
     //動物
     &-animal {
-        background: #F79F1F;
+        background: #A3CB38;
+
     }
     //自然
     &-nature {
-        background: #A3CB38;
+        background: #1289A7;
+
     }
     //料理
     &-cooking {
-        background: #1289A7;
+        background: #D980FA;
+
     }
     //旅行
     &-travel {
-        background: #D980FA;
+        background: #B53471;
+
     }
     //アウトドア
     &-outdoor {
-        background: #B53471;
+        background: #EE5A24;
+
     }
     //スポーツ
     &-sports {
-        background: #EE5A24;
+        background: #009432;
+
     }
     //政治・社会・時事
     &-politics {
-        background: #009432;
+        background: #0652DD;
+
     }
     //技術・工作
     &-craft {
-        background: #0652DD;
+        background: #9980FA;
+
     }
     //解説・講座
     &-course {
-        background: #9980FA;
+        background: #006266;
+
     }
     //MMD
     &-mmd {
-        background: #006266;
+        background: #FFC312;
+
     }
     //その他
     &-other {
-        background: #FFC312;
+        background:#1B1464
     }  
 }

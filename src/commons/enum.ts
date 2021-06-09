@@ -51,30 +51,32 @@ export enum VideoGenreKinds{
     Game = 40,
     //音楽
     Music = 50,
+    //MAD
+    MAD = 60,
     //ダンス
-    Dance = 60,
+    Dance = 70,
     //ラジオ
-    Radio = 70,
+    Radio = 80,
     //動物
-    Animal = 80,
+    Animal = 90,
     //自然
-    Nature = 90,
+    Nature = 100,
     //料理
-    Cooking = 100,
+    Cooking = 110,
     //旅行
-    Travel = 110,
+    Travel = 120,
     //アウトドア
-    Outdoor = 120,
+    Outdoor = 130,
     //スポーツ
-    Sports = 120,
+    Sports = 140,
     //政治・社会・時事
-    Politics = 130,
+    Politics = 150,
     //技術・工作
-    Craft = 140,
+    Craft = 160,
     //解説・講座
-    Course = 150,
+    Course = 170,
     //MMD
-    MMD = 160,
+    MMD = 180,
     //その他
     Other = 999
 }
@@ -92,6 +94,8 @@ export function VideoGenreKindsToString(target: VideoGenreKinds){
             return 'ゲーム'
         case VideoGenreKinds.Music:
             return '音楽'
+        case VideoGenreKinds.MAD:
+            return 'MAD'    
         case VideoGenreKinds.Dance:
             return 'ダンス'
         case VideoGenreKinds.Radio:
