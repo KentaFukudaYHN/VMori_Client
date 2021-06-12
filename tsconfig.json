@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "sourceMap": true,
         "allowSyntheticDefaultImports": true,
         "forceConsistentCasingInFileNames": false,
         "target": "es5",

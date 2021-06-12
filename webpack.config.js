@@ -7,6 +7,8 @@ const { config } = require('dotenv')
 config()
 
 module.exports = {
+    mode: 'production',
+    devtool: 'inline-source-map',
     entry: './src/main.ts',
     output: {
         path : path.resolve(__dirname, 'dist'),
