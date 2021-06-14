@@ -513,7 +513,6 @@ function addTag(tag: string){
 
 //タグの削除
 function deleteTag(tag: string){
-    debugger
     const index = state.uploadVideoModal.value.tags.indexOf(tag)
     const tags = state.uploadVideoModal.value.tags.slice()
     tags.splice(index, 1)
