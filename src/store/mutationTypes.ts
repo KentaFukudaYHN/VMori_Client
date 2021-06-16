@@ -11,3 +11,15 @@ export namespace VideoModule{
     //動画リストの更新
     export const UPDATE_VIDEO_ITEMS = "UPDATE_VIDEO_ITEMS"
 }
+
+//動画検索情報
+export namespace SearchCriteriaVideoModule{
+    //ジャンルの更新
+    export const UPDATE_GENRE = "UPDATE_GENRE"
+    //話している言語の更新
+    export const UPDATE_DETAIL_LANG = "UPDATE_DETAIL_LANG"
+    //翻訳の有無更新
+    export const UPDATE_DETAIL_TLAMSLATION = "UPDATE_DETAIL_TLAMSLATION"
+    //翻訳している言葉の更新
+    export const UPDATE_DETAIL_TRASLAIONLANG = "UPDATE_DETAILTRANSLATIONLANG"
+}

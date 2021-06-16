@@ -3,6 +3,8 @@
 //クラスなしの状態でも最低限の表示になることを心がける
 @charset "UTF-8";
 @import "mixin";
+@import "validable";
+
 html{
   height: 100%;
 }
@@ -10,6 +12,7 @@ body {
   font-family: "Nico Moji";
   // font-family: 'Roboto', sans-serif;
   font-size: 13px;
+  color: $base-font-color;
   height:100%;
   margin: 0;
 }

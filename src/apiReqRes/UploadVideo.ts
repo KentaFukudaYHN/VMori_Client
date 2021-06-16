@@ -55,6 +55,12 @@ export enum UploadVideoErrKinds {
     UnSupportPlatform = 20,
     //既に登録されている動画
     IsExits = 30,
+    //動画が見つからなかった
+    NotFound = 40,
+    //youtube動画が見つからなかった
+    NotFoundByYoutube = 50,
+    //ニコニコ動画が見つからなかった
+    NotFoundByNikoNiko = 60,
     //Youtube動画IDが取得できなかった
     NoIdByYoutube = 100
 }

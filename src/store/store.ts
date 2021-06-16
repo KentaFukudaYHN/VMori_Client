@@ -1,4 +1,4 @@
-import { InjectionKey } from 'vue'
+import { computed, InjectionKey } from 'vue'
 import { createStore, Store, useStore as baseUseStore } from 'vuex'
 import { AccountModule } from '@/store/modules/AccountModule'
 import { VideoModule, VideoItem } from '@/store/modules/VideoModule'
@@ -7,11 +7,14 @@ import * as ActionTypes from './actionTypes'
 import * as GetterTypes from './getterTypes'
 import { AccountStoreReq } from '@/storeReqRes/Account'
 import { VideoImtesStoreReq } from '@/storeReqRes/Video'
+import { SearchCriteriaVideoModule } from './modules/SearchCriteriaVideoModule'
+import { SearchVideoGenreKinds, SearchVideoTranslationKinds, VideoLanguageKinds } from '@/commons/enum'
 
 //stateの型定義
 export type State = {
     account: AccountModule,
-    video: VideoModule
+    video: VideoModule,
+    searchCriteriaVideo: SearchCriteriaVideoModule
 }
 
 //storeをprovide/injectするためのキー
@@ -20,6 +23,7 @@ export const key: InjectionKey<Store<State>> = Symbol()
 //Store本体
 export const store = createStore<State>({
     state:{
+        //アカウント情報
         account: {
             isLogin: false,
             displayID: "",
@@ -31,8 +35,19 @@ export const store = createStore<State>({
             birthdayDate: "",
             appMail: false,
         },
+        //動画情報
         video: {
             items: new Array<VideoItem>()
+        },
+        //検索条件
+        searchCriteriaVideo: {
+            genle: SearchVideoGenreKinds.TOP,
+            isActiveDetail: false,
+            detail: {
+                langs: [VideoLanguageKinds.English, VideoLanguageKinds.JP, VideoLanguageKinds.Other] as VideoLanguageKinds[],
+                translation: SearchVideoTranslationKinds.All,
+                translationLangs:[VideoLanguageKinds.English, VideoLanguageKinds.JP, VideoLanguageKinds.Other] as VideoLanguageKinds[],
+            }
         }
     },
     getters:{
@@ -59,7 +74,34 @@ export const store = createStore<State>({
             items.forEach(x => {
                 state.video.items.push(x)
             })
-        }
+        },
+        /** 動画検索情報の更新 */
+        //ジャンルの更新
+        [MutaitonTypes.SearchCriteriaVideoModule.UPDATE_GENRE](state, val:SearchVideoGenreKinds){
+            state.searchCriteriaVideo.genle = val
+        },
+        //話している言語の更新
+        [MutaitonTypes.SearchCriteriaVideoModule.UPDATE_DETAIL_LANG](state, item: VideoLanguageKinds){
+            const targetIndex = state.searchCriteriaVideo.detail.langs.indexOf(item)
+            if(targetIndex < 0){
+                state.searchCriteriaVideo.detail.langs.push(item)
+            }else{
+                state.searchCriteriaVideo.detail.langs.splice(targetIndex, 1)
+            }
+        },
+        //翻訳の有無を更新
+        [MutaitonTypes.SearchCriteriaVideoModule.UPDATE_DETAIL_TLAMSLATION](state, val: SearchVideoTranslationKinds){
+            state.searchCriteriaVideo.detail.translation = val
+        },
+        //翻訳している言語の更新
+        [MutaitonTypes.SearchCriteriaVideoModule.UPDATE_DETAIL_TRASLAIONLANG](state, item: VideoLanguageKinds){
+             const targetIndex = state.searchCriteriaVideo.detail.translationLangs.indexOf(item)
+            if(targetIndex < 0){
+                state.searchCriteriaVideo.detail.translationLangs.push(item)
+            }else{
+                state.searchCriteriaVideo.detail.translationLangs.splice(targetIndex, 1)
+            }
+        },
     },
     actions:{
         //アカウント情報の登録
@@ -101,6 +143,23 @@ export const store = createStore<State>({
             })
 
             commit(MutaitonTypes.VideoModule.UPDATE_VIDEO_ITEMS, items)
+        },
+        /** 動画検索情報 */
+        //ジャンルの更新
+        [ActionTypes.SearchCriteriaVideoModule.UPDATE_GENRE]({ commit }, val: SearchVideoGenreKinds){
+            commit(MutaitonTypes.SearchCriteriaVideoModule.UPDATE_GENRE, val)
+        },
+        //話している言語の更新
+        [ActionTypes.SearchCriteriaVideoModule.UPDATE_DETAIL_LANG]({ commit }, item: VideoLanguageKinds){
+            commit(MutaitonTypes.SearchCriteriaVideoModule.UPDATE_DETAIL_LANG, item)
+        },
+        //翻訳の有無更新
+        [ActionTypes.SearchCriteriaVideoModule.UPDATE_DETAIL_TRANSLATION]({ commit }, val: SearchVideoTranslationKinds){
+            commit(MutaitonTypes.SearchCriteriaVideoModule.UPDATE_DETAIL_TLAMSLATION, val)
+        },
+        //翻訳している言葉の更新
+        [ActionTypes.SearchCriteriaVideoModule.UPDATE_DETAIL_TRANSLATIONLANG]({ commit }, val: VideoLanguageKinds){
+            commit(MutaitonTypes.SearchCriteriaVideoModule.UPDATE_DETAIL_TRASLAIONLANG, val)
         }
     },
 });

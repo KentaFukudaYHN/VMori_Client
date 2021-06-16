@@ -674,6 +674,14 @@ function GetRegistVideoErrMsg(errKinds: UploadVideoErrKinds){
                     "ご本人様の確認をさせて頂いた後、削除させて頂きます。"
         case UploadVideoErrKinds.NoIdByYoutube:
             return "動画IDを検出できませんでした。『https://www.youtube.com/watch?v=xxxxxxxx』の形式にしてください"
+        case UploadVideoErrKinds.NotFoundByNikoNiko:
+            return "動画を見つけることができませんでした。 \r\n\r\n"  +
+                    "ニコニコ動画の場合、アップロードされたばかりの動画が検出されません。 \r\n\r\n" +
+                    "大変申し訳ございませんが、アップロードされてから一日程空けてお試しください。"
+        case UploadVideoErrKinds.NotFoundByYoutube:
+            return "動画を見つけることができませんでした。 \r\n\r\n" +
+                    "リンクの形式は正しいでしょうか？  \r\n" +
+                    "https://www.youtube.com/watch?v=xxxxxxxx』の形式にしてください"
         default:
             return "原因不明のエラーです、お手数ですが再度お試しください。"
     }

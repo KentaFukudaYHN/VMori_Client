@@ -4,7 +4,7 @@
 <template>
     <div class="radio-container">
         <div v-for="item in list" :key="item.id" class="radio-item">
-            <input :id="item.id" type="radio" :name="name" :value="item.val" :checked="{'checked': item.selected}" @change="onChange">
+            <input :id="item.id" type="radio" :name="name" :value="item.val" :checked="item.selected" @change="onChange">
             <label :for="item.id">{{ item.text }}</label>
         </div>
     </div>

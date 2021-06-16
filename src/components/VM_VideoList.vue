@@ -2,7 +2,7 @@
 .videolist-container{
     display: flex;
     flex-wrap: wrap;
-    margin: 40px auto;
+    margin: 40px;
 
     @include tab{
         justify-content: center;

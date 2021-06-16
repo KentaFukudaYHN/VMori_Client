@@ -36,6 +36,124 @@ export function VideoLanguageKindsToString(target: VideoLanguageKinds){
     }
 }
 
+//検索用動画の翻訳種類
+export enum SearchVideoTranslationKinds{
+    //翻訳なしもありも含む
+    All = 0,
+    //翻訳あり
+    Yes = 10,
+    //翻訳なし
+    None = 20,
+
+
+}
+
+export function SearchVideoTranslationToString(kinds: SearchVideoTranslationKinds){
+    switch(kinds){
+        case SearchVideoTranslationKinds.All:
+            return '全て'
+        case SearchVideoTranslationKinds.None:
+            return 'なし'
+        case SearchVideoTranslationKinds.Yes:
+            return 'あり'
+        default:
+            throw new Error('定義されていないSearchVideoTranslationKindsです: ' + kinds)
+    }
+}
+
+//#region 検索用動画の翻訳種類
+export enum SearchVideoGenreKinds{
+    //TOP
+    TOP = 0,
+    //雑談
+    SmallTalk = 10,
+    //ショートムービー
+    Short = 20,
+    //エンターテイメント
+    Entertainment = 30,
+    //game
+    Game = 40,
+    //音楽
+    Music = 50,
+    //MAD
+    MAD = 60,
+    //ダンス
+    Dance = 70,
+    //ラジオ
+    Radio = 80,
+    //動物
+    Animal = 90,
+    //自然
+    Nature = 100,
+    //料理
+    Cooking = 110,
+    //旅行
+    Travel = 120,
+    //アウトドア
+    Outdoor = 130,
+    //スポーツ
+    Sports = 140,
+    //政治・社会・時事
+    Politics = 150,
+    //技術・工作
+    Craft = 160,
+    //解説・講座
+    Course = 170,
+    //MMD
+    MMD = 180,
+    //その他
+    Other = 999
+}
+
+export function SearchVideoGenreKindsToString(target: SearchVideoGenreKinds){
+    switch(target){
+        case SearchVideoGenreKinds.TOP:
+            return 'TOP'
+        case SearchVideoGenreKinds.SmallTalk:
+            return '雑談'
+        case SearchVideoGenreKinds.Short:
+            return 'ショートムービー'
+        case SearchVideoGenreKinds.Entertainment:
+            return 'エンターテイメント'
+        case SearchVideoGenreKinds.Game:
+            return 'ゲーム'
+        case SearchVideoGenreKinds.Music:
+            return '音楽'
+        case SearchVideoGenreKinds.MAD:
+            return 'MAD'    
+        case SearchVideoGenreKinds.Dance:
+            return 'ダンス'
+        case SearchVideoGenreKinds.Radio:
+            return 'ラジオ'
+        case SearchVideoGenreKinds.Animal:
+            return 'アニマル'
+        case SearchVideoGenreKinds.Nature:
+            return '自然'
+        case SearchVideoGenreKinds.Travel:
+            return '旅行'
+        case SearchVideoGenreKinds.Outdoor:
+            return 'アウトドア'
+        case SearchVideoGenreKinds.Cooking:
+            return '料理'
+        case SearchVideoGenreKinds.Sports:
+            return 'スポーツ'
+        case SearchVideoGenreKinds.Politics:
+            return '政治・時事・社会'
+        case SearchVideoGenreKinds.Craft:
+            return '技術・工作'
+        case SearchVideoGenreKinds.Course:
+            return '解説・講座'
+        case SearchVideoGenreKinds.MMD:
+            return 'MMD'
+        case SearchVideoGenreKinds.Other:
+            return 'その他'
+        default:
+            throw new Error('定義されていないSearchSearchVideoGenreKindsです: ' + target)
+    }
+}
+
+//#endregion
+
 //#region 動画のジャンル種類
 //動画のジャンル種類
 export enum VideoGenreKinds{
