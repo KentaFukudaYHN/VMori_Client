@@ -47,6 +47,8 @@
                     height: 100%;
                     width: 50px;
                     border: solid 1px $form-border-color;
+                    background-repeat:no-repeat ;
+                    background-position: center;
                 }
             }
         }
@@ -67,9 +69,9 @@
             <img class="icon-title" src='assets/title_icon.png'>
         </div>
         <div class="video-search">
-            <input class="video-search-input"/>
-            <div class="video-search-btn">
-                <button aria-label="検索を実行"></button>
+            <input class="video-search-input" :value="searchTextVal" @change="onChangeSearchText"/>
+            <div class="video-search-btn ">
+                <button class="input-searchbtn-icon" aria-label="検索を実行"></button>
             </div>
         </div>
         <div class="video-header-icon">
@@ -86,6 +88,7 @@ import { defineComponent, computed, watch, ref, toRefs, reactive, SetupContext }
 import VM_Input from '@/components/VM_Input.vue'
 import VM_UploadVideo from '@/components/VM_UploadVideo.vue'
 import { useStore } from '@/store/store'
+import { VideoService } from '@/services/VideoService'
 
 const state = toRefs(reactive({
     uploadVideo:{
@@ -93,6 +96,7 @@ const state = toRefs(reactive({
     }
 }))
 
+let videoService: VideoService
 export default defineComponent({
     components:{
         'vm-input': VM_Input,
@@ -102,10 +106,12 @@ export default defineComponent({
     setup(props, context: SetupContext) {
         const store = useStore()
 
-        var iconBtnStyle = ref(createIconBtnStyle(store.getters.accounticon))
-        store.watch((state, getters) => getters.accounticon,(newval, oldval)=>{
-           iconBtnStyle.value = createIconBtnStyle(newval)
+        var iconBtnStyle = ref(createIconBtnStyle(store.state.account.icon))
+        watch(store.state.account,(newval, oldval)=>{
+           iconBtnStyle.value = createIconBtnStyle(newval.icon)
         })
+
+        videoService = new VideoService()
 
         return{
             //動画アップロード
@@ -113,6 +119,9 @@ export default defineComponent({
             showUpVideoModal: () => { state.uploadVideo.value.showModal = true },
             hideUpVideoModal: () => { state.uploadVideo.value.showModal = false },
             iconBtnStyle: iconBtnStyle,
+            //検索
+            searchTextVal: computed(() => { return videoService.getSearchText() } ),
+            onChangeSearchText: async (val) => { onChangeSearchText(val)},
             //メニューボタン
             clickMenubtn: () => { context.emit("emit-clickMenuBtn") }
         }
@@ -123,5 +132,10 @@ function createIconBtnStyle(backgroundImageUrl: string){
     return {
         'background-image':'url(' +  backgroundImageUrl +')',
     }
+}
+
+async function onChangeSearchText(val){
+    await videoService.updateSearchText(val.target.value)
+    await videoService.searchTextVideoItem()
 }
 </script>

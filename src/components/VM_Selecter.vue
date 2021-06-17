@@ -1,37 +1,8 @@
-<style lang="scss" scoped>
-    .selecter{
-        &-item{
-            padding: 5px 15px;
-            cursor: pointer;
-            user-select: none; /* CSS3 */
-            -moz-user-select: none; /* Firefox */
-            -webkit-user-select: none; /* Safari、Chromeなど */
-            -ms-user-select: none; /* IE10かららしい */
-
-            border: solid 1px $form-border-color;
-            margin: 0 5px;
-            border-radius: 3px;
-
-            &:first-child{
-                margin: 0 5px 0 0;
-            }
-
-            &:last-child{
-                margin: 0 0 0 5px;
-            }
-
-            &-select{
-                background-color: $form-border-sel-color;
-                color: #fff;
-            }
-        }
-    }
-</style>
 
 <template>
     <div class="selecter-container">
         <span v-for="item in list" :key="item.val" 
-            class="selecter-item" :class="{ 'selecter-item-select': item.selected }"
+            class="selecter-item" :class="{ 'selecter-item-select': item.selected, 'selecter-item-disabled':disabled }"
             @click="selectItem(item.val)">
             
             {{ item.text }}
@@ -40,17 +11,21 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, SetupContext, ref, Ref, watch } from 'vue'
+import { defineComponent, PropType, SetupContext, ref, Ref, watch, watchEffect } from 'vue'
 import { SelecterItem } from '@/componentReqRes/Selecter'
 
 type Props = {
     list: SelecterItem[],
-    only: boolean
+    disabled: boolean
 }
 export default defineComponent({
     props:{
         list:{
             type: Object as PropType<SelecterItem[]>
+        },
+        disabled:{
+            type: Boolean,
+            default: false
         }
     },
     emits:['emit-change'],
@@ -66,15 +41,22 @@ export default defineComponent({
             })
         })
 
+        let disabled = ref(props.disabled)
+
+        watchEffect(() =>{
+            disabled.value = props.disabled
+        })
+
         return {
             list: list,
-            selectItem: (val) => { selectItem(val, context) }
+            selectItem: (val) => { selectItem(val, context, disabled.value) },
+            disabled: disabled
         }
     },
 })
 
 //アイテムを選択
-function selectItem(val: string | number, context: SetupContext){
+function selectItem(val: string | number, context: SetupContext, disabled: boolean){
     context.emit('emit-change', val)
 }
 </script>

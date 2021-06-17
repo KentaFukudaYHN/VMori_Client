@@ -60,14 +60,13 @@
             display: flex;
             flex-wrap: wrap;
         }
-        &-lang{
+        &-selecter-container{
             margin: 10px 0;
-        }
-        &-transition{
-            margin: 10px 0;
-        }
-        &-transitionlang{
-            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            & .selecter-item-all{
+                margin-right: 10px;
+            }
         }
         &-update{
             margin-bottom:4px;
@@ -88,21 +87,30 @@
             <div class="searchdetail-itembox">
                 <div class="searchdetail-boxitem">
                     <span>話している言葉</span>
-                    <vm-selecter class="searchdetail-lang" @emit-change="onChangeLang" :list="langSelecterItems" ></vm-selecter>
+                    <div class="searchdetail-selecter-container" >
+                        <span class="selecter-item selecter-item-all" :class="{'selecter-item-select': selectAllLangs}" @click="onChangeLang(selectAllLangsKinds)">全て</span>
+                        <vm-selecter @emit-change="onChangeLang" :list="langSelecterItems" :disabled="selectAllLangs"></vm-selecter>
+                    </div>
                 </div>
 
                 <div class="searchdetail-boxitem">
                     <span>翻訳</span>
-                    <vm-selecter class="searchdetail-transition" @emit-change="onChangeTransition" :list="transitionSelecterItems" ></vm-selecter>
+                    <div class="searchdetail-selecter-container">
+                        <span class="selecter-item selecter-item-all" :class="{'selecter-item-select': selectAllTranslation}" @click="onChangeTransition(selectAllTranslationKinds)">全て</span>
+                        <vm-selecter class="searchdetail-transition" @emit-change="onChangeTransition" :list="transitionSelecterItems" :disabled="selectAllTranslation"></vm-selecter>
+                    </div>
                 </div>
 
                 <div class="searchdetail-boxitem" v-if="showTransitionLang">
                     <span>翻訳している言葉</span>
-                    <vm-selecter class="searchdetail-transitionlang" @emit-change="onChangeTransitionLang" :list="transitionLangSelecterItem" ></vm-selecter>
+                    <div class="searchdetail-selecter-container">
+                        <span class="selecter-item selecter-item-all" :class="{'selecter-item-select': selectAllTranslationLang}" @click="onChangeTransitionLang(selectAllLangsKinds)">全て</span>
+                        <vm-selecter class="searchdetail-transitionlang" @emit-change="onChangeTransitionLang" :list="transitionLangSelecterItem" :disabled="selectAllTranslationLang"></vm-selecter>
+                    </div>
                 </div>
             </div>
             <div>
-                <button class="searchdetail-update btn-normal-mini">更新</button>
+                <button class="searchdetail-update btn-normal-mini" @click="searchVideos">更新</button>
             </div>
         </div>
     </div>
@@ -113,52 +121,63 @@ import { computed, defineComponent, reactive, toRefs, watch } from 'vue'
 import VM_RadioBox from '@/components/VM_RadioBox.vue'
 import VM_Selecter from '@/components/VM_Selecter.vue'
 import { SelecterItem } from '@/componentReqRes/Selecter'
-import { SearchVideoTranslationKinds, SearchVideoTranslationToString, VideoLanguageKinds, VideoLanguageKindsToString } from '@/commons/enum'
+import { SearchVideoLanguageKindsToString, SearchVideoTranslationKinds, SearchVideoTranslationToString, VideoLanguageKinds, VideoLanguageKindsToString } from '@/commons/enum'
 import { State, useStore } from '@/store/store'
+import { useRouter } from '@/router/router'
 import { Store } from 'vuex'
-import { SearchVideoService } from '@/services/SearchVideoService'
+import { VideoService } from '@/services/VideoService'
+import VMRepository from '@/repository/VMoriRepository'
+import { boolean } from 'yup/lib/locale'
 
 const state = toRefs(reactive({
     showSearchBox: false,
     langSelecterItem: [] as SelecterItem[],
+    allLangSelect: true,
     transitionSelecterItem: [] as SelecterItem[],
+    allTranslation: true,
     transitionLangSelecterItem: [] as SelecterItem[],
+    allTranslationLang: true,
     selectTransitionItem: () => state.transitionSelecterItem.value.find(x => x.selected),
 }))
 
 let store: Store<State>
-let searchVideoService: SearchVideoService
+let videoService: VideoService
 export default defineComponent({
     components:{
         'vm-radiobox': VM_RadioBox,
         'vm-selecter': VM_Selecter,
     },
     setup() {
-        store = useStore()
-        searchVideoService = new SearchVideoService(store)
+        videoService = new VideoService()
 
         //話している言語の設定
         initWatchLang()
-        initLang(searchVideoService.getLangs())
+        initLang(videoService.getLangs())
 
         //翻訳の有無設定
         initWatchTranslation()
-        initTranslation(searchVideoService.getTranlation())
+        initTranslation(videoService.getTranlation())
 
         //翻訳している言語の設定
         initWatchTranslationLang()
-        initTranslationLang(searchVideoService.getTranslationLangs())
+        initTranslationLang(videoService.getTranslationLangs())
 
         return{
-            showSearchBox: state.showSearchBox,
-            clickOpenbtn : () =>{ state.showSearchBox.value = !state.showSearchBox.value },
+            showSearchBox: computed(() => { return videoService.getDetailAvailavle() }),
+            clickOpenbtn : async () =>{ videoService.updateDetailAbailavle(! await videoService.getDetailAvailavle()) },
             langSelecterItems: state.langSelecterItem,
+            selectAllLangs: state.allLangSelect,
+            selectAllLangsKinds: VideoLanguageKinds.UnKnown,
             onChangeLang: (val) => { onChangeLang(val) },
             transitionSelecterItems: state.transitionSelecterItem,
+            selectAllTranslation: state.allTranslation,
+            selectAllTranslationKinds: SearchVideoTranslationKinds.All,
             onChangeTransition: (val) => { onChangeTransition(val) },
             transitionLangSelecterItem: state.transitionLangSelecterItem,
+            selectAllTranslationLang: state.allTranslationLang,
             onChangeTransitionLang: (val) => { onChangeTransitionLang(val) },
-            showTransitionLang: computed(() => { return store.state.searchCriteriaVideo.detail.translation == 10 })
+            showTransitionLang: computed(() => { return videoService.getTranlation() == 10 }),
+            searchVideos: () => { videoService.searchDetailVideoItem() }
 
         }
     },
@@ -166,7 +185,7 @@ export default defineComponent({
 
 //話している言語の監視
 function initWatchLang(){
-    watch(searchVideoService.getLangs(),(newval, oldval) =>{
+    watch(videoService.getLangs(),(newval, oldval) =>{
         initLang(newval)
     })
 }
@@ -182,22 +201,32 @@ function initLang(list: VideoLanguageKinds[]){
             const targetIndex = list.indexOf(kinds)
             state.langSelecterItem.value.push({
                 val: kinds as number,
-                text: VideoLanguageKindsToString(kinds),
+                text: SearchVideoLanguageKindsToString(kinds),
                 selected: targetIndex >= 0
             })
         }
     })
+
+    if(list.indexOf(VideoLanguageKinds.UnKnown) >= 0){
+        state.allLangSelect.value = true
+    }else{
+        state.allLangSelect.value = false
+    }
 }
 
 //話している言語を変更
 function onChangeLang(val: number){
     //changeSelecterItem(state.langSelecterItem.value, val)    
-    searchVideoService.updateLang(val)
+    videoService.updateLang(val)
+
+    if(val != VideoLanguageKinds.UnKnown && state.allLangSelect.value == true){
+        videoService.updateLang(VideoLanguageKinds.UnKnown)
+    }
 }
 
 //翻訳の有無を監視
 function initWatchTranslation(){
-    watch(searchVideoService.getDetail(),(newval, oldval) =>{
+    watch(videoService.getDetail(),(newval, oldval) =>{
         initTranslation(newval.translation )
     })
 }
@@ -210,7 +239,7 @@ function initTranslation(target: SearchVideoTranslationKinds){
     Object.entries(SearchVideoTranslationKinds).forEach(([key, val]) =>{
         const kindsNum = Number(key)
         const kinds = kindsNum as SearchVideoTranslationKinds
-        if(isNaN(kindsNum) == false){
+        if(isNaN(kindsNum) == false && kinds != SearchVideoTranslationKinds.All){
             state.transitionSelecterItem.value.push({
                 val: kinds as number,
                 text: SearchVideoTranslationToString(kinds),
@@ -218,16 +247,18 @@ function initTranslation(target: SearchVideoTranslationKinds){
             })
         }
     })
+
+    state.allTranslation.value = target == SearchVideoTranslationKinds.All
 }
 
 //翻訳の有無を変更
 function onChangeTransition(val: number){
-    searchVideoService.updateTranslation(val)
+    videoService.updateTranslation(val)
 }
 
 //翻訳している言語の監視
 function initWatchTranslationLang(){
-    watch(searchVideoService.getTranslationLangs(),(newval, oldval) =>{
+    watch(videoService.getTranslationLangs(),(newval, oldval) =>{
         initTranslationLang(newval)
     })
 }
@@ -243,16 +274,27 @@ function initTranslationLang(list: VideoLanguageKinds[]){
             const targetIndex = list.indexOf(kinds)
             state.transitionLangSelecterItem.value.push({
                 val: kinds as number,
-                text: VideoLanguageKindsToString(kinds),
+                text: SearchVideoLanguageKindsToString(kinds),
                 selected: targetIndex >= 0
             })
         }
-    })}
+    })
+
+if(list.indexOf(VideoLanguageKinds.UnKnown) >= 0){
+        state.allTranslationLang.value = true
+    }else{
+        state.allTranslationLang.value = false
+    }
+}
 
 //翻訳している言葉の変更
 function onChangeTransitionLang(val: number){
-    searchVideoService.updateTranslationLang(val)
-    //changeSelecterItem(state.transitionLangSelecterItem.value, val)    
+    videoService.updateTranslationLang(val)
+
+    if(val != VideoLanguageKinds.UnKnown && state.allTranslationLang.value == true){
+        videoService.updateTranslationLang(VideoLanguageKinds.UnKnown)
+    }
+
 }
 
 //SlecterItemの変更 ※複数選択用
@@ -269,4 +311,5 @@ function changeSelecterItem(list: Array<any>, val:number){
     })
 
 }
+
 </script>

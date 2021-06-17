@@ -2,6 +2,8 @@ import { SearchVideoTranslationKinds, SearchVideoGenreKinds, VideoLanguageKinds 
 
 //動画検索条件モジュール
 export type SearchCriteriaVideoModule = {
+    //検索テキスト
+    text: string,
     //ジャンル
     genle: SearchVideoGenreKinds,
     //詳細検索の有効有無

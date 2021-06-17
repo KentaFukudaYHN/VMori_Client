@@ -84,7 +84,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onBeforeUnmount, onMounted, ref } from 'vue'
+import { defineComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { VideoService } from '@/services/VideoService'
 import { useStore } from '@/store/store'
 import { useRouter } from '@/router/router'
@@ -99,9 +99,7 @@ const refKeys = []
 export default defineComponent({
     async setup() {
         const store = useStore()
-        const router = useRouter()
-        const repository = new VMoriRepository(router)
-        const videoService = new VideoService(store, repository);
+        const videoService = new VideoService();
 
         onMounted(() => {
             //動的に画像の幅を変える為にresizeイベントを監視
@@ -121,9 +119,22 @@ export default defineComponent({
 
         var videos = store.getters[Video.VIDEO_ITEM_LIST] as Array<VideoItem>
 
-        videos.forEach(x => {
-            refs.push({ [x.id]: ref(null) })
-            refKeys.push(x.id)
+        const createRef = () => {
+            refs.splice(0, refs.length)
+            refKeys.splice(0, refKeys.length)
+            videoService.getVideoItems().forEach(x => {
+                refs.push({ [x.id]: ref(null) })
+                refKeys.push(x.id)
+            })
+        }
+
+        createRef()
+
+        watch(videoService.getVideoItems(), (newval, oldval) => {
+            createRef()
+            setTimeout(() =>{
+                onResizeThumbnail()
+            })
         })
 
         return{
@@ -174,6 +185,7 @@ function onResizeThumbnail(){
     //計算したwidthとheightに更新
     for(let i=0;i<refs.length;i++){
         var target = (refs[i][refKeys[i]].value as HTMLElement)
+        if(target == null){ continue }
         target.style.width = String(calcVideoWidth) + 'px'
         // target.style.height = String(calcVideoHeight) + 'px'
 
@@ -199,9 +211,9 @@ function displayStatistics(viewCount: number, publishDate: Date){
     let viewCountText = String(viewCount)
     const billion = 100000000
     if(viewCount >= 10000){
-        viewCountText = String(Math.floor(viewCount/ 10000) / 10) + '万'
+        viewCountText = String(Math.floor(viewCount/ 10000)) + '万'
     }else if(viewCount >= billion){
-        viewCountText = String(Math.floor(viewCount / billion) / 10) + '億'
+        viewCountText = String(Math.floor(viewCount / billion)) + '億'
     }
     viewCountText += ' 回視聴'
 

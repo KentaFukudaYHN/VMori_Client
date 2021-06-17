@@ -21,6 +21,15 @@ export enum VideoLanguageKinds{
     Other = 30
 }
 
+//検索用はなしてる言葉Kinds文字列変換
+export function SearchVideoLanguageKindsToString(target: VideoLanguageKinds){
+    if(target == VideoLanguageKinds.UnKnown){
+        return '全て'
+    }
+
+    return VideoLanguageKindsToString(target)
+}
+
 export function VideoLanguageKindsToString(target: VideoLanguageKinds){
     switch(target){
         case VideoLanguageKinds.UnKnown:

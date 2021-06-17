@@ -41,12 +41,13 @@ export const store = createStore<State>({
         },
         //検索条件
         searchCriteriaVideo: {
+            text: '',
             genle: SearchVideoGenreKinds.TOP,
             isActiveDetail: false,
             detail: {
-                langs: [VideoLanguageKinds.English, VideoLanguageKinds.JP, VideoLanguageKinds.Other] as VideoLanguageKinds[],
+                langs: [VideoLanguageKinds.UnKnown] as VideoLanguageKinds[],
                 translation: SearchVideoTranslationKinds.All,
-                translationLangs:[VideoLanguageKinds.English, VideoLanguageKinds.JP, VideoLanguageKinds.Other] as VideoLanguageKinds[],
+                translationLangs:[VideoLanguageKinds.UnKnown] as VideoLanguageKinds[],
             }
         }
     },
@@ -76,6 +77,14 @@ export const store = createStore<State>({
             })
         },
         /** 動画検索情報の更新 */
+        //検索テキストの検索
+        [MutaitonTypes.SearchCriteriaVideoModule.UPDATE_SEARCH_TEXT](state, val: string){
+            state.searchCriteriaVideo.text = val
+        },
+        //詳細検索の有効有無を更新
+        [MutaitonTypes.SearchCriteriaVideoModule.UPDATE_DETAIL_AVAILABLE](state, val:boolean){
+            state.searchCriteriaVideo.isActiveDetail = val
+        },
         //ジャンルの更新
         [MutaitonTypes.SearchCriteriaVideoModule.UPDATE_GENRE](state, val:SearchVideoGenreKinds){
             state.searchCriteriaVideo.genle = val
@@ -145,6 +154,14 @@ export const store = createStore<State>({
             commit(MutaitonTypes.VideoModule.UPDATE_VIDEO_ITEMS, items)
         },
         /** 動画検索情報 */
+        //検索テキストの更新
+        [ActionTypes.SearchCriteriaVideoModule.UPDATE_SEARCH_TEXT]({ commit }, val: string){
+            commit(MutaitonTypes.SearchCriteriaVideoModule.UPDATE_SEARCH_TEXT, val)
+        },
+        //詳細検索の有効有無を更新
+        [ActionTypes.SearchCriteriaVideoModule.UPDATE_DETAIL_AVAILABLE]({ commit }, val: boolean){
+            commit(MutaitonTypes.SearchCriteriaVideoModule.UPDATE_DETAIL_AVAILABLE, val)
+        },
         //ジャンルの更新
         [ActionTypes.SearchCriteriaVideoModule.UPDATE_GENRE]({ commit }, val: SearchVideoGenreKinds){
             commit(MutaitonTypes.SearchCriteriaVideoModule.UPDATE_GENRE, val)

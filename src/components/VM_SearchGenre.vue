@@ -28,19 +28,20 @@
 <script lang="ts">
 import { SearchVideoGenreKinds, SearchVideoGenreKindsToString, VideoGenreKinds, VideoGenreKindsToString } from '@/commons/enum'
 import { genreItem } from '@/componentReqRes/serarchGenre'
-import { SearchVideoService } from '@/services/SearchVideoService'
+import { VideoService } from '@/services/VideoService'
 import { defineComponent, reactive, Ref, ref, toRefs, watch } from 'vue'
 import { useStore } from '@/store/store'
+import { useRouter } from '@/router/router'
 import { SelecterItem } from '@/componentReqRes/Selecter'
-
+import VMRepository from '@/repository/VMoriRepository'
 const state = toRefs(reactive({
     selectGenre: SearchVideoGenreKinds.TOP, //選択中のジャンル
     genreSelecerItems: [] as SelecterItem[] //ジャンルの選択肢
 }))
-let searchVideoSearvice: SearchVideoService
+let videoSearvice: VideoService
 export default defineComponent({
     setup() {
-        searchVideoSearvice = new SearchVideoService(useStore())
+        videoSearvice = new VideoService()
 
         //ジャンルの設定
         initWatchGenre()
@@ -55,7 +56,7 @@ export default defineComponent({
 
 //ジャンルの監視
 function initWatchGenre(){
-    watch(searchVideoSearvice.getSearchCreteriaVideoModule(), (newval, oldval) => {
+    watch(videoSearvice.getSearchCreteriaVideoModule(), (newval, oldval) => {
         if(state.selectGenre.value != newval.genle){
             initGenreSelecterItems()
         }  
@@ -65,7 +66,7 @@ function initWatchGenre(){
 //ジャンルのリスト生成
 function initGenreSelecterItems(){
     //選択中のジャンルを取得
-    state.selectGenre.value = searchVideoSearvice.getGenre()
+    state.selectGenre.value = videoSearvice.getGenre()
     state.genreSelecerItems.value.splice(0, state.genreSelecerItems.value.length)
 
     Object.entries(SearchVideoGenreKinds).forEach(([key, val]) =>{
@@ -83,7 +84,8 @@ function initGenreSelecterItems(){
 
 //ジャンルを更新
 function selectItem(val: number){
-    searchVideoSearvice.updateGenre(val)
+    videoSearvice.updateGenre(val)
+    videoSearvice.changeGenreVideoItem()
 }
 
 
