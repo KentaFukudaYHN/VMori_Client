@@ -349,7 +349,7 @@ import Repository from '@/repository/VMoriRepository'
 import { AccountApiRes } from '@/apiReqRes/Account'
 import { AccountStoreReq } from '@/storeReqRes/Account'
 import { useStore, State } from '@/store/store'
-import { Account } from '@/store/actionTypes'
+import { AccountModule } from '@/store/actionTypes'
 import { Store } from 'vuex'
 import { useRouter } from '@/router/router'
 import { PublicFormContext, useForm } from 'vee-validate'
@@ -521,7 +521,7 @@ async function getAccount (repository: Repository, store:Store<State>){
             appMail: accountApiRes.data.appMail,
             isLogin: true,
         }
-        store.dispatch(Account.INITIALIZE_ACCOUNT, accountStoreRes)
+        store.dispatch(AccountModule.INITIALIZE_ACCOUNT, accountStoreRes)
 
         //formデータ
         state.account.value.name = store.state.account.name

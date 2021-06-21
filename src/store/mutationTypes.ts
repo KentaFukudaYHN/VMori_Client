@@ -10,6 +10,10 @@ export namespace AccountModule {
 export namespace VideoModule{
     //動画リストの更新
     export const UPDATE_VIDEO_ITEMS = "UPDATE_VIDEO_ITEMS"
+    //動画の選択中IDの更新
+    export const UPDATE_SELECTED_VIDEOID = "UPDATE_SELECTED_VIDEOID"
+    //Youtube動画プレイヤーの読み込み状態の更新
+    export const UPDATE_YOUTUBEPLAYER_ISLOADED = "UPDATE_YOUTUBEPLAYER_ISLOADED"
 }
 
 //動画検索情報

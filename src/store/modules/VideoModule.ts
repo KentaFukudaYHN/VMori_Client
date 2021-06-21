@@ -2,6 +2,10 @@ import { VideoPlatFormKinds } from "@/commons/enum"
 
 //動画モジュール
 export type VideoModule = {
+    //Youtubeの動画プレイヤーをローディング済みか
+    isLoadedYoutubePlayer : boolean,
+    //選択中の動画ID
+    selectedVideoId: string
     //動画リスト
     items: Array<VideoItem>
 }

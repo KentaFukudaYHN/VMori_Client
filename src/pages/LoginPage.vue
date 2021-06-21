@@ -47,7 +47,7 @@ import { useForm } from 'vee-validate';
 import { isRequired } from '@/commons/valid/valid-rules';
 import { useRouter } from "../router/router";
 import { useStore } from '@/store/store'
-import { Account } from '@/store/actionTypes'
+import { AccountModule } from '@/store/actionTypes'
 import { AccountApiRes } from '@/apiReqRes/Account';
 import { AccountStoreReq } from '@/storeReqRes/Account';
 

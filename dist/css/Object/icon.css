@@ -2,6 +2,10 @@
   border-radius: 50%;
 }
 
+.channel-icon {
+  border-radius: 50%;
+}
+
 .icon-video-up {
   cursor: pointer;
   width: 50px;

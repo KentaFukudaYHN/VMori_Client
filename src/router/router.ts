@@ -7,6 +7,7 @@ import UpVideo from '@/pages/UpVideoPage.vue'
 import Home from '@/pages/HomePage.vue'
 import Test from '@/pages/Test.vue'
 import ResetReqPassword from '@/pages/ResetReqPasswordPage.vue'
+import Videopage from '@/pages/VideoPage.vue'
 
 const route = [
     {
@@ -43,6 +44,11 @@ const route = [
         path: '/UpVideo',
         name: 'UpVideo',
         component: UpVideo
+    },
+    {
+        path: '/Video',
+        name: 'Video',
+        component: Videopage
     },
     {
         path: '/Test',

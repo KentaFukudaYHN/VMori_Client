@@ -37,7 +37,9 @@ export const store = createStore<State>({
         },
         //動画情報
         video: {
-            items: new Array<VideoItem>()
+            isLoadedYoutubePlayer: false,
+            items: new Array<VideoItem>(),
+            selectedVideoId: ''
         },
         //検索条件
         searchCriteriaVideo: {
@@ -66,6 +68,7 @@ export const store = createStore<State>({
         [MutaitonTypes.AccountModule.INIT_ACCOUNT](state, module: AccountModule){
             state.account = module
         },
+        /** 動画情報 */
         //動画情報の更新
         [MutaitonTypes.VideoModule.UPDATE_VIDEO_ITEMS](state, items: Array<VideoItem>){
             //現在の動画のリストを削除
@@ -75,6 +78,14 @@ export const store = createStore<State>({
             items.forEach(x => {
                 state.video.items.push(x)
             })
+        },
+        //選択中動画IDの更新
+        [MutaitonTypes.VideoModule.UPDATE_SELECTED_VIDEOID](state, videoId: string){
+            state.video.selectedVideoId = videoId
+        },
+        //Youtube動画プレイヤースクリプトの読み込み状態を更新
+        [MutaitonTypes.VideoModule.UPDATE_YOUTUBEPLAYER_ISLOADED](state, isloaded: boolean){
+            state.video.isLoadedYoutubePlayer = isloaded
         },
         /** 動画検索情報の更新 */
         //検索テキストの検索
@@ -114,7 +125,7 @@ export const store = createStore<State>({
     },
     actions:{
         //アカウント情報の登録
-        async [ActionTypes.Account.INITIALIZE_ACCOUNT]({ commit }, req: AccountStoreReq){
+        async [ActionTypes.AccountModule.INITIALIZE_ACCOUNT]({ commit }, req: AccountStoreReq){
             const module: AccountModule = {
                 isLogin: req.isLogin,
                 displayID: req.displayID,
@@ -133,7 +144,7 @@ export const store = createStore<State>({
             commit(MutaitonTypes.AccountModule.INIT_ACCOUNT, module)
         },
         //動画情報の登録
-        async [ActionTypes.Video.UPDATE_VIDEO_ITEMS]({ commit }, items: Array<VideoImtesStoreReq>){
+        async [ActionTypes.VideoModule.UPDATE_VIDEO_ITEMS]({ commit }, items: Array<VideoImtesStoreReq>){
             if(items == null) { return }
             const moduleImtes = new Array<VideoItem>()
             items.forEach(x => {
@@ -152,6 +163,14 @@ export const store = createStore<State>({
             })
 
             commit(MutaitonTypes.VideoModule.UPDATE_VIDEO_ITEMS, items)
+        },
+        //選択中動画IDの更新
+        async [ActionTypes.VideoModule.UPDATE_SELECTED_VIDEOID]({ commit }, videoId: string){
+            commit(MutaitonTypes.VideoModule.UPDATE_SELECTED_VIDEOID, videoId)
+        },
+        //Youtube動画プレイヤーの読み込み状態更新
+        async [ActionTypes.VideoModule.UPDATE_YOUTUBEPLAYER_ISLOADED]({ commit }, isLoaded: boolean){
+            commit(MutaitonTypes.VideoModule.UPDATE_YOUTUBEPLAYER_ISLOADED, isLoaded)
         },
         /** 動画検索情報 */
         //検索テキストの更新

@@ -67,7 +67,9 @@
 
 <template>
     <div id="videoListContainer" class="videolist-container">
-        <div :ref="refs[index][item.id]" class="video-container" v-for="(item, index) in items" :key="item.id">
+        <div v-for="(item, index) in items" :key="item.id"
+             :ref="refs[index][item.id]" class="video-container"  
+             @click="selectedVideo(item.id)">
             <div class="video-thumbnail">
                 <img :src="item.thumbnailLink"/>
             </div>
@@ -93,13 +95,17 @@ import { Video } from '@/store/getterTypes'
 import { VideoItem } from '@/store/modules/VideoModule'
 import { date } from 'yup/lib/locale'
 import { VideoPlatFormKinds } from '@/commons/enum'
+import { Router } from 'vue-router'
 
 const refs = []
 const refKeys = []
+let videoService: VideoService
+let router : Router
 export default defineComponent({
     async setup() {
         const store = useStore()
-        const videoService = new VideoService();
+        router = useRouter()
+        videoService = new VideoService();
 
         onMounted(() => {
             //動的に画像の幅を変える為にresizeイベントを監視
@@ -141,10 +147,15 @@ export default defineComponent({
             items: store.getters[Video.VIDEO_ITEM_LIST] as Array<VideoItem>,
             refs,
             displayStatistics: (view:number, d:Date) => { return displayStatistics(view, d) },
-            getPlatFormIconSrc: (kinds: VideoPlatFormKinds) => { return getPlatFormIconSrc(kinds) }
+            getPlatFormIconSrc: (kinds: VideoPlatFormKinds) => { return getPlatFormIconSrc(kinds) },
+            selectedVideo: (val) => { selectedVideo(val) }
         }
     },
 })
+
+async function selectedVideo(videoId: string){
+    router.push({name: 'Video', query: { v:videoId }})
+}
 
 //親要素のサイズに合わせてサムネイルのサイズを変える
 function onResizeThumbnail(){
@@ -207,45 +218,6 @@ function getPlatFormIconSrc(kinds:VideoPlatFormKinds){
 
 //表示用の統計情報を生成
 function displayStatistics(viewCount: number, publishDate: Date){
-    /*再生回数のテキスト生成*/
-    let viewCountText = String(viewCount)
-    const billion = 100000000
-    if(viewCount >= 10000){
-        viewCountText = String(Math.floor(viewCount/ 10000)) + '万'
-    }else if(viewCount >= billion){
-        viewCountText = String(Math.floor(viewCount / billion)) + '億'
-    }
-    viewCountText += ' 回視聴'
-
-    /*投稿日時のテキスト生成*/
-    //投稿日時と現在の差分を求める //1カ月は30日とする
-    const now = new Date()
-    const nowByUtc = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds(), now.getUTCMilliseconds())
-    const diffByMm = (nowByUtc.getTime() - new Date(publishDate).getTime())
-
-let dateText = ''
-    if(diffByMm < (1000 * 60)){
-        //1分以内なら秒を表示
-        dateText = String(Math.floor(diffByMm / 1000)) + '秒'
-    } else if(diffByMm < (1000 * 60 * 60)){
-        //1時間以内なら分を表示
-        dateText = String(Math.floor(diffByMm / 1000 / 60)) + '分'
-    }else if(diffByMm < (1000 * 60 * 60 * 24)){
-        //1日以内なら時間を表示
-        dateText = String(Math.floor(diffByMm / 1000 / 60 / 60)) + '時間'
-    }else if(diffByMm < (1000 * 60 * 60 * 24 * 30)){
-        //1カ月以内なら日にちを表示
-        dateText = String(Math.floor(diffByMm / 1000 / 60 / 60 / 24)) + '日'
-    }else if(diffByMm < (1000 * 60 * 60 * 24 * 30 * 12)){
-        //一年以内なら月を表示
-        dateText = String(Math.floor(diffByMm / 1000 / 60 / 60 / 24 / 30)) + '月'
-    }else{
-        //それ以上は年で計算
-        dateText = String(Math.floor(diffByMm / 1000 / 60 / 60 / 24 / 30 / 12)) + '年'
-    }
-
-    dateText += '前'
-
-    return viewCountText + '・' + dateText
+    return videoService.createDisplayStatistics(viewCount, publishDate)
 }
 </script>
