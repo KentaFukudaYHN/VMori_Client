@@ -9,6 +9,7 @@ export default class VMoriRepository{
     private router: Router
 
     async get<T>(url:string, config?:AxiosRequestConfig) : Promise<BaseApiRes<T>>{
+        console.log(url)
         if(config == null){
             config = {}
         }
@@ -18,7 +19,6 @@ export default class VMoriRepository{
 
         try{
             const res = await this.client.get(url, config)
-
             this.CheckErrorRouting(res.status)
             return this.CreateBaseApiRes(res)
         }catch(error){

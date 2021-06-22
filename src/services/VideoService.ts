@@ -1,7 +1,7 @@
 import { State, useStore } from "@/store/store";
 import { Store } from "vuex";
 import VMoriRepository from "@/repository/VMoriRepository";
-import { ChannelApiRes, VideoItemApitRes, VideoSummaryInfoApiRes}  from '@/apiReqRes/Video'
+import { ChannelApiRes, VideoItemApitRes, VideoSummaryInfoApiRes, VideoSummaryItemApiRes}  from '@/apiReqRes/Video'
 import { VideoModule } from '@/store/actionTypes'
 import { SearchVideoGenreKinds, SearchVideoTranslationKinds, VideoGenreKinds, VideoLanguageKinds } from "@/commons/enum";
 import { SearchCriteriaVideoModule } from "@/store/actionTypes";
@@ -91,6 +91,23 @@ export class VideoService {
         })
         if(res.isOk()){
             return res.data
+        }
+    }
+
+    //チャンネルに紐づく動画のリストを取得
+    async getChannelVideos(channelId, page){
+        const res = await this._repository.get<VideoSummaryItemApiRes[]>('video/getchannelvideos', {
+            params:{
+                channelId: channelId,
+                page: page,
+                take: 10
+            }
+        })
+
+        if(res.isOk()){
+            return res.data
+        }else{
+            return null;
         }
     }
 

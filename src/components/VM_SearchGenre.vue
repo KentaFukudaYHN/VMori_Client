@@ -85,7 +85,6 @@ function initGenreSelecterItems(){
 //ジャンルを更新
 function selectItem(val: number){
     videoSearvice.updateGenre(val)
-    videoSearvice.changeGenreVideoItem()
 }
 
 

@@ -86,7 +86,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { defineComponent, onBeforeUnmount, onMounted, ref, watch, PropType, SetupContext } from 'vue'
 import { VideoService } from '@/services/VideoService'
 import { useStore } from '@/store/store'
 import { useRouter } from '@/router/router'
@@ -97,15 +97,23 @@ import { date } from 'yup/lib/locale'
 import { VideoPlatFormKinds } from '@/commons/enum'
 import { Router } from 'vue-router'
 
+type Props = {
+    videos: Array<VideoItem>
+}
+
+let videoService: VideoService
 const refs = []
 const refKeys = []
-let videoService: VideoService
-let router : Router
 export default defineComponent({
-    async setup() {
-        const store = useStore()
-        router = useRouter()
-        videoService = new VideoService();
+    props:{
+        videos:{
+            type: Object as PropType<VideoItem[]>,
+            default: [] as VideoItem[]
+        }
+    },
+    emits:['emit-selectedVideo'],
+    async setup(props: Props, context: SetupContext) {
+        videoService = new VideoService()
 
         onMounted(() => {
             //動的に画像の幅を変える為にresizeイベントを監視
@@ -119,16 +127,28 @@ export default defineComponent({
             window.removeEventListener('resize', onResizeThumbnail)
         })
 
-        //動画リストの更新
-        await videoService.initVideoItems()
+        var videos = ref(props.videos.slice(0,props.videos.length))
+
+        watch(props.videos, (newval, oldval) =>{
+            videos.value.splice(0, videos.value.length)
+            newval.forEach(x => {
+                videos.value.push(x)
+            })
+
+            //動画リストが更新されたら合わせて、サムネイルのrefも再生成する
+            createRef()
+            setTimeout(() =>{
+                //サムネイルサイズの再計算
+                onResizeThumbnail()
+            })
+        })
 
 
-        var videos = store.getters[Video.VIDEO_ITEM_LIST] as Array<VideoItem>
-
+        //サムネイルのrefを生成
         const createRef = () => {
             refs.splice(0, refs.length)
             refKeys.splice(0, refKeys.length)
-            videoService.getVideoItems().forEach(x => {
+            videos.value.forEach(x => {
                 refs.push({ [x.id]: ref(null) })
                 refKeys.push(x.id)
             })
@@ -136,25 +156,18 @@ export default defineComponent({
 
         createRef()
 
-        watch(videoService.getVideoItems(), (newval, oldval) => {
-            createRef()
-            setTimeout(() =>{
-                onResizeThumbnail()
-            })
-        })
-
         return{
-            items: store.getters[Video.VIDEO_ITEM_LIST] as Array<VideoItem>,
+            items: videos,
             refs,
             displayStatistics: (view:number, d:Date) => { return displayStatistics(view, d) },
             getPlatFormIconSrc: (kinds: VideoPlatFormKinds) => { return getPlatFormIconSrc(kinds) },
-            selectedVideo: (val) => { selectedVideo(val) }
+            selectedVideo: (val) => { selectedVideo(val, context) }
         }
     },
 })
 
-async function selectedVideo(videoId: string){
-    router.push({name: 'Video', query: { v:videoId }})
+async function selectedVideo(videoId: string, context: SetupContext){
+    context.emit('emit-selectedVideo', videoId)
 }
 
 //親要素のサイズに合わせてサムネイルのサイズを変える
@@ -181,10 +194,7 @@ function onResizeThumbnail(){
     const margin = 30
 
     //動画のmargin分を際引いた表示表示領域
-    console.log(colum)
     const canDisplayWidth = listContainerWidth - (margin * colum)
-    console.log(canDisplayWidth)
-    console.log(margin * colum)
 
     //１動画のwidth
     const calcVideoWidth = Math.floor(canDisplayWidth / colum) 

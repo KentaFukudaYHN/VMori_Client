@@ -13,9 +13,9 @@ export type VideoSummaryItemApiRes = {
     //チャンネル名
     channelTitle: string,
     //サムネイルリンク
-    thmbnailLink: string,
+    thumbnailLink: string,
     //再生回数
-    viewCount: string,
+    viewCount: number,
     //動画プラットフォーム種類
     platFormKinds : VideoPlatFormKinds
     //投稿日時 iso8061形式
