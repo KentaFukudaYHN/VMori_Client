@@ -6,6 +6,27 @@
             display: block;
             width:100%;
         }
+
+        & #playeroOverlay{
+            z-index: 1;
+        }
+
+        & #playerComment{
+            position: absolute;
+            background: transparent;
+            pointer-events:none;
+            z-index: 2;
+            color: #fff;
+            font-size: 20px;
+            font-weight: bold;
+            text-shadow: 1px 1px 0 #000;
+            -webkit-text-stroke: 1px #000;
+
+            & span{
+                display: inline-block;
+            }
+        }
+
         & #videoInfo{
             margin-top:0;
         }
@@ -50,7 +71,9 @@
                 }
             }
         }
-
+        & .info-container{
+            padding-bottom: 50px;
+        }
         & .info-border{
                 content: '';
                 display: block;
@@ -123,6 +146,7 @@
             white-space: pre-wrap;
 
         }
+
     }
 </style>
 
@@ -130,7 +154,15 @@
     <vm-guide>
         <template v-slot:content>
             <div id="videoContainer">
-                <div id="player"></div>
+                <div  id="playeroOverlay" ref="playerOverlayRef">
+                    <div ref="playerRef" id="player"></div>
+                    <!-- <iframe id="player" width="560" height="315" :src="youtubeVideoSrc" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> -->
+                </div>
+                <div id="playerComment" ref="playerCommentRef">
+                    <!-- このspanがないとなぜかiframeの下に動的に追加したspanが隠れる -->
+                    <span></span>
+                    <span v-for="item in playerCommentItems" :key="item.id" :id="item.id"> {{ item.text}}</span>
+                </div>
                 <div id="tagContainer">
                     <span v-for="tag in video.tags" :key="tag" class="tag-item">
                         {{tag}}
@@ -157,41 +189,48 @@
 
                 </div>
 
-                <div class="info-header">
-                    <span v-for="item in infoList" :key="item.kinds"
-                        :class="{'info-item-select': item.selected}"
-                        @click="changeInfo(item.kinds)">
-                        {{ item.text }}
-                    </span>
-                </div>
-                <div v-if="channel.title != null" class="channel-header">
-                    <img class="channel-icon" :src="channel.thumbnailUrl"/>
-                    <div class="channel-titlecontainer">
-                        <span class="channel-title">{{ channel.title }}</span>
-                        <span class="channel-subscriver">{{displaySubscriverCount()}}</span>
+                <div class="info-container">
+                    <div class="info-header">
+                        <span v-for="item in infoList" :key="item.kinds"
+                            :class="{'info-item-select': item.selected}"
+                            @click="changeInfo(item.kinds)">
+                            {{ item.text }}
+                        </span>
+                    </div>
+                    <div v-if="channel.title != null" class="channel-header">
+                        <img class="channel-icon" :src="channel.thumbnailUrl"/>
+                        <div class="channel-titlecontainer">
+                            <span class="channel-title">{{ channel.title }}</span>
+                            <span class="channel-subscriver">{{displaySubscriverCount()}}</span>
+                        </div>
+                    </div>
+
+                    <div v-if="showSummaryInfo" class="info-summarycontainer">
+                        {{ video.description }}
+                    </div>
+
+                    <div v-if="showChannelInfo" id="channelContainer">
+                        <div>
+                            {{ channel.description }}
+                        </div>
+                    </div>
+
+                    <div v-if="showChannelVideos">
+                        <vm-videolist :videos="channelVideos" @emit-selectedVideo="selectedVideo"></vm-videolist>
+                    </div>
+
+                    <div v-if="showGraph">
+                        <vm-chart :list="channelTransitions"></vm-chart>
                     </div>
                 </div>
 
-                <div v-if="showSummaryInfo" class="info-summarycontainer">
-                    {{ video.description }}
-                </div>
-
-                <div v-if="showChannelInfo" id="channelContainer">
-                    <div>
-                        {{ channel.description }}
-                    </div>
-                </div>
-
-                <div v-if="showChannelVideos">
-                    <vm-videolist :videos="channelVideos" @emit-selectedVideo="selectedVideo"></vm-videolist>
-                </div>
             </div>
         </template>
     </vm-guide>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, reactive, ref, SetupContext, toRef, toRefs, Ref, watch } from 'vue'
+import { computed, defineComponent, onMounted, reactive, ref, SetupContext, toRef, toRefs, Ref, watch, onUnmounted } from 'vue'
 import VM_Guide from '@/components/VM_GuideMenu.vue'
 import { VideoService } from '@/services/VideoService'
 import { useRouter } from '@/router/router'
@@ -201,6 +240,9 @@ import { VideoItemApitRes } from '@/apiReqRes/Video'
 import { VideoLanguageKinds } from '@/commons/enum'
 import { ChannelApiRes } from '@/apiReqRes/Video'
 import VM_VideoList from '@/components/VM_VideoList.vue'
+import VM_Chart from '@/components/VM_ChannelTransitionChart.vue'
+import { ChannelTransition } from '@/componentReqRes/channelTransition'
+import { gsap } from 'gsap'
 
 
 type Props = {
@@ -235,7 +277,7 @@ let state = toRefs(reactive({
             { text: '概要', kinds:infoKinds.summary, selected: true  },
             { text: 'チャンネル情報', kinds: infoKinds.channel, selected: false },
             { text: '動画一覧', kinds: infoKinds.videolist, selected: false },
-            { text: 'チャンネルのび率', kinds: infoKinds.graph, selected: false }
+            { text: 'チャンネル推移表', kinds: infoKinds.graph, selected: false }
         ] as infoItem[]
     },
     channel:{
@@ -243,11 +285,56 @@ let state = toRefs(reactive({
         title: '',
         subscriverCount: 0,
         description: '',
-        videos: [] as VideoItem[]
+        videos: [] as VideoItem[],
+        transitions: [] as ChannelTransition[]
     }
 }))
 
+function randRange(min, max) {
+    return Math.floor(Math.random() * (max - min + 1) + min)
+}
+
+type commentItem = {
+    id: string,
+    text: string,
+    time: number
+}
+
+function getUniqueStr(myStrong: number){
+ var strong = 1000;
+ if (myStrong) strong = myStrong;
+ return 'a' +( new Date().getTime().toString(16)  + Math.floor(strong*Math.random()).toString(16))
+}
+
+function createTestDate(){
+    //生成する文字列に含める文字セット
+    var c = "あいうえおかきくけこさしすせそなにぬねのたちつてとさしすせそらりるれろはまやらわazkjovpojsbopreapojsdopj0-348905843985感蟻立鳥後濁下記食楽未来夢"
+    var cl = c.length
+
+    var result = [] as commentItem[]
+    for (let i = 0; i < 100; i++) {
+        //テキストの生成
+        let text = '';
+        let textL = randRange(1, 10)
+        for (let l = 0; l < textL; l++) {
+            text += c[Math.floor(Math.random()*cl)]          
+        }
+
+        let time = randRange(1, 100)
+
+        result.push({
+            id: getUniqueStr(100),
+            text: text,
+            time: time
+        })
+    }
+
+    return result
+}
+
 let player
+let playerRef
+let playerCommentRef
 let videoService: VideoService
 let router: Router
 let channel: ChannelApiRes
@@ -255,6 +342,7 @@ export default defineComponent({
     components:{
         'vm-guide': VM_Guide,
         'vm-videolist': VM_VideoList,
+        'vm-chart': VM_Chart
     },
     props:{
         id: {
@@ -271,11 +359,97 @@ export default defineComponent({
             router.push('home')
         }
 
+        playerRef = ref(null)
+        let playerOverlayRef = ref(null)
+        playerCommentRef = ref(null)
+        let playerCommentItems = ref([] as commentItem[])
+
+        let observer: ResizeObserver
+        let getPlayTimeInterval: NodeJS.Timeout
+        let videoId = props.id
+        if(videoId == '' || videoId == null){
+            videoId = useRoute().query.v as string
+        }
         onMounted(async () => {
             //windowsの幅に合わせて動的に動画の幅を変えるためにresizeイベントを監視
             window.addEventListener('resize', onResizeVideo)
 
-            const videoId = useRoute().query.v as string
+            //iframeのサイズの変更を検知してオーバーレイするコメント欄のサイズを調整する
+            const playerDom = playerOverlayRef.value as HTMLDivElement
+            console.log('observer')
+            observer = new ResizeObserver((entries) => {
+                // console.log(entries[0].contentRect.toJSON())
+                // console.log(`width: ${entries[0].contentRect.width}`);
+                // console.log(`height: ${entries[0].contentRect.height}`);
+
+                let contentRectJson = entries[0].contentRect.toJSON();
+
+                let target = entries[0].target as HTMLElement
+                let targetWidth = entries[0].target.getBoundingClientRect().width
+                let targetHeight = entries[0].target.getBoundingClientRect().height
+
+                let setHeigt = ''
+                let setWidth = ''
+                if(targetHeight == 0){
+                    setHeigt = '100vh'
+                    setWidth = '100vw'
+                }else{
+                    setHeigt = String(targetHeight) + 'px'
+                    setWidth = String(targetWidth) + 'px'
+                }
+
+                let ss = String(contentRectJson.top as number) as string
+                console.log(`width: ${contentRectJson.top}`);
+                (playerCommentRef.value as HTMLElement).style.position = 'absolute' as string
+                
+                (playerCommentRef.value as HTMLElement).style.top = (target.getBoundingClientRect().top + "px") as string
+                (playerCommentRef.value as HTMLElement).style.left = (target.getBoundingClientRect().left + "px") as string
+                (playerCommentRef.value as HTMLElement).style.right = (target.getBoundingClientRect().right + "px") as string
+                (playerCommentRef.value as HTMLElement).style.bottom = (target.getBoundingClientRect().bottom + "px") as string
+
+
+                (playerCommentRef.value as HTMLElement).style.width = setWidth as string
+                (playerCommentRef.value as HTMLElement).style.height = setHeigt as string
+
+                                console.log('コメントコンテナのサイズ')
+                console.log(`width: ${ (playerCommentRef.value as HTMLElement).style.width}`);
+                console.log(`height: ${(playerCommentRef.value as HTMLElement).style.height}`);
+            })
+            observer.observe(playerDom)
+            
+            //1秒ごとにYoutubeの再生時間を取得し、該当の時間に登録されているコメントを流す
+            let testDatas = createTestDate()
+            console.log('でーた')
+            console.log(testDatas)
+            getPlayTimeInterval = setInterval(() => {
+                if(player.getPlayerState() == 1){
+                    const currentTime = Math.floor(player.getCurrentTime())
+                    console.log(currentTime)
+                    const targetComments = testDatas.filter(x => x.time == currentTime)
+
+                    if(targetComments == null || targetComments.length == 0){
+                        return
+                    }
+                    console.log(targetComments)
+                    targetComments.forEach(x => {
+                        playerCommentItems.value.push(x)
+                        setTimeout(() => {
+                            gsap.to('#' + x.id,{
+                                dedurationlay:1,
+                                x: 1000,
+                            })
+                        }, 1000)
+                    })
+
+
+                    // playerCommentRef.value.style.zIndex = String(9999999999)
+
+                    
+                    testDatas = testDatas.filter(x => x.time != currentTime)
+
+                }
+            }, 1000)
+
             if(videoService.getIsLoadedYoutubePlayer() == false){
                 var tag = document.createElement('script');
 
@@ -285,18 +459,33 @@ export default defineComponent({
 
                 await videoService.updateIsLoadedYoutubePlayer(true)
 
-                window['onYouTubeIframeAPIReady'] = () => { initYoutube(videoId) }
+                window['onYouTubeIframeAPIReady'] = () => { 
+                    console.log('initYoutuve')
+                    initYoutube(videoId) 
+                }
             }else{
                 initYoutube(videoId)
+
             }
+        })
+
+        onUnmounted(() =>{
+            console.log('videoPage/onUnmounted')
+            observer.disconnect()
         })
 
 
         //動画情報取得
         initVideoSetup(props.id)
+        let youtubeVideoSrc = "https://www.youtube.com/embed/" + videoId
 
         return {
+            playerRef,
+            playerOverlayRef,
+            playerCommentRef,
+            playerCommentItems,
             video: state.video.value,
+            youtubeVideoSrc: youtubeVideoSrc,
             //翻訳せいている言語を表示するか
             showTranslationLangs: computed(() => { 
                 if(state.video.value.translationLangs != null){
@@ -322,15 +511,18 @@ export default defineComponent({
             //チャンネルに紐づく動画情報
             channelVideos: state.channel.value.videos,
             showChannelVideos: computed(() => { return isSelectedInfo(infoKinds.videolist) }),
-            selectedVideo: async (id: string) => { await selectedVideo(id, context) }
+            selectedVideo: async (id: string) => { await selectedVideo(id, context) },
+            //チャンネル推移情報
+            channelTransitions: state.channel.value.transitions,
+            showGraph: computed(() => { return isSelectedInfo(infoKinds.graph) })
         }
     },
 })
 
+
 async function initVideoSetup(videoid: string){
     // state.video.value = {} as any
     state.video.value.id = videoid
-    debugger
     if(state.video.value.id == null || state.video.value.id == ""){
         router.push('Home')
     }
@@ -384,6 +576,19 @@ async function initVideoSetup(videoid: string){
     let channelVideoApiReses = await videoService.getChannelVideos(video.channelId, 1)
     if(channelVideoApiReses == null) { channelVideoApiReses = [] }
     
+    //チャンネルの推移データ取得
+    const channelTransitions = await videoService.getChannelTransition(video.channelId)
+    state.channel.value.transitions.splice(0, state.channel.value.transitions.length)
+    if(channelTransitions != null){
+        channelTransitions.forEach(x => {
+            state.channel.value.transitions.push({
+                viewCount: x.viewCount,
+                subscriverCount: x.subscriverCount,
+                getDateTime: x.getDateTime
+            })
+        })
+    }
+
     //チャンネル動画を動画リストコンポーネントに合わせて成形
     state.channel.value.videos.splice(0, state.channel.value.videos.length)
     channelVideoApiReses.forEach(x => {
@@ -442,31 +647,37 @@ function selectedVideo(videoId: string, context:SetupContext){
 }
 
 //Youtube Iframeの初期化
-declare var YT :any
 async function initYoutube(videoId: string){
     if(videoId == null || videoId == ''){
         return
     }
-
-    player = new YT.Player('player', {
+    player = new (YT as any).Player('player', {
         height: '360',
         width: '640',
         videoId: videoId,
-        playerVars: {loop:1, playlist: videoId},
+        playerVars: {loop:1, playlist: videoId, modestbranding:1, wmode: 'transparent',frameborder: 0, rel:0, },
         events: {
         'onReady': onPlayerReady,
         'onStateChange': onPlayerStateChange
         },
     });
 
+    var playerDom = document.getElementById('player')
+    var youtubeSrc = (playerDom as HTMLIFrameElement).src as string
+    (playerDom as HTMLIFrameElement).style.zIndex = '1' as string
+    (playerDom as HTMLIFrameElement).src = youtubeSrc + '&wmode=transparent'
     onResizeVideo()
+
 }
+
+
 
 function onPlayerReady(event){
     //event.target.playVideo()
 }
 
 function onPlayerStateChange(event){
+    console.log(event.data)
     // //ポーズ中関連動画は消す
     // if (event.data == YT.PlayerState.PAUSED) {
     //     const iframe = document.getElementById('player') as HTMLIFrameElement
@@ -474,9 +685,7 @@ function onPlayerStateChange(event){
     //                             .contentWindow
     //                             .document
     //                             .querySelector('.ytp-pause-overlay')
-    //     debugger
     //     if(pauseOverlay != null  ){
-    //         debugger
     //         pauseOverlay[0].remove()
     //     }
     // }

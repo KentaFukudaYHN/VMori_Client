@@ -101,3 +101,13 @@ export type ChannelApiRes = {
     // V森登録日時
     getRegistDateTime: string
 }
+
+//チャンネル推移情報
+export type ChannelTransitionApiRes = {
+    //再生回数
+    viewCount: number
+    //チャンネル登録者数
+    subscriverCount: number
+    //取得日時
+    getDateTime: string
+}

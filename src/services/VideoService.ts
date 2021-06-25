@@ -1,7 +1,7 @@
 import { State, useStore } from "@/store/store";
 import { Store } from "vuex";
 import VMoriRepository from "@/repository/VMoriRepository";
-import { ChannelApiRes, VideoItemApitRes, VideoSummaryInfoApiRes, VideoSummaryItemApiRes}  from '@/apiReqRes/Video'
+import { ChannelApiRes, VideoItemApitRes, VideoSummaryInfoApiRes, VideoSummaryItemApiRes, ChannelTransitionApiRes}  from '@/apiReqRes/Video'
 import { VideoModule } from '@/store/actionTypes'
 import { SearchVideoGenreKinds, SearchVideoTranslationKinds, VideoGenreKinds, VideoLanguageKinds } from "@/commons/enum";
 import { SearchCriteriaVideoModule } from "@/store/actionTypes";
@@ -19,10 +19,22 @@ export class VideoService {
     //     return this._store.state.video.selectedVideoId
     // }
 
+    //動画情報の取得
     async getVideo(videoId: string){
         const res = await this._repository.get<VideoItemApitRes>('video/get', {params:{ videoId }})
         if(res.isOk()){
             return res.data
+        }else{
+            return null
+        }
+    }
+
+    //チャンネル推移情報の取得
+    async getChannelTransition(channelId: string){
+        const res = await this._repository.get<ChannelTransitionApiRes[]>('video/getChannelTransitions', { params:{ channelId} })
+
+        if(res.isOk()){
+            return res.data;
         }else{
             return null
         }

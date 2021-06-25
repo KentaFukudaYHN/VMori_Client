@@ -26,8 +26,8 @@ export default defineComponent({
         })
         return{
             videoKey: videoKey,
-            changeVideo: (videoId: string) => {
-                router.push({name: 'Video', query: { v:videoId }})
+            changeVideo: async (videoId: string) => {
+                await router.push({name: 'Video', query: { v:videoId }})
                 videoKey.value = videoId
             }
         }
