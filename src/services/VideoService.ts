@@ -45,6 +45,11 @@ export class VideoService {
         return this._store.state.video.isLoadedYoutubePlayer
     }
 
+    //フルスクリーンモードかどうか取得
+    getIsFullScreenMode(){
+        return this._store.state.video.isFullScreenMode
+    }
+
     getVideoItem(videoId: string){
         return this._store.state.video.items.find(x => x.id == videoId)
     }
@@ -131,6 +136,11 @@ export class VideoService {
     //Youtube動画プレイヤーの読み込み状態更新
     async updateIsLoadedYoutubePlayer(isloaded: boolean){
         await this._store.dispatch(VideoModule.UPDATE_YOUTUBEPLAYER_ISLOADED, isloaded)
+    }
+
+    //フルスクリーンモードかどうか更新
+    async updateIsFullScreenMode(isFullScreen: boolean){
+        await this._store.dispatch(VideoModule.UPDATE_FULLSCREENMODE, isFullScreen)
     }
 
     //検索テキストの更新

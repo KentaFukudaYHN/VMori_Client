@@ -38,8 +38,9 @@ export const store = createStore<State>({
         //動画情報
         video: {
             isLoadedYoutubePlayer: false,
+            isFullScreenMode: false,
             items: new Array<VideoItem>(),
-            selectedVideoId: ''
+            selectedVideoId: '',
         },
         //検索条件
         searchCriteriaVideo: {
@@ -86,6 +87,10 @@ export const store = createStore<State>({
         //Youtube動画プレイヤースクリプトの読み込み状態を更新
         [MutaitonTypes.VideoModule.UPDATE_YOUTUBEPLAYER_ISLOADED](state, isloaded: boolean){
             state.video.isLoadedYoutubePlayer = isloaded
+        },
+        //フルスクリーンモードか更新
+        [MutaitonTypes.VideoModule.UPDATE_FULLSCREENMODE](state, isFllScreenMode: boolean){
+            state.video.isFullScreenMode = isFllScreenMode
         },
         /** 動画検索情報の更新 */
         //検索テキストの検索
@@ -171,6 +176,10 @@ export const store = createStore<State>({
         //Youtube動画プレイヤーの読み込み状態更新
         async [ActionTypes.VideoModule.UPDATE_YOUTUBEPLAYER_ISLOADED]({ commit }, isLoaded: boolean){
             commit(MutaitonTypes.VideoModule.UPDATE_YOUTUBEPLAYER_ISLOADED, isLoaded)
+        },
+        //フルスクリーンもづかどうか更新
+        async [ActionTypes.VideoModule.UPDATE_FULLSCREENMODE]({ commit }, isFullScreenMode: boolean){
+            commit(MutaitonTypes.VideoModule.UPDATE_FULLSCREENMODE, isFullScreenMode)
         },
         /** 動画検索情報 */
         //検索テキストの更新

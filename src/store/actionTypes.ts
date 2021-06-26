@@ -15,6 +15,8 @@ export namespace VideoModule{
     export const UPDATE_SELECTED_VIDEOID = "UPDATE_SELECTED_VIDEOID"
     //Youtube動画プレイヤーの読み込み状態の更新
     export const UPDATE_YOUTUBEPLAYER_ISLOADED = "UPDATE_YOUTUBEPLAYER_ISLOADED"
+    //フルスクリーンモードかどうか更新
+    export const UPDATE_FULLSCREENMODE = "UPDATE_FULLSCREENMODE"
 }
 
 //動画検索情報

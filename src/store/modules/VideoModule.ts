@@ -4,6 +4,8 @@ import { VideoPlatFormKinds } from "@/commons/enum"
 export type VideoModule = {
     //Youtubeの動画プレイヤーをローディング済みか
     isLoadedYoutubePlayer : boolean,
+    //フルスクリーンモードかどうか
+    isFullScreenMode: boolean,
     //選択中の動画ID
     selectedVideoId: string
     //動画リスト

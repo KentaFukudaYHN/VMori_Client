@@ -31,7 +31,10 @@ export default defineComponent({
         const labels = []
         const viewCounts = []
         const subscrivers = []
-        props.list.forEach(x => {
+        var sortList = props.list.sort((a,b) => {
+            return new Date(a.getDateTime).getTime() - new Date(b.getDateTime).getTime()
+        })
+        sortList.forEach(x => {
             viewCounts.push(x.viewCount)
             subscrivers.push(x.subscriverCount)
             labels.push(dateToLabel(x.getDateTime))
@@ -42,8 +45,10 @@ export default defineComponent({
             viewCounts.splice(0, viewCounts.length)
             subscrivers.splice(0, subscrivers.length)
             labels.splice(0, labels.length)
-
-            newval.forEach(x => {
+            var sortList = newval.sort((a,b) => {
+                return new Date(a.getDateTime).getTime() - new Date(b.getDateTime).getTime()
+            })
+            sortList.forEach(x => {
                 viewCounts.push(x.viewCount)
                 subscrivers.push(x.subscriverCount)
                 labels.push(dateToLabel((x.getDateTime)))
@@ -56,7 +61,6 @@ export default defineComponent({
 
         onMounted(() => {
             const context2d = (myChart.value as HTMLCanvasElement).getContext('2d')
-            debugger
             chart = createChart(context2d, labels, viewCounts, subscrivers)
         })
        

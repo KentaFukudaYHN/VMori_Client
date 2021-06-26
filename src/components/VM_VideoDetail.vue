@@ -11,21 +11,69 @@
             z-index: 1;
         }
 
+        & #playerComment:active{
+            pointer-events:none;
+        }
+
         & #playerComment{
             position: absolute;
             background: transparent;
             pointer-events:none;
             z-index: 2;
             color: #fff;
-            font-size: 20px;
+            font-size: 30px;
             font-weight: bold;
-            text-shadow: 1px 1px 0 #000;
-            -webkit-text-stroke: 1px #000;
+            -webkit-text-stroke: 1px $gray-font-color;
+            overflow: hidden;
 
-            & span{
+            & span.player-comment{
                 display: inline-block;
+                position: absolute;
+                right:0;
+                visibility: hidden;
             }
         }
+
+
+        & #playeroOverlay.fullscreen-on.player-playing-no + #playerComment + #fullScreenBtn{
+            visibility: visible;
+        }
+
+        & #fullScreenBtn:hover{
+            visibility: visible !important;
+        }
+
+        & #playeroOverlay.fullscreen-on.player-playing + #playerComment + #fullScreenBtn{
+            visibility: hidden ;
+        }
+        & #playeroOverlay.fullscreen-none:hover + #playerComment + #fullScreenBtn{
+            visibility: visible !important;
+        }
+        & #playeroOverlay.fullscreen-on:hover + #playerComment + #fullScreenBtn{
+            animation-name: hiddenAnimation;
+            animation-duration: 3s;
+        }
+        @keyframes hiddenAnimation {
+            to{
+                visibility: visible;
+            }
+            from{
+                visibility: hidden;
+            }
+        }
+        & #playeroOverlay.fullscreen-none.player-playing-no  + #playerComment + #fullScreenBtn{
+            visibility: hidden;
+        }
+        & #fullScreenBtn{
+            position: absolute;
+            color: #fff;
+            font-weight: bold;
+            background: $theme-color;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+
 
         & #videoInfo{
             margin-top:0;
@@ -154,15 +202,19 @@
     <vm-guide>
         <template v-slot:content>
             <div id="videoContainer">
-                <div  id="playeroOverlay" ref="playerOverlayRef">
-                    <div ref="playerRef" id="player"></div>
-                    <!-- <iframe id="player" width="560" height="315" :src="youtubeVideoSrc" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> -->
+                <div ref="fullScreenContainer"  >
+                    <div  id="playeroOverlay" ref="playerOverlayRef" :class="{'fullscreen-none': !isFullScreenMode, 'fullscreen-on': isFullScreenMode, 'player-playing': isPlaying, 'player-playing-no': !isPlaying}">
+                        <div ref="playerRef" id="player" ></div>
+                        <!-- <iframe id="player" width="560" height="315" :src="youtubeVideoSrc" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> -->
+                    </div>
+                    <div id="playerComment" ref="playerCommentRef">
+                        <!-- このspanがないとなぜかiframeの下に動的に追加したspanが隠れる -->
+                        <span></span>
+                        <span v-for="item in playerCommentItems" :key="item.id" :id="item.id" class="player-comment"> {{ item.text}}</span>
+                    </div>
+                    <span ref="fullScreenBtnRef" id="fullScreenBtn" @click="onClickFullScreen">フルスクリーン</span>
                 </div>
-                <div id="playerComment" ref="playerCommentRef">
-                    <!-- このspanがないとなぜかiframeの下に動的に追加したspanが隠れる -->
-                    <span></span>
-                    <span v-for="item in playerCommentItems" :key="item.id" :id="item.id"> {{ item.text}}</span>
-                </div>
+
                 <div id="tagContainer">
                     <span v-for="tag in video.tags" :key="tag" class="tag-item">
                         {{tag}}
@@ -189,7 +241,7 @@
 
                 </div>
 
-                <div class="info-container">
+                <div class="info-container" >
                     <div class="info-header">
                         <span v-for="item in infoList" :key="item.kinds"
                             :class="{'info-item-select': item.selected}"
@@ -297,7 +349,8 @@ function randRange(min, max) {
 type commentItem = {
     id: string,
     text: string,
-    time: number
+    time: number,
+    top
 }
 
 function getUniqueStr(myStrong: number){
@@ -325,7 +378,8 @@ function createTestDate(){
         result.push({
             id: getUniqueStr(100),
             text: text,
-            time: time
+            time: time,
+            top: 0
         })
     }
 
@@ -335,9 +389,12 @@ function createTestDate(){
 let player
 let playerRef
 let playerCommentRef
+let fullScreenContainer
 let videoService: VideoService
 let router: Router
 let channel: ChannelApiRes
+let commentStartRight
+let isPlaying = ref(false)
 export default defineComponent({
     components:{
         'vm-guide': VM_Guide,
@@ -362,7 +419,9 @@ export default defineComponent({
         playerRef = ref(null)
         let playerOverlayRef = ref(null)
         playerCommentRef = ref(null)
+        let fullScreenBtnRef = ref(null)
         let playerCommentItems = ref([] as commentItem[])
+        fullScreenContainer = ref(null)
 
         let observer: ResizeObserver
         let getPlayTimeInterval: NodeJS.Timeout
@@ -372,12 +431,24 @@ export default defineComponent({
         }
         onMounted(async () => {
             //windowsの幅に合わせて動的に動画の幅を変えるためにresizeイベントを監視
+            window.removeEventListener('resize', onResizeVideo)
             window.addEventListener('resize', onResizeVideo)
 
-            //iframeのサイズの変更を検知してオーバーレイするコメント欄のサイズを調整する
+            //フルスクリーンモードの切り替えを監視
+            const changeFullScreen = async () => {
+                if(document.fullscreenElement){
+                    await videoService.updateIsFullScreenMode(true)
+                }else{
+                    await videoService.updateIsFullScreenMode(false)
+                }
+            }
+            document.removeEventListener('fullscreenchange', changeFullScreen)
+            document.addEventListener('fullscreenchange', changeFullScreen)
+
+            //iframeのサイズの変更を検知してオーバーレイするコメント欄のサイズとフルスクリーンボタンの位置を調整する
             const playerDom = playerOverlayRef.value as HTMLDivElement
             console.log('observer')
-            observer = new ResizeObserver((entries) => {
+            observer = new ResizeObserver(async (entries) => {
                 // console.log(entries[0].contentRect.toJSON())
                 // console.log(`width: ${entries[0].contentRect.width}`);
                 // console.log(`height: ${entries[0].contentRect.height}`);
@@ -402,6 +473,7 @@ export default defineComponent({
                 console.log(`width: ${contentRectJson.top}`);
                 (playerCommentRef.value as HTMLElement).style.position = 'absolute' as string
                 
+                //コメント用のオーバーレイを動画サイズに合わせて調整
                 (playerCommentRef.value as HTMLElement).style.top = (target.getBoundingClientRect().top + "px") as string
                 (playerCommentRef.value as HTMLElement).style.left = (target.getBoundingClientRect().left + "px") as string
                 (playerCommentRef.value as HTMLElement).style.right = (target.getBoundingClientRect().right + "px") as string
@@ -411,21 +483,64 @@ export default defineComponent({
                 (playerCommentRef.value as HTMLElement).style.width = setWidth as string
                 (playerCommentRef.value as HTMLElement).style.height = setHeigt as string
 
-                                console.log('コメントコンテナのサイズ')
-                console.log(`width: ${ (playerCommentRef.value as HTMLElement).style.width}`);
-                console.log(`height: ${(playerCommentRef.value as HTMLElement).style.height}`);
+
+                //フルスクリーンボタンの位置を動画サイズに合わせて調整
+                let rightEnd = target.getBoundingClientRect().right - targetWidth
+                let fullScreenSetTop = target.getBoundingClientRect().bottom - (Math.floor(targetHeight * 0.12)) as number
+                let fullScreenSetRight = rightEnd as number + 20 as number
+
+                (fullScreenBtnRef.value as HTMLElement).style.right = String(fullScreenSetRight) + 'px' as string
+                (fullScreenBtnRef.value as HTMLElement).style.top = String(fullScreenSetTop) + 'px' as string
+
+                // const comments = document.getElementsByClassName('player-comment')
+                // if(comments != null){
+                //     for (let i = 0; i < comments.length; i++) {
+                //         (comments[i] as HTMLElement).style.right = commentStartRight + 'px' as string
+                //     }
+                // }
+
+                // console.log('フルスクリーンボタンのサイズ計算')
+                // console.log(`width: ${ target.getBoundingClientRect().bottom}`);
+                // console.log(`height: ${(Math.floor(targetHeight * 0.1))}`);
+
+                // console.log('コメントコンテナのサイズ')
+                // console.log(`width: ${ (playerCommentRef.value as HTMLElement).style.width}`);
+                // console.log(`height: ${(playerCommentRef.value as HTMLElement).style.height}`);
             })
             observer.observe(playerDom)
             
             //1秒ごとにYoutubeの再生時間を取得し、該当の時間に登録されているコメントを流す
-            let testDatas = createTestDate()
+            const testDatas = createTestDate()
+            //時間でソート
+            let sortTestData = testDatas.sort((a,b) => {
+                return new Date(a.time).getTime() - new Date(b.time).getTime()
+            })
+
+            let beforeData:commentItem = null
+            let cnt = 1
+            for (let i = 0; i < sortTestData.length; i++) {
+                if(beforeData == null){
+                    sortTestData[i].top = 0
+                }else{
+                    if((sortTestData[i].time - beforeData.time) > 10){
+                        sortTestData[i].top = 0
+                        cnt = 1
+                    }else{
+                        sortTestData[i].top = (cnt * 10)
+                        cnt++
+                        if(cnt >= 10) { cnt = 1 }
+                    }
+                }
+
+                beforeData = sortTestData[i]
+            }
             console.log('でーた')
-            console.log(testDatas)
+            console.log(sortTestData)
             getPlayTimeInterval = setInterval(() => {
                 if(player.getPlayerState() == 1){
                     const currentTime = Math.floor(player.getCurrentTime())
                     console.log(currentTime)
-                    const targetComments = testDatas.filter(x => x.time == currentTime)
+                    const targetComments = sortTestData.filter(x => x.time == currentTime)
 
                     if(targetComments == null || targetComments.length == 0){
                         return
@@ -433,23 +548,37 @@ export default defineComponent({
                     console.log(targetComments)
                     targetComments.forEach(x => {
                         playerCommentItems.value.push(x)
+                        // const commentOvrery = document.getElementById('playerComment')
+                        // const xVal = (commentOvrery.getBoundingClientRect().width + (x.text.length  * 50) + 100) * -1
                         setTimeout(() => {
                             gsap.to('#' + x.id,{
-                                dedurationlay:1,
-                                x: 1000,
+                                duration:500,
+                                x: - 100000,
+                                ease: 'none'
                             })
                         }, 1000)
                     })
 
-
+                    setTimeout(() => {
+                        if(targetComments != null){
+                            for (let i = 0; i < targetComments.length; i++) {
+                                const startRight = targetComments[i].text.length * 50 * -1
+                                const target = document.getElementById(targetComments[i].id)
+                                target.style.right = startRight + 'px'
+                                target.style.top = targetComments[i].top + '%'
+                                target.style.visibility = 'visible'
+                            }
+                        }
+                    })
                     // playerCommentRef.value.style.zIndex = String(9999999999)
 
                     
-                    testDatas = testDatas.filter(x => x.time != currentTime)
+                    sortTestData = sortTestData.filter(x => x.time != currentTime)
 
                 }
             }, 1000)
 
+            //YoutubeAPIのスクリプトが読み込まれてなければ、読み込んでからYoutubeを初期化、読み込まれてたらそのまま初期化
             if(videoService.getIsLoadedYoutubePlayer() == false){
                 var tag = document.createElement('script');
 
@@ -479,11 +608,25 @@ export default defineComponent({
         initVideoSetup(props.id)
         let youtubeVideoSrc = "https://www.youtube.com/embed/" + videoId
 
+        //フルスクリーン時に動画のサイズ調整
+        const fullScreenChange = () => {
+            console.log('FullScreenChane!')
+            if(document.fullscreenElement){
+                document.getElementById('player').style.height = '100vh'
+            }else{
+                document.getElementById('player').style.height = ''
+            }
+        }
+        document.removeEventListener('fullscreenchange', fullScreenChange)
+        document.addEventListener('fullscreenchange',fullScreenChange)
+
         return {
             playerRef,
             playerOverlayRef,
             playerCommentRef,
             playerCommentItems,
+            fullScreenBtnRef,
+            fullScreenContainer,
             video: state.video.value,
             youtubeVideoSrc: youtubeVideoSrc,
             //翻訳せいている言語を表示するか
@@ -514,10 +657,23 @@ export default defineComponent({
             selectedVideo: async (id: string) => { await selectedVideo(id, context) },
             //チャンネル推移情報
             channelTransitions: state.channel.value.transitions,
-            showGraph: computed(() => { return isSelectedInfo(infoKinds.graph) })
+            showGraph: computed(() => { return isSelectedInfo(infoKinds.graph) }),
+            //フルスクリーン
+            onClickFullScreen: () => { 
+                if(document.fullscreenElement){
+                    document.exitFullscreen()
+                }else{
+                    fullScreenContainer.value.requestFullscreen()
+                }
+            },
+            //フルスクリーンモードか
+            isFullScreenMode: computed(() => videoService.getIsFullScreenMode()),
+            //動画再生中か
+            isPlaying: isPlaying
         }
     },
 })
+
 
 
 async function initVideoSetup(videoid: string){
@@ -647,6 +803,7 @@ function selectedVideo(videoId: string, context:SetupContext){
 }
 
 //Youtube Iframeの初期化
+let count = 0
 async function initYoutube(videoId: string){
     if(videoId == null || videoId == ''){
         return
@@ -655,7 +812,7 @@ async function initYoutube(videoId: string){
         height: '360',
         width: '640',
         videoId: videoId,
-        playerVars: {loop:1, playlist: videoId, modestbranding:1, wmode: 'transparent',frameborder: 0, rel:0, },
+        playerVars: {loop:1, playlist: videoId, modestbranding:1, wmode: 'transparent',frameborder: 0, fs:0, rel:0, },
         events: {
         'onReady': onPlayerReady,
         'onStateChange': onPlayerStateChange
@@ -663,9 +820,10 @@ async function initYoutube(videoId: string){
     });
 
     var playerDom = document.getElementById('player')
-    var youtubeSrc = (playerDom as HTMLIFrameElement).src as string
-    (playerDom as HTMLIFrameElement).style.zIndex = '1' as string
-    (playerDom as HTMLIFrameElement).src = youtubeSrc + '&wmode=transparent'
+    var target = (playerDom as HTMLIFrameElement)
+    var youtubeSrc = target.src as string
+    target.style.zIndex = '1' as string
+    target.src = youtubeSrc + '&wmode=transparent'
     onResizeVideo()
 
 }
@@ -678,17 +836,11 @@ function onPlayerReady(event){
 
 function onPlayerStateChange(event){
     console.log(event.data)
-    // //ポーズ中関連動画は消す
-    // if (event.data == YT.PlayerState.PAUSED) {
-    //     const iframe = document.getElementById('player') as HTMLIFrameElement
-    //     const pauseOverlay = iframe
-    //                             .contentWindow
-    //                             .document
-    //                             .querySelector('.ytp-pause-overlay')
-    //     if(pauseOverlay != null  ){
-    //         pauseOverlay[0].remove()
-    //     }
-    // }
+    if (event.data == YT.PlayerState.PAUSED) {
+        isPlaying.value = false
+    }else {
+        isPlaying.value = true
+    }
     
 }
 
