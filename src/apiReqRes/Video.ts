@@ -26,6 +26,8 @@ export type VideoSummaryItemApiRes = {
 
 //動画情報
 export type VideoItemApitRes = {
+    //id
+    id: string,
     //動画ID
     videoId : string,
     //動画プラットご
@@ -76,6 +78,13 @@ export type VideoStatisticsApiRes = {
     commentCount: number,
     //取得日時
     getDateTime: string,
+}
+
+export type VideoCommentApiRes = {
+    //テキスト
+    text: string,
+    //開始時間 ※動画の開始からの秒数
+    time: number
 }
 
 //チャンネル情報

@@ -12,6 +12,10 @@ export namespace VideoModule{
     export const UPDATE_VIDEO_ITEMS = "UPDATE_VIDEO_ITEMS"
     //動画の選択中IDの更新
     export const UPDATE_SELECTED_VIDEOID = "UPDATE_SELECTED_VIDEOID"
+    //動画コメントの登録
+    export const REGIST_VIDEOCOMMENT = "REGIST_VIDEOCOMMENT"
+    //動画コメントの削除
+    export const DELETE_VIDEOCOOMENT = "DELETE_VIDEOCOOMENT"
     //Youtube動画プレイヤーの読み込み状態の更新
     export const UPDATE_YOUTUBEPLAYER_ISLOADED = "UPDATE_YOUTUBEPLAYER_ISLOADED"
     //フルスクリーンモードかどうか更新

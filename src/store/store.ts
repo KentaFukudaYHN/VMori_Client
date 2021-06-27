@@ -1,7 +1,7 @@
 import { computed, InjectionKey } from 'vue'
 import { createStore, Store, useStore as baseUseStore } from 'vuex'
 import { AccountModule } from '@/store/modules/AccountModule'
-import { VideoModule, VideoItem } from '@/store/modules/VideoModule'
+import { VideoModule, VideoItem, VideoComment } from '@/store/modules/VideoModule'
 import * as MutaitonTypes from './mutationTypes'
 import * as ActionTypes from './actionTypes'
 import * as GetterTypes from './getterTypes'
@@ -62,7 +62,7 @@ export const store = createStore<State>({
         //動画情報のリスト
         [GetterTypes.Video.VIDEO_ITEM_LIST](state){
             return state.video.items
-        }
+        },
     },
     mutations:{
         //アカウント情報の初期化

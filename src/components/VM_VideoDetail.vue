@@ -297,14 +297,14 @@
 
                     <!-- コメント -->
                     <div ref="fullScreenCommentRef" id="fullScreenCommentContainer" class="comment-container fullscreen-item">
-                        <input class="input-normal comment-input" v-model="commentInputVal">
-                        <button class="comment-btn icon-comment-send" :class="{'comment-btn-disable': isOkComment == false}">コメント</button>
+                        <input class="input-normal comment-input" v-model="commentInputVal" placeholder=" コメント入力/75文字以内">
+                        <button @click="registComment" class="comment-btn icon-comment-send" :class="{'comment-btn-disable': isOkComment == false}">コメント</button>
                     </div>                    
                 </div>
 
                 <div class="comment-container">
-                    <input class="input-normal comment-input" v-model="commentInputVal">
-                    <button class="comment-btn icon-comment-send" :class="{'comment-btn-disable': isOkComment == false}">コメント</button>
+                    <input class="input-normal comment-input" v-model="commentInputVal" placeholder="コメント入力/75文字以内">
+                    <button @click="registComment" class="comment-btn icon-comment-send" :class="{'comment-btn-disable': isOkComment == false}">コメント</button>
                 </div>
                 <div id="tagContainer">
                     <span v-for="tag in video.tags" :key="tag" class="tag-item">
@@ -377,15 +377,17 @@ import { computed, defineComponent, onMounted, reactive, ref, SetupContext, toRe
 import VM_Guide from '@/components/VM_GuideMenu.vue'
 import { VideoService } from '@/services/VideoService'
 import { useRouter } from '@/router/router'
+import { useStore } from '@/store/store'
 import { Router, useRoute } from 'vue-router'
-import { VideoItem } from '@/store/modules/VideoModule'
-import { VideoItemApitRes } from '@/apiReqRes/Video'
+import { VideoComment, VideoItem } from '@/store/modules/VideoModule'
+import { VideoCommentApiRes, VideoItemApitRes } from '@/apiReqRes/Video'
 import { VideoLanguageKinds } from '@/commons/enum'
 import { ChannelApiRes } from '@/apiReqRes/Video'
 import VM_VideoList from '@/components/VM_VideoList.vue'
 import VM_Chart from '@/components/VM_ChannelTransitionChart.vue'
 import { ChannelTransition } from '@/componentReqRes/channelTransition'
 import { gsap } from 'gsap'
+import { VideoModule } from '@/store/mutationTypes'
 
 
 type Props = {
@@ -437,45 +439,7 @@ function randRange(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min)
 }
 
-type commentItem = {
-    id: string,
-    text: string,
-    time: number,
-    top
-}
 
-function getUniqueStr(myStrong: number){
- var strong = 1000;
- if (myStrong) strong = myStrong;
- return 'a' +( new Date().getTime().toString(16)  + Math.floor(strong*Math.random()).toString(16))
-}
-
-function createTestDate(){
-    //生成する文字列に含める文字セット
-    var c = "あいうえおかきくけこさしすせそなにぬねのたちつてとさしすせそらりるれろはまやらわazkjovpojsbopreapojsdopj0-348905843985感蟻立鳥後濁下記食楽未来夢"
-    var cl = c.length
-
-    var result = [] as commentItem[]
-    for (let i = 0; i < 100; i++) {
-        //テキストの生成
-        let text = '';
-        let textL = randRange(1, 10)
-        for (let l = 0; l < textL; l++) {
-            text += c[Math.floor(Math.random()*cl)]          
-        }
-
-        let time = randRange(1, 100)
-
-        result.push({
-            id: getUniqueStr(100),
-            text: text,
-            time: time,
-            top: 0
-        })
-    }
-
-    return result
-}
 
 let player
 let playerRef
@@ -488,6 +452,9 @@ let commentStartRight
 let isMouseMoveOnFullScreenLayer = ref(false)
 let isPlaying = ref(false)
 let commentInputVal = ref('')
+let playerCommentItems = ref([] as VideoComment[])
+let originalCommentItems = [] as VideoComment[]
+const maxCommentLength = 75
 export default defineComponent({
     components:{
         'vm-guide': VM_Guide,
@@ -518,7 +485,6 @@ export default defineComponent({
         let fullScreenBtnRef = ref(null)
         let fullScreenCommentRef = ref(null)
         let fullScreenLayerRef = ref(null)
-        let playerCommentItems = ref([] as commentItem[])
         fullScreenContainer = ref(null)
 
         let observer: ResizeObserver
@@ -634,75 +600,6 @@ export default defineComponent({
             })
             observer.observe(playerDom)
             
-            //1秒ごとにYoutubeの再生時間を取得し、該当の時間に登録されているコメントを流す
-            const testDatas = createTestDate()
-            //時間でソート
-            let sortTestData = testDatas.sort((a,b) => {
-                return new Date(a.time).getTime() - new Date(b.time).getTime()
-            })
-
-            let beforeData:commentItem = null
-            let cnt = 1
-            for (let i = 0; i < sortTestData.length; i++) {
-                if(beforeData == null){
-                    sortTestData[i].top = 0
-                }else{
-                    if((sortTestData[i].time - beforeData.time) > 10){
-                        sortTestData[i].top = 0
-                        cnt = 1
-                    }else{
-                        sortTestData[i].top = (cnt * 10)
-                        cnt++
-                        if(cnt >= 10) { cnt = 1 }
-                    }
-                }
-
-                beforeData = sortTestData[i]
-            }
-            console.log('でーた')
-            console.log(sortTestData)
-            getPlayTimeInterval = setInterval(() => {
-                if(player.getPlayerState() == 1){
-                    const currentTime = Math.floor(player.getCurrentTime())
-                    console.log(currentTime)
-                    const targetComments = sortTestData.filter(x => x.time == currentTime)
-
-                    if(targetComments == null || targetComments.length == 0){
-                        return
-                    }
-                    console.log(targetComments)
-                    targetComments.forEach(x => {
-                        playerCommentItems.value.push(x)
-                        // const commentOvrery = document.getElementById('playerComment')
-                        // const xVal = (commentOvrery.getBoundingClientRect().width + (x.text.length  * 50) + 100) * -1
-                        setTimeout(() => {
-                            gsap.to('#' + x.id,{
-                                duration:500,
-                                x: - 100000,
-                                ease: 'none'
-                            })
-                        }, 1000)
-                    })
-
-                    setTimeout(() => {
-                        if(targetComments != null){
-                            for (let i = 0; i < targetComments.length; i++) {
-                                const startRight = targetComments[i].text.length * 50 * -1
-                                const target = document.getElementById(targetComments[i].id)
-                                target.style.right = startRight + 'px'
-                                target.style.top = targetComments[i].top + '%'
-                                target.style.visibility = 'visible'
-                            }
-                        }
-                    })
-                    // playerCommentRef.value.style.zIndex = String(9999999999)
-
-                    
-                    sortTestData = sortTestData.filter(x => x.time != currentTime)
-
-                }
-            }, 1000)
-
             //YoutubeAPIのスクリプトが読み込まれてなければ、読み込んでからYoutubeを初期化、読み込まれてたらそのまま初期化
             if(videoService.getIsLoadedYoutubePlayer() == false){
                 var tag = document.createElement('script');
@@ -745,6 +642,7 @@ export default defineComponent({
         document.removeEventListener('fullscreenchange', fullScreenChange)
         document.addEventListener('fullscreenchange',fullScreenChange)
 
+
         return {
             playerRef,
             playerOverlayRef,
@@ -760,7 +658,7 @@ export default defineComponent({
             commentInputVal,
             //コメントが送信可能かどうか
             isOkComment: computed(() => {
-                if(commentInputVal.value == '' || commentInputVal.value == null || commentInputVal.value.length > 75){
+                if(commentInputVal.value == '' || commentInputVal.value == null || commentInputVal.value.length > maxCommentLength){
                     return false
                 }else{
                     return true
@@ -809,13 +707,21 @@ export default defineComponent({
             isPlaying: isPlaying,
             onMouseMoveFullScreenLayer: (event) => { onMouseMoveFullScreenLayer(event) },
             isMouseMove: computed(() => {
-                console.log('ムーブムーブ、ぶぶ！')
                 return isMouseMoveOnFullScreenLayer.value
             }),
-            playVideo: () => { playVideo() }
+            playVideo: () => { playVideo() },
+            registComment: async () => { await registComment(videoId) }
         }
     },
 })
+
+async function registComment(videoId: string){
+    if(commentInputVal.value == null || commentInputVal.value == '' || commentInputVal.value.length > maxCommentLength){ return }
+
+    await videoService.registCommentForApi(videoId, commentInputVal.value, Math.floor(player.getCurrentTime()))
+
+    commentInputVal.value = ''
+}
 
 //Youtube動画再生の切り替え
 function playVideo(){
@@ -834,6 +740,107 @@ function onMouseMoveFullScreenLayer(event){
     setTimeoutOnMouseMove = setTimeout(() => {
         isMouseMoveOnFullScreenLayer.value = false
     },3000)
+}
+
+//1秒ごとにYoutubeの再生時間を取得し、該当の時間に登録されているコメントを流す
+let getPlayTimeInterval: NodeJS.Timeout
+let beforeTime = 0
+function setVideoCommentAnimation(comments: VideoCommentApiRes[]){
+            //時間でソート
+            const sortData = comments.sort((a,b) => {
+                return a.time - b.time
+            })
+
+            let sortVideoCommentData = sortData as VideoComment[]
+
+            let beforeData:VideoComment = null
+            let cnt = 1
+            for (let i = 0; i < sortVideoCommentData.length; i++) {
+                if(beforeData == null){
+                    sortVideoCommentData[i].top = 0
+                }else{
+                    if((sortVideoCommentData[i].time - beforeData.time) > 10){
+                        sortVideoCommentData[i].top = 0
+                        cnt = 1
+                    }else{
+                        sortVideoCommentData[i].top = (cnt * 10)
+                        cnt++
+                        if(cnt >= 10) { cnt = 1 }
+                    }
+                }
+
+                beforeData = sortVideoCommentData[i]
+            }
+
+            //コメントにユニークなidを設定
+            for (let i = 0; i < sortVideoCommentData.length; i++) {
+                sortVideoCommentData[i].id = getUniqueStr(100)
+                
+            }
+            originalCommentItems = sortVideoCommentData.slice(0, sortVideoCommentData.length)
+
+            //Storeにコメントを登録
+            // videoService.registCommentsForStore(sortVideoCommentData)
+
+            console.log('でーた')
+            console.log(sortVideoCommentData)
+            getPlayTimeInterval = setInterval(() => {
+                if(player.getPlayerState() == 1){
+                    const currentTime = Math.floor(player.getCurrentTime())
+
+                    //動画の時間が戻ったらコメントデータを再生成
+                    if(currentTime < beforeTime){
+                        console.log('コメント再生成!')
+                        sortVideoCommentData = originalCommentItems.slice(0, originalCommentItems.length)
+                        playerCommentItems.value.splice(0, playerCommentItems.value.length)
+                        // videoService.deleteCommentForStore()
+                    }
+                    beforeTime = currentTime
+                    const targetComments = sortVideoCommentData.filter(x => x.time == currentTime)
+
+                    if(targetComments == null || targetComments.length == 0){
+                        return
+                    }
+                    console.log(targetComments)
+                    setTimeout(() => {
+                        targetComments.forEach(x => {
+                            playerCommentItems.value.push(x)
+                            // videoService.registCommentForStore(x)
+                            setTimeout(() => {
+                                gsap.to('#' + x.id,{
+                                    duration:25,
+                                    x: - 5000,
+                                    ease: 'none'
+                                })
+                            })
+                        })
+                    })
+
+                    setTimeout(() => {
+                        if(targetComments != null){
+                            for (let i = 0; i < targetComments.length; i++) {
+                                const startRight = targetComments[i].text.length * 50 * -1
+                                const target = document.getElementById(targetComments[i].id)
+                                target.style.right = startRight + 'px'
+                                target.style.top = targetComments[i].top + '%'
+                                target.style.visibility = 'visible'
+                            }
+                        }
+                    })
+                    // playerCommentRef.value.style.zIndex = String(9999999999)
+
+                    
+                    sortVideoCommentData = sortVideoCommentData.filter(x => x.time != currentTime)
+
+                }
+            }, 1000)
+}
+
+//IDの生成
+function getUniqueStr(myStrong: number){
+ var strong = 1000;
+ if (myStrong) strong = myStrong;
+ return 'a' +( new Date().getTime().toString(16)  + Math.floor(strong*Math.random()).toString(16))
 }
 
 async function initVideoSetup(videoid: string){
@@ -877,6 +884,11 @@ async function initVideoSetup(videoid: string){
     if(video.translationJp) { state.video.value.translationLangs.push(convertVideoLangeKindsToSimpleString(VideoLanguageKinds.JP)) }
     if(video.translationEnglish) { state.video.value.translationLangs.push(convertVideoLangeKindsToSimpleString(VideoLanguageKinds.English)) }
     if(video.translationOther) { state.video.value.translationLangs.push(convertVideoLangeKindsToSimpleString(VideoLanguageKinds.Other)) }
+
+    //動画コメントの設定
+    const videoComments = await videoService.getVideoCommentsByApi(video.videoId)
+    console.log()
+    setVideoCommentAnimation(videoComments)
 
     //チャンネル情報の設定
     channel = await videoService.getChannel(video.channelId)

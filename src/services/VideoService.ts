@@ -1,11 +1,12 @@
 import { State, useStore } from "@/store/store";
 import { Store } from "vuex";
 import VMoriRepository from "@/repository/VMoriRepository";
-import { ChannelApiRes, VideoItemApitRes, VideoSummaryInfoApiRes, VideoSummaryItemApiRes, ChannelTransitionApiRes}  from '@/apiReqRes/Video'
+import { ChannelApiRes, VideoItemApitRes, VideoSummaryInfoApiRes, VideoSummaryItemApiRes, ChannelTransitionApiRes, VideoCommentApiRes}  from '@/apiReqRes/Video'
 import { VideoModule } from '@/store/actionTypes'
 import { SearchVideoGenreKinds, SearchVideoTranslationKinds, VideoGenreKinds, VideoLanguageKinds } from "@/commons/enum";
 import { SearchCriteriaVideoModule } from "@/store/actionTypes";
 import { useRouter } from "@/router/router";
+import { VideoComment } from "@/store/modules/VideoModule";
 
 export class VideoService {
     private _store: Store<State>
@@ -35,6 +36,17 @@ export class VideoService {
 
         if(res.isOk()){
             return res.data;
+        }else{
+            return null
+        }
+    }
+
+    //動画コメントの取得　APIから
+    async getVideoCommentsByApi(videoId: string){
+        const res = await this._repository.get<VideoCommentApiRes[]>('video/getcomments', {params:{ videoId }})
+
+        if(res.isOk()){
+            return res.data
         }else{
             return null
         }
@@ -178,7 +190,20 @@ export class VideoService {
     async updateTranslationLang(val: VideoLanguageKinds){
         await this._store.dispatch(SearchCriteriaVideoModule.UPDATE_DETAIL_TRANSLATIONLANG, val)
     }
-    
+
+    //コメントの登録 api
+    async registCommentForApi(videoId: string, text: string, time: number){
+        await this._repository.post('video/registcomment', {
+            videoId: videoId,
+            text: text,
+            time: time
+        })
+    }
+
+    //コメントの削除 Store
+    async deleteCommentForStore(){
+        await this._store.dispatch(VideoModule.DELETE_VIDEOCOOMENT)
+    }
     //テキスト検索
     async searchTextVideoItem(){
         let text = this._store.state.searchCriteriaVideo.text
