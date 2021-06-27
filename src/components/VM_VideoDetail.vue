@@ -35,7 +35,7 @@
         }
 
 
-        & #playeroOverlay.fullscreen-on.player-playing-no + #playerComment + #fullScreenBtn{
+        & .fullscreen-on.player-playing-no  #fullScreenBtn{
             visibility: visible;
         }
 
@@ -43,15 +43,22 @@
             visibility: visible !important;
         }
 
-        & #playeroOverlay.fullscreen-on.player-playing + #playerComment + #fullScreenBtn{
+        & .fullscreen-none.player-playing #fullScreenBtn{
             visibility: hidden ;
         }
-        & #playeroOverlay.fullscreen-none:hover + #playerComment + #fullScreenBtn{
+
+        & .fullscreen-on.player-playing  #fullScreenBtn{
+            visibility: hidden ;
+        }
+        & .fullscreen-none:hover  #fullScreenBtn{
             visibility: visible !important;
         }
-        & #playeroOverlay.fullscreen-on:hover + #playerComment + #fullScreenBtn{
+        & .fullscreen-on:hover  #fullScreenBtn{
             animation-name: hiddenAnimation;
             animation-duration: 3s;
+        }
+        & .player-mousemove #fullScreenBtn{
+            visibility: visible !important;
         }
         @keyframes hiddenAnimation {
             to{
@@ -61,7 +68,7 @@
                 visibility: hidden;
             }
         }
-        & #playeroOverlay.fullscreen-none.player-playing-no  + #playerComment + #fullScreenBtn{
+        & .fullscreen-none.player-playing-no   #fullScreenBtn{
             visibility: hidden;
         }
         & #fullScreenBtn{
@@ -71,6 +78,17 @@
             background: $theme-color;
             padding: 5px 10px;
             cursor: pointer;
+        }
+
+        & #fullScreeenLayer{
+            position: absolute;
+            background: transparent;
+            cursor: pointer;
+            pointer-events:none;
+        }
+
+        & .fullscreen-on #fullScreeenLayer{
+            pointer-events:auto;
         }
 
 
@@ -202,17 +220,22 @@
     <vm-guide>
         <template v-slot:content>
             <div id="videoContainer">
-                <div ref="fullScreenContainer"  >
-                    <div  id="playeroOverlay" ref="playerOverlayRef" :class="{'fullscreen-none': !isFullScreenMode, 'fullscreen-on': isFullScreenMode, 'player-playing': isPlaying, 'player-playing-no': !isPlaying}">
+                <div ref="fullScreenContainer"  :class="{'fullscreen-none': !isFullScreenMode, 'fullscreen-on': isFullScreenMode, 'player-playing': isPlaying, 'player-playing-no': !isPlaying, 'player-mousemove': isMouseMove}">
+                    <div  id="playeroOverlay" ref="playerOverlayRef" >
                         <div ref="playerRef" id="player" ></div>
                         <!-- <iframe id="player" width="560" height="315" :src="youtubeVideoSrc" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> -->
                     </div>
-                    <div id="playerComment" ref="playerCommentRef">
+                    <div id="playerComment" ref="playerCommentRef" @mousemove="() => {console.log('move!!') }">
                         <!-- このspanがないとなぜかiframeの下に動的に追加したspanが隠れる -->
                         <span></span>
                         <span v-for="item in playerCommentItems" :key="item.id" :id="item.id" class="player-comment"> {{ item.text}}</span>
                     </div>
                     <span ref="fullScreenBtnRef" id="fullScreenBtn" @click="onClickFullScreen">フルスクリーン</span>
+                    <!-- 1.フルスクリーン時に透明状態で表示してmouseoverイベントを検知してフルスクリーンを表示 -->
+                    <!-- 2.クリックによるYoutubeの再生の切り替えを制御 -->
+                    <div id="fullScreeenLayer" ref="fullScreenLayerRef" @mousemove="onMouseMoveFullScreenLayer" @click="playVideo">
+
+                    </div>
                 </div>
 
                 <div id="tagContainer">
@@ -394,6 +417,7 @@ let videoService: VideoService
 let router: Router
 let channel: ChannelApiRes
 let commentStartRight
+let isMouseMoveOnFullScreenLayer = ref(false)
 let isPlaying = ref(false)
 export default defineComponent({
     components:{
@@ -420,6 +444,7 @@ export default defineComponent({
         let playerOverlayRef = ref(null)
         playerCommentRef = ref(null)
         let fullScreenBtnRef = ref(null)
+        let fullScreenLayerRef = ref(null)
         let playerCommentItems = ref([] as commentItem[])
         fullScreenContainer = ref(null)
 
@@ -472,6 +497,7 @@ export default defineComponent({
                 let ss = String(contentRectJson.top as number) as string
                 console.log(`width: ${contentRectJson.top}`);
                 (playerCommentRef.value as HTMLElement).style.position = 'absolute' as string
+
                 
                 //コメント用のオーバーレイを動画サイズに合わせて調整
                 (playerCommentRef.value as HTMLElement).style.top = (target.getBoundingClientRect().top + "px") as string
@@ -483,6 +509,13 @@ export default defineComponent({
                 (playerCommentRef.value as HTMLElement).style.width = setWidth as string
                 (playerCommentRef.value as HTMLElement).style.height = setHeigt as string
 
+                //フルスクリーンレイヤーのサイズ調整
+                const fullCreenLayerElement = fullScreenLayerRef.value as HTMLElement
+                fullCreenLayerElement.style.width = setWidth as string
+                fullCreenLayerElement.style.height = String(Math.floor(targetHeight * 0.8)) + 'px'
+                fullCreenLayerElement.style.top = (target.getBoundingClientRect().top + "px") as string
+                fullCreenLayerElement.style.left = (target.getBoundingClientRect().left + "px") as string
+                fullCreenLayerElement.style.right = (target.getBoundingClientRect().right + "px") as string
 
                 //フルスクリーンボタンの位置を動画サイズに合わせて調整
                 let rightEnd = target.getBoundingClientRect().right - targetWidth
@@ -491,6 +524,7 @@ export default defineComponent({
 
                 (fullScreenBtnRef.value as HTMLElement).style.right = String(fullScreenSetRight) + 'px' as string
                 (fullScreenBtnRef.value as HTMLElement).style.top = String(fullScreenSetTop) + 'px' as string
+
 
                 // const comments = document.getElementsByClassName('player-comment')
                 // if(comments != null){
@@ -626,6 +660,7 @@ export default defineComponent({
             playerCommentRef,
             playerCommentItems,
             fullScreenBtnRef,
+            fullScreenLayerRef,
             fullScreenContainer,
             video: state.video.value,
             youtubeVideoSrc: youtubeVideoSrc,
@@ -669,12 +704,35 @@ export default defineComponent({
             //フルスクリーンモードか
             isFullScreenMode: computed(() => videoService.getIsFullScreenMode()),
             //動画再生中か
-            isPlaying: isPlaying
+            isPlaying: isPlaying,
+            onMouseMoveFullScreenLayer: (event) => { onMouseMoveFullScreenLayer(event) },
+            isMouseMove: computed(() => {
+                console.log('ムーブムーブ、ぶぶ！')
+                return isMouseMoveOnFullScreenLayer.value
+            }),
+            playVideo: () => { playVideo() }
         }
     },
 })
 
+//Youtube動画再生の切り替え
+function playVideo(){
+    if(player.getPlayerState() == 1){
+        player.pauseVideo()
+    }else{
+        player.playVideo()
+    }
+}
 
+//フルスクリーンレイヤーでマウスの動きを検知
+let setTimeoutOnMouseMove
+function onMouseMoveFullScreenLayer(event){
+    isMouseMoveOnFullScreenLayer.value = true
+    clearTimeout(setTimeoutOnMouseMove)
+    setTimeoutOnMouseMove = setTimeout(() => {
+        isMouseMoveOnFullScreenLayer.value = false
+    },3000)
+}
 
 async function initVideoSetup(videoid: string){
     // state.video.value = {} as any
