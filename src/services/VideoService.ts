@@ -200,10 +200,6 @@ export class VideoService {
         })
     }
 
-    //コメントの削除 Store
-    async deleteCommentForStore(){
-        await this._store.dispatch(VideoModule.DELETE_VIDEOCOOMENT)
-    }
     //テキスト検索
     async searchTextVideoItem(){
         let text = this._store.state.searchCriteriaVideo.text

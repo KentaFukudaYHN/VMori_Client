@@ -720,6 +720,18 @@ async function registComment(videoId: string){
 
     await videoService.registCommentForApi(videoId, commentInputVal.value, Math.floor(player.getCurrentTime()))
 
+    const comment = {
+        id: getUniqueStr(100),
+        text: commentInputVal.value,
+        time: Math.floor(player.getCurrentTime()),
+        top:50
+    } as VideoComment
+    addVideoComment(comment)
+    originalCommentItems.push(comment)
+    setTimeout(() => {
+        settingAddVideoCommentPosition(comment)
+    })
+
     commentInputVal.value = ''
 }
 
@@ -745,6 +757,7 @@ function onMouseMoveFullScreenLayer(event){
 //1秒ごとにYoutubeの再生時間を取得し、該当の時間に登録されているコメントを流す
 let getPlayTimeInterval: NodeJS.Timeout
 let beforeTime = 0
+let animations = [] as gsap.core.Tween[]
 function setVideoCommentAnimation(comments: VideoCommentApiRes[]){
             //時間でソート
             const sortData = comments.sort((a,b) => {
@@ -788,11 +801,12 @@ function setVideoCommentAnimation(comments: VideoCommentApiRes[]){
                 if(player.getPlayerState() == 1){
                     const currentTime = Math.floor(player.getCurrentTime())
 
-                    //動画の時間が戻ったらコメントデータを再生成
-                    if(currentTime < beforeTime){
+                    //動画の時間が戻ったら、または1秒以上進んだらコメントデータを再生成
+                    if(currentTime < beforeTime || currentTime > beforeTime + 1){
                         console.log('コメント再生成!')
                         sortVideoCommentData = originalCommentItems.slice(0, originalCommentItems.length)
                         playerCommentItems.value.splice(0, playerCommentItems.value.length)
+                        animations.splice(0, animations.length)
                         // videoService.deleteCommentForStore()
                     }
                     beforeTime = currentTime
@@ -804,26 +818,19 @@ function setVideoCommentAnimation(comments: VideoCommentApiRes[]){
                     console.log(targetComments)
                     setTimeout(() => {
                         targetComments.forEach(x => {
-                            playerCommentItems.value.push(x)
-                            // videoService.registCommentForStore(x)
-                            setTimeout(() => {
-                                gsap.to('#' + x.id,{
-                                    duration:25,
-                                    x: - 5000,
-                                    ease: 'none'
-                                })
-                            })
+                            addVideoComment(x)
                         })
                     })
 
                     setTimeout(() => {
                         if(targetComments != null){
                             for (let i = 0; i < targetComments.length; i++) {
-                                const startRight = targetComments[i].text.length * 50 * -1
-                                const target = document.getElementById(targetComments[i].id)
-                                target.style.right = startRight + 'px'
-                                target.style.top = targetComments[i].top + '%'
-                                target.style.visibility = 'visible'
+                                settingAddVideoCommentPosition(targetComments[i])
+                                // const startRight = targetComments[i].text.length * 50 * -1
+                                // const target = document.getElementById(targetComments[i].id)
+                                // target.style.right = startRight + 'px'
+                                // target.style.top = targetComments[i].top + '%'
+                                // target.style.visibility = 'visible'
                             }
                         }
                     })
@@ -833,7 +840,29 @@ function setVideoCommentAnimation(comments: VideoCommentApiRes[]){
                     sortVideoCommentData = sortVideoCommentData.filter(x => x.time != currentTime)
 
                 }
-            }, 1000)
+            }, 500)
+}
+
+//動画コメントを追加して画面に流す
+function addVideoComment(comment: VideoComment){
+    playerCommentItems.value.push(comment)
+    // videoService.registCommentForStore(x)
+    setTimeout(() => {
+        animations.push(gsap.to('#' + comment.id,{
+            duration:25,
+            x: - 5000,
+            ease: 'none'
+        }))
+    })
+}
+
+//動画コメントの開始位調整
+function settingAddVideoCommentPosition(comment: VideoComment){
+    const startRight = comment.text.length * 50 * -1
+    const target = document.getElementById(comment.id)
+    target.style.right = startRight + 'px'
+    target.style.top = comment.top + '%'
+    target.style.visibility = 'visible'
 }
 
 //IDの生成
@@ -1007,13 +1036,25 @@ function onPlayerReady(event){
 }
 
 function onPlayerStateChange(event){
-    console.log(event.data)
+    //1.動画の再生状態を保持
+    //2.動画の再生状態に合わせてアニメーションを止める・再開する
+    //3.動画の時間が1秒以上変化していたらコメントを再生成する
     if (event.data == YT.PlayerState.PAUSED) {
         isPlaying.value = false
+        animations.forEach(x =>{
+            x.pause()
+        })
     }else {
         isPlaying.value = true
+        animations.forEach(x =>{
+            x.play()
+        })
     }
-    
+
+    if(beforeTime  > player.getCurrentTime() || beforeTime + 2 < player.getCurrentTime()){
+        playerCommentItems.value.splice(0, playerCommentItems.value.length)
+        animations.splice(0, animations.length)
+    }
 }
 
 function stopVideo(){
