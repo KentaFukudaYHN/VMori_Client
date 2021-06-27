@@ -1,0 +1,10 @@
+@charset "UTF-8";
+@import "../Foundation/valiable";
+.input-normal{
+    display: block;
+    box-sizing: border-box;
+    border-radius: 5px;
+    height: 2em;
+    padding: 10px;
+    border: solid 1px $form-border-color;
+}

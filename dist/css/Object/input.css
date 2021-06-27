@@ -1,0 +1,10 @@
+.input-normal {
+  display: block;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  border-radius: 5px;
+  height: 2em;
+  padding: 10px;
+  border: solid 1px #B2B2B2;
+}
+/*# sourceMappingURL=input.css.map */

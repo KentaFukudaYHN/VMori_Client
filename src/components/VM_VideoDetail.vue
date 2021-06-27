@@ -35,29 +35,29 @@
         }
 
 
-        & .fullscreen-on.player-playing-no  #fullScreenBtn{
+        & .fullscreen-on.player-playing-no  .fullscreen-item{
             visibility: visible;
         }
 
-        & #fullScreenBtn:hover{
+        & .fullscreen-item:hover{
             visibility: visible !important;
         }
 
-        & .fullscreen-none.player-playing #fullScreenBtn{
+        & .fullscreen-none.player-playing .fullscreen-item{
             visibility: hidden ;
         }
 
-        & .fullscreen-on.player-playing  #fullScreenBtn{
+        & .fullscreen-on.player-playing  .fullscreen-item{
             visibility: hidden ;
         }
-        & .fullscreen-none:hover  #fullScreenBtn{
+        & .fullscreen-none:hover  .fullscreen-item{
             visibility: visible !important;
         }
-        & .fullscreen-on:hover  #fullScreenBtn{
+        & .fullscreen-on:hover  .fullscreen-item{
             animation-name: hiddenAnimation;
             animation-duration: 3s;
         }
-        & .player-mousemove #fullScreenBtn{
+        & .player-mousemove .fullscreen-item{
             visibility: visible !important;
         }
         @keyframes hiddenAnimation {
@@ -68,7 +68,7 @@
                 visibility: hidden;
             }
         }
-        & .fullscreen-none.player-playing-no   #fullScreenBtn{
+        & .fullscreen-none.player-playing-no .fullscreen-item{
             visibility: hidden;
         }
         & #fullScreenBtn{
@@ -91,7 +91,67 @@
             pointer-events:auto;
         }
 
+        & .fullscreen-none #fullScreenCommentContainer{
+            display: none;
+        }
+        & #fullScreenCommentContainer{
+            position: absolute;
+            background: #fff;
+            border-radius: 5px;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            -webkit-transform: translate(-50%, -50%);
+            -ms-transform: translate(-50%, -50%);
+        }
 
+        & .comment-container{
+            margin: 20px auto 0 auto;
+            display: flex;
+            justify-content: center;
+        }
+
+        & .comment-input{
+            border-top-right-radius: 0px;
+            border-bottom-right-radius: 0px;
+            height:34px;
+            max-width: 700px;
+            width:80%;
+        }
+        & .comment-btn{
+            width: 7em;
+            background-color: $theme-color;
+            font-size:12px;
+            font-weight: bold;
+            background-size: 1.2em;
+            background-position: left 0.4em center;
+            background-repeat:no-repeat;
+            color:#fff;
+            padding: 5px 5px 5px 1.2em;
+            border: solid 1px $form-border-color;
+            text-align: center;
+            border-top-right-radius: 5px;
+            border-bottom-right-radius: 5px;
+        }
+
+        & .comment-btn-disable{
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        & #fullScreenCommentContainer.comment-container{
+            margin:0;
+            height:38px;
+        }
+
+        & #fullScreenCommentContainer .comment-input{
+            width: 100%;
+            max-width: 100%;
+            height: 100%;
+        }
+
+        & #fullScreenCommentContainer .comment-btn{
+            font-size: 1em;
+            padding-left: 1.5em;
+        }
 
         & #videoInfo{
             margin-top:0;
@@ -230,14 +290,22 @@
                         <span></span>
                         <span v-for="item in playerCommentItems" :key="item.id" :id="item.id" class="player-comment"> {{ item.text}}</span>
                     </div>
-                    <span ref="fullScreenBtnRef" id="fullScreenBtn" @click="onClickFullScreen">フルスクリーン</span>
+                    <span ref="fullScreenBtnRef" id="fullScreenBtn" class="fullscreen-item" @click="onClickFullScreen">フルスクリーン</span>
                     <!-- 1.フルスクリーン時に透明状態で表示してmouseoverイベントを検知してフルスクリーンを表示 -->
                     <!-- 2.クリックによるYoutubeの再生の切り替えを制御 -->
-                    <div id="fullScreeenLayer" ref="fullScreenLayerRef" @mousemove="onMouseMoveFullScreenLayer" @click="playVideo">
+                    <div id="fullScreeenLayer" ref="fullScreenLayerRef" @mousemove="onMouseMoveFullScreenLayer" @click="playVideo"></div>
 
-                    </div>
+                    <!-- コメント -->
+                    <div ref="fullScreenCommentRef" id="fullScreenCommentContainer" class="comment-container fullscreen-item">
+                        <input class="input-normal comment-input" v-model="commentInputVal">
+                        <button class="comment-btn icon-comment-send" :class="{'comment-btn-disable': isOkComment == false}">コメント</button>
+                    </div>                    
                 </div>
 
+                <div class="comment-container">
+                    <input class="input-normal comment-input" v-model="commentInputVal">
+                    <button class="comment-btn icon-comment-send" :class="{'comment-btn-disable': isOkComment == false}">コメント</button>
+                </div>
                 <div id="tagContainer">
                     <span v-for="tag in video.tags" :key="tag" class="tag-item">
                         {{tag}}
@@ -419,6 +487,7 @@ let channel: ChannelApiRes
 let commentStartRight
 let isMouseMoveOnFullScreenLayer = ref(false)
 let isPlaying = ref(false)
+let commentInputVal = ref('')
 export default defineComponent({
     components:{
         'vm-guide': VM_Guide,
@@ -440,10 +509,14 @@ export default defineComponent({
             router.push('home')
         }
 
+        //コメントの初期化
+        commentInputVal.value = ''
+
         playerRef = ref(null)
         let playerOverlayRef = ref(null)
         playerCommentRef = ref(null)
         let fullScreenBtnRef = ref(null)
+        let fullScreenCommentRef = ref(null)
         let fullScreenLayerRef = ref(null)
         let playerCommentItems = ref([] as commentItem[])
         fullScreenContainer = ref(null)
@@ -519,13 +592,31 @@ export default defineComponent({
 
                 //フルスクリーンボタンの位置を動画サイズに合わせて調整
                 let rightEnd = target.getBoundingClientRect().right - targetWidth
-                let fullScreenSetTop = target.getBoundingClientRect().bottom - (Math.floor(targetHeight * 0.12)) as number
+                let fullScreenSetTop = target.getBoundingClientRect().bottom - (Math.floor(targetHeight * 0.15)) as number
                 let fullScreenSetRight = rightEnd as number + 20 as number
 
-                (fullScreenBtnRef.value as HTMLElement).style.right = String(fullScreenSetRight) + 'px' as string
-                (fullScreenBtnRef.value as HTMLElement).style.top = String(fullScreenSetTop) + 'px' as string
+                const fullScreenBtnTarget = fullScreenBtnRef.value as HTMLElement
+                fullScreenBtnTarget.style.right = String(fullScreenSetRight) + 'px' as string
+                fullScreenBtnTarget.style.top = String(fullScreenSetTop) + 'px' as string
 
+                //フルスクリーン時のコメントボックスを動画サイズに合わせて調整
+                const fullScreenCommentTarget = fullScreenCommentRef.value as HTMLElement
+                let fullScreenCommentWidth = target.getBoundingClientRect().right * 0.7
 
+                //フルスクリーンボタンとかぶらないようにwidthを調整する ※5pxは余分にとる
+                const fullScreenCommentWidthAddBtnArea = fullScreenBtnTarget.getBoundingClientRect().width +  (target.getBoundingClientRect().right * 0.3 * 0.5) + 5
+                if(target.getBoundingClientRect().right < fullScreenCommentWidthAddBtnArea){
+                    fullScreenCommentWidth -= fullScreenCommentWidthAddBtnArea - target.getBoundingClientRect().right
+                }
+
+                //最大の長さは850pxにする
+                if(fullScreenCommentWidth > 850) { fullScreenCommentWidth = 850 }
+
+                // const fullScreenCommentDomRect = fullScreenCommentTarget.getBoundingClientRect()
+
+                //leftのサイズを計算
+                fullScreenCommentTarget.style.top = String(fullScreenSetTop) + 'px' as string
+                fullScreenCommentTarget.style.width = String(fullScreenCommentWidth) + 'px' as string
                 // const comments = document.getElementsByClassName('player-comment')
                 // if(comments != null){
                 //     for (let i = 0; i < comments.length; i++) {
@@ -662,8 +753,19 @@ export default defineComponent({
             fullScreenBtnRef,
             fullScreenLayerRef,
             fullScreenContainer,
+            fullScreenCommentRef,
             video: state.video.value,
             youtubeVideoSrc: youtubeVideoSrc,
+            //コメント
+            commentInputVal,
+            //コメントが送信可能かどうか
+            isOkComment: computed(() => {
+                if(commentInputVal.value == '' || commentInputVal.value == null || commentInputVal.value.length > 75){
+                    return false
+                }else{
+                    return true
+                }
+            }),
             //翻訳せいている言語を表示するか
             showTranslationLangs: computed(() => { 
                 if(state.video.value.translationLangs != null){
