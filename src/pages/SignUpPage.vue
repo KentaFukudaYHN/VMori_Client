@@ -1,6 +1,10 @@
-<style lang="scss">
+<style lang="scss" scope>
 .signup-container{
     margin: 0 auto 0 auto;
+    min-width: 320px;
+    @include sp{
+        min-width: 0;
+    }
     .link-font{
         font-size: 14px;
     }
@@ -9,14 +13,24 @@
         width:100%;
     }
 }
+.siginup-modal-window{
+    @include sp{
+        width: 90%;
+    }
+}
 .icon-title{
     display: block;
-    margin: 0 auto 50px auto;
+    margin: 0 auto 30px auto;
+    width: 250px;
+    @include tab{
+        width: 170px;
+        margin: 10px auto 10px auto;
+    }
 }
 </style>
 
 <template>
-    <VM_Modal v-if="showSignUpModal"  id="signUpModal">
+    <VM_Modal v-if="showSignUpModal"  id="signUpModal" :windowClass="'siginup-modal-window'">
         <template v-slot:content>
             <div class="signup-container">
                 <img class="icon-title" src='assets/title_icon.png'>

@@ -52,7 +52,7 @@
         z-index: 40;
         max-height: 95vh;
         @include tab{
-            max-height: 80vh;
+            // max-height: 80vh;
             padding: 15px 15px;
         }
     }
@@ -77,7 +77,7 @@
         <div class="modal-backlayer" @click="outsideClick"></div>
         <transition name="modal" appear>
             <div class="modal-overlay">
-                <div class="modal-window" :class="{'modal-closebtn': showCloseBtn}">
+                <div class="modal-window" :class="windowClass" :style="windowStyle">
                     <span v-if="showCloseBtn" class="modal-closebtn" @click="cliclCloseBtn">×</span>
                     <div class="modal-content">
                         <slot name="content"></slot>
@@ -93,7 +93,9 @@ import { boolean } from 'node_modules/yup/lib/locale'
 import { defineComponent, SetupContext } from 'vue'
 
 type Props = {
-    showCloseBtn: boolean
+    showCloseBtn: boolean,
+    windowClass: string,
+    width: string
 }
 export default defineComponent({
     emits: ['emit-outsideClick', 'emit-clickCloseBtn'],
@@ -101,13 +103,37 @@ export default defineComponent({
         showCloseBtn: {
             type: Boolean,
             default: false
+        },
+        windowClass: {
+            type: String,
+            default: null
+        },
+        width: {
+            type: String
         }
     },
     setup(props: Props, context: SetupContext) {
+
+        //windowDivのclassを生成
+        let windowClass = {}
+        windowClass['modal-closebtn'] = props.showCloseBtn
+        if(props.windowClass != null && props.windowClass != ''){
+            windowClass[props.windowClass] = true
+        }
         return {
             outsideClick: () => { context.emit('emit-outsideClick') },
             cliclCloseBtn: () => { context.emit('emit-clickCloseBtn') },
-            showCloseBtn: props.showCloseBtn
+            showCloseBtn: props.showCloseBtn,
+            windowClass: windowClass,
+            windowStyle: () => {
+                if(props.width != '' && props.width != null){
+                    return {
+                        '--width': props.width
+                    }
+                }else{
+                    return {}
+                }
+            }
         }
     },
 })
