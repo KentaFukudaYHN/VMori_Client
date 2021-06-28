@@ -109,7 +109,7 @@ return new Chart(context2d, {
                                     }else{
                                         return (Math.floor(value / 100000000 * 10) / 10) + '億回'
                                     }
-                                }
+                                },
                             }
                         },
                         y1:{
@@ -126,7 +126,7 @@ return new Chart(context2d, {
                                     }else{
                                         return (Math.floor(value / 100000000 * 10) / 10) + '億人'
                                     }
-                                }
+                                },
                             }
                         }
                     }

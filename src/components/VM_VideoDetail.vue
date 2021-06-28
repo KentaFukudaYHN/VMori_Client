@@ -2,6 +2,14 @@
     #videoContainer{
         margin:auto;
         font-size:15px;
+        @include pc{
+            width:80%;
+        }
+
+        @include sp{
+            font-size: 13px;
+        }
+
         & #player{
             display: block;
             width:100%;
@@ -153,11 +161,26 @@
             padding-left: 1.5em;
         }
 
+        & .videoinfo-container{
+            @include tab{
+                margin: 0 15px;
+            }
+            @include sp {
+                margin: 0 5px;
+            }
+        }
+
         & #videoInfo{
             margin-top:0;
         }
         & #videoTitle{
             font-size: 20px;
+            @include tab{
+                font-size: 18px;
+            }
+            @include sp{
+                font-size: 16px;
+            }
         }
         & #videoStatistics{
             margin-top: 10px;
@@ -238,12 +261,6 @@
             }
         }
 
-        & .info{
-            &-summarycontainer{
-                white-space: pre-wrap;
-            }
-        }
-
         & .channel{
             &-header{
                 display: flex;
@@ -256,6 +273,12 @@
             &-title{
                 display: block;
                 font-size:20px;
+                @include tab{
+                    font-size:15px;
+                }
+                @include sp{
+                    font-size:15px;
+                }
             }
             &-subscriver{
                 display: block;
@@ -264,13 +287,27 @@
             }
             &-icon{
                 width:90px;
+                @include tab{
+                    width: 60px;
+                }
+                @include sp{
+                    width:45px;
+                }
             }
         }
 
+        & #summaryContainer{
+            white-space: pre-wrap;
+            @include sp{
+                color: $gray-font-color;
+            }
+        }
 
         & #channelContainer{
             white-space: pre-wrap;
-
+            @include sp{
+                color: $gray-font-color;
+            }
         }
 
     }
@@ -301,69 +338,70 @@
                         <button @click="registComment" class="comment-btn icon-comment-send" :class="{'comment-btn-disable': isOkComment == false}">コメント</button>
                     </div>                    
                 </div>
-
-                <div class="comment-container">
-                    <input class="input-normal comment-input" v-model="commentInputVal" placeholder="コメント入力/75文字以内">
-                    <button @click="registComment" class="comment-btn icon-comment-send" :class="{'comment-btn-disable': isOkComment == false}">コメント</button>
-                </div>
-                <div id="tagContainer">
-                    <span v-for="tag in video.tags" :key="tag" class="tag-item">
-                        {{tag}}
-                    </span>
-                </div>
-                <div id="videoInfo">
-                    <h1 id="videoTitle">
-                        {{video.title}}
-                    </h1>
-                    <div id="videoStatistics">
-                        {{ video.statistics }}
-                        <div class="statistics-langcontainer">
-                            <span class="statistics-langlabel">speak</span>
-                            <span v-for="lang in video.speakLangs" :key="lang" class="statistics-langitem" >{{ lang }}</span>
-                        </div>
-                        <div v-if="showTranslationLangs" class="statistics-langcontainer">
-                            <span class="statistics-langlabel">translation</span>
-                            <span v-for="lang in video.translationLangs" :key="lang" class="statistics-langitem" >{{ lang }}</span>
-                        </div>
+                <div class="videoinfo-container">
+                    <div class="comment-container">
+                        <input class="input-normal comment-input" v-model="commentInputVal" placeholder="コメント入力/75文字以内">
+                        <button @click="registComment" class="comment-btn icon-comment-send" :class="{'comment-btn-disable': isOkComment == false}">コメント</button>
                     </div>
-                </div>
-
-                <div class="info-border">
-
-                </div>
-
-                <div class="info-container" >
-                    <div class="info-header">
-                        <span v-for="item in infoList" :key="item.kinds"
-                            :class="{'info-item-select': item.selected}"
-                            @click="changeInfo(item.kinds)">
-                            {{ item.text }}
+                    <div id="tagContainer">
+                        <span v-for="tag in video.tags" :key="tag" class="tag-item">
+                            {{tag}}
                         </span>
                     </div>
-                    <div v-if="channel.title != null" class="channel-header">
-                        <img class="channel-icon" :src="channel.thumbnailUrl"/>
-                        <div class="channel-titlecontainer">
-                            <span class="channel-title">{{ channel.title }}</span>
-                            <span class="channel-subscriver">{{displaySubscriverCount()}}</span>
+                    <div id="videoInfo">
+                        <h1 id="videoTitle">
+                            {{video.title}}
+                        </h1>
+                        <div id="videoStatistics">
+                            {{ video.statistics }}
+                            <div class="statistics-langcontainer">
+                                <span class="statistics-langlabel">speak</span>
+                                <span v-for="lang in video.speakLangs" :key="lang" class="statistics-langitem" >{{ lang }}</span>
+                            </div>
+                            <div v-if="showTranslationLangs" class="statistics-langcontainer">
+                                <span class="statistics-langlabel">translation</span>
+                                <span v-for="lang in video.translationLangs" :key="lang" class="statistics-langitem" >{{ lang }}</span>
+                            </div>
                         </div>
                     </div>
 
-                    <div v-if="showSummaryInfo" class="info-summarycontainer">
-                        {{ video.description }}
+                    <div class="info-border">
+
                     </div>
 
-                    <div v-if="showChannelInfo" id="channelContainer">
-                        <div>
-                            {{ channel.description }}
+                    <div class="info-container" >
+                        <div class="info-header">
+                            <span v-for="item in infoList" :key="item.kinds"
+                                :class="{'info-item-select': item.selected}"
+                                @click="changeInfo(item.kinds)">
+                                {{ item.text }}
+                            </span>
                         </div>
-                    </div>
+                        <div v-if="channel.title != null" class="channel-header">
+                            <img class="channel-icon" :src="channel.thumbnailUrl"/>
+                            <div class="channel-titlecontainer">
+                                <span class="channel-title">{{ channel.title }}</span>
+                                <span class="channel-subscriver">{{displaySubscriverCount()}}</span>
+                            </div>
+                        </div>
 
-                    <div v-if="showChannelVideos">
-                        <vm-videolist :videos="channelVideos" @emit-selectedVideo="selectedVideo"></vm-videolist>
-                    </div>
+                        <div v-if="showSummaryInfo" id="summaryContainer">
+                            {{ video.description }}
+                        </div>
 
-                    <div v-if="showGraph">
-                        <vm-chart :list="channelTransitions"></vm-chart>
+                        <div v-if="showChannelInfo" id="channelContainer">
+                            <div>
+                                {{ channel.description }}
+                            </div>
+                        </div>
+
+                        <div v-if="showChannelVideos">
+                            <vm-videolist :videos="channelVideos" @emit-selectedVideo="selectedVideo"></vm-videolist>
+                        </div>
+
+                        <div v-if="showGraph">
+                            <vm-chart :list="channelTransitions"></vm-chart>
+                        </div>
                     </div>
                 </div>
 
@@ -387,7 +425,7 @@ import VM_VideoList from '@/components/VM_VideoList.vue'
 import VM_Chart from '@/components/VM_ChannelTransitionChart.vue'
 import { ChannelTransition } from '@/componentReqRes/channelTransition'
 import { gsap } from 'gsap'
-import { VideoModule } from '@/store/mutationTypes'
+import { appSetting } from '@/entities/AppSetting'
 
 
 type Props = {
@@ -1095,8 +1133,17 @@ function onResizeVideo(){
     //ウィンドウサイズを取得
     const windowWidth =  window.innerWidth
 
-    //動画は横widowsサイズの70%で横縦の比率は 10:0.563にする
-    const videoWidth = Math.floor(windowWidth * 0.65)
+    let videoWidth = 0
+    if(windowWidth > appSetting.media.pc){
+        //動画は横widowsサイズの70%で横縦の比率は 10:0.563にする
+        videoWidth = Math.floor(windowWidth * 0.65)
+    }else if(windowWidth > appSetting.media.tab){
+        //pc幅の時はウィンドウサイズの90%に幅を設定する
+        videoWidth = Math.floor(windowWidth * 0.9)
+    }else{
+        //pc幅以下のウィンドウは100%で表示する
+        videoWidth = windowWidth
+    }
     const videoHeight = Math.floor(videoWidth * 0.563)
     
     const targetContainer = document.getElementById('videoContainer') as HTMLDivElement

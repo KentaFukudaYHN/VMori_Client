@@ -1,3 +1,11 @@
+
+export enum MediaTypeKinds{
+    pc = 1024,
+    tab = 748,
+    sp = 480
+}
+
+//通知種類
 export enum  ConfirmKinds {
     Normal = 0,
     Error = 10,
