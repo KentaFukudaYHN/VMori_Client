@@ -88,7 +88,10 @@ import { isRequired, isRequiredNoMsg } from '@/commons/valid/valid-rules';
 import * as yup from 'yup'
 import repository from '@/repository/VMoriRepository'
 import { AuthService }  from '@/services/AuthServices'
+import { useStore } from '@/store/store'
+import VMoriRepository from '@/repository/VMoriRepository'
 
+let authService: AuthService
 export default defineComponent({
     components: {
         VM_Modal,
@@ -100,6 +103,7 @@ export default defineComponent({
     setup() {
         const form = useForm()
         const router = useRouter()
+        authService = new AuthService(useStore(), new VMoriRepository(router))
         onMounted(() =>{
             setTimeout(() => form.resetForm())
         })
@@ -242,7 +246,7 @@ export default defineComponent({
                 await new repository(router).post('account/regist',data)
                 
                 //メールアドレス本人確認メッセージダイアログの表示 @ToDo エラー処理を追加
-                confirmMsg.value = new AuthService().CreateAppReqMsg(mail.value)
+                confirmMsg.value = authService.createAppReqMsg(mail.value)
 
                 showSignUpModal.value = false;
                 showConfirmModal.value = true;

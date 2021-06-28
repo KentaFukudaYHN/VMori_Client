@@ -428,6 +428,7 @@ const state = toRefs(reactive({
 }))
 //#endregion
 
+let authService: AuthService
 //#region component
 export default defineComponent({
     components:{
@@ -445,6 +446,7 @@ export default defineComponent({
         const router = useRouter()
         const form = useForm()
         const repository = new Repository(router)
+        authService = new AuthService(store, repository)
 
         const refImage = ref(null)
 
@@ -716,7 +718,7 @@ async function _appReqMail(repository: Repository){
     var result = await repository.get<boolean>("auth/createappreqmail")
 
     if(result.data && result.isOk()){
-        showResultConfirm('メールアドレスの本人認証', new AuthService().CreateAppReqMsg(state.account.value.mail), ConfirmKinds.Normal)
+        showResultConfirm('メールアドレスの本人認証', authService.createAppReqMsg(state.account.value.mail), ConfirmKinds.Normal)
     }else{
         showResultConfirm('メールアドレスの本人認証', "申し訳ございません、原因不明のエラーが発生しました。\r\n再度メールアドレスの本人認証をおこなってください", ConfirmKinds.Error)
     }
@@ -751,7 +753,7 @@ async function _updateMail(from:PublicFormContext<Record<string, any>>, reposito
         });
 
         if(result.data){
-            showResultConfirm('まだメールアドレス変更は完了していません', new AuthService().CreateAppReqMsg(state.changeMail.value.mail), ConfirmKinds.Normal)
+            showResultConfirm('まだメールアドレス変更は完了していません', authService.createAppReqMsg(state.changeMail.value.mail), ConfirmKinds.Normal)
             //メール変更モーダルを閉じる
             state.changeMail.value.mail = ""
             state.changeMail.value.showModal = false

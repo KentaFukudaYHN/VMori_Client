@@ -130,23 +130,8 @@ export const store = createStore<State>({
     },
     actions:{
         //アカウント情報の登録
-        async [ActionTypes.AccountModule.INITIALIZE_ACCOUNT]({ commit }, req: AccountStoreReq){
-            const module: AccountModule = {
-                isLogin: req.isLogin,
-                displayID: req.displayID,
-                name: req.name,
-                icon: req.icon,
-                mail: req.mail,
-                birthdayYear: req.birthdayYear,
-                birthdayMonth: req.birthdayMonth,
-                birthdayDate: req.birthdayDate,
-                appMail: req.appMail
-            }
-
-            if(module.icon == null || module.icon == ''){
-                module.icon = 'assets/icon_default.png'
-            }
-            commit(MutaitonTypes.AccountModule.INIT_ACCOUNT, module)
+        async [ActionTypes.AccountModule.INITIALIZE_ACCOUNT]({ commit }, req: AccountModule){
+            commit(MutaitonTypes.AccountModule.INIT_ACCOUNT, req)
         },
         //動画情報の登録
         async [ActionTypes.VideoModule.UPDATE_VIDEO_ITEMS]({ commit }, items: Array<VideoImtesStoreReq>){
