@@ -15,19 +15,29 @@
     width: 50px;
     height: 50px;
     border:none;
+    background-position: center;
     background-size: contain;
     background-image: url('../../assets/icon_videoup3.png');
-    background-position: center;
     margin-right: 20px;
     background-repeat:no-repeat;
 }
 
+//検索アイコン
+.icon-search-dark{
+    background-image: url('../../assets/icon_search_dark.png');
+    background-position: center;
+    background-size: contain;
+    background-repeat:no-repeat;
+}
+
+//hamburgerメニューのアイコン
 .btn-menu-hamburger{
     cursor: pointer;
     padding: 10px;
-    width: 40px;
+    width: 25px;
     border: none;
     background-size:contain;
+    background-position: center;
     background-image: url('../../assets/hamburger.png');
     background-repeat: no-repeat;
 }

@@ -649,7 +649,7 @@ export default defineComponent({
                 await videoService.updateIsLoadedYoutubePlayer(true)
 
                 window['onYouTubeIframeAPIReady'] = () => { 
-                    console.log('initYoutuve')
+                    console.log('initYoutuve: ' + videoId)
                     initYoutube(videoId) 
                 }
             }else{
@@ -836,6 +836,7 @@ function setVideoCommentAnimation(comments: VideoCommentApiRes[]){
             console.log('でーた')
             console.log(sortVideoCommentData)
             getPlayTimeInterval = setInterval(() => {
+                if(player.getPlayerState == undefined) { return }
                 if(player.getPlayerState() == 1){
                     const currentTime = Math.floor(player.getCurrentTime())
 
@@ -1051,7 +1052,7 @@ async function initYoutube(videoId: string){
         height: '360',
         width: '640',
         videoId: videoId,
-        playerVars: {loop:1, playlist: videoId, modestbranding:1, wmode: 'transparent',frameborder: 0, fs:0, rel:0, },
+        playerVars: {loop:1, playlist: videoId, modestbranding:1, wmode: 'transparent',frameborder: 0, fs:0, rel:0,origin: 'https://localhost:3000' },
         events: {
         'onReady': onPlayerReady,
         'onStateChange': onPlayerStateChange
