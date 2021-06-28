@@ -11,6 +11,7 @@
             display: flex;
             justify-content: flex-end;
             align-items: center;
+
             @include sp{
                 min-width: none;
             }
@@ -19,7 +20,7 @@
         & .icon-title{
             width: 150px;
             margin: 0;
-            @include sp{
+            @include tab{
                 width: 100px;
             }
         }
@@ -31,6 +32,10 @@
             margin-right: 10px;
             border:none;
             background-size: contain;
+            @include tab{
+                width: 40px;
+                height: 40px;
+            }
             @include sp{
                 margin-right: 0;
                 width: 35px;
@@ -87,6 +92,8 @@
         & .btn-menu-hamburger{
             margin-right: 20px;
             @include tab{
+                width:20px;
+                height: 20px;
                 margin-right: 5px;
             }
             @include sp{
