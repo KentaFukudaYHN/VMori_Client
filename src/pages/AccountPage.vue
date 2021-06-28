@@ -96,6 +96,13 @@
         width: 322px;
     }
 }
+
+.setting-mail-certification{
+    @include tab{
+        margin-left: 10px;
+    }
+}
+
 .changemodal{
     min-width: 400px;
     padding: 0px 0px;
@@ -171,7 +178,7 @@
                             <vm-input :disabled="true" name="name" :value="account.name" type="text" @emit-input="onInputName"/>
                         </div>
                     </div>
-                    <div class="setting-list-change-btn .aligin-center">
+                    <div class="setting-list-change-btn">
                         <button class="btn-normal-mini" @click="showChangeNameModal">変更</button>
                     </div>
                 </li>
@@ -187,18 +194,20 @@
                             <vm-select :disabled="true" :selectedYear="account.year" :selectedMonth="account.month" :selectedDay="account.date" />
                         </div>
                     </div>
-                    <div class="setting-list-change-btn .aligin-center">
+                    <div class="setting-list-change-btn">
                         <button class="btn-normal-mini" @click="showChangeBirthdayModal">変更</button>
                     </div>
                 </li>
                 <li class="setting-list-item">
                     <div class="setting-list-label">
                         <label>メールアドレス</label>
-                        <div class="setting-list-change-btn-sp">
-                            <button class="btn-normal-mini" @click="showChangeMailModal">変更</button>
-                        </div>
-                        <div v-if="account.appMail == false"  class="setting-list-change-btn-sp">
-                            <button class="btn-primary-mini" @click="showAppReqMail">認証</button>
+                        <div>
+                            <div class="setting-list-change-btn-sp">
+                                <button class="btn-normal-mini" @click="showChangeMailModal">変更</button>
+                            </div>
+                            <div v-if="account.appMail == false"  class="setting-list-change-btn-sp setting-mail-certification">
+                                <button class="btn-primary-mini" @click="showAppReqMail">認証</button>
+                            </div>
                         </div>
                     </div>
                     <div class="setting-list-content">
@@ -206,11 +215,11 @@
                             <vm-input :disabled="true" name="mail" :value="account.mail" type="text" @emit-input="onInputMail"/>
                         </div>
                     </div>
-                    <div class="setting-list-change-btn .aligin-center">
+                    <div class="setting-list-change-btn ">
                         <button class="btn-normal-mini" @click="showChangeMailModal">変更</button>
                     </div>
-                    <div class="setting-list-change-btn .aligin-center">
-                        <button v-if="account.appMail == false" class="btn-primary-mini color-red" @click="showAppReqMail">認証</button>
+                    <div class="setting-list-change-btn">
+                        <button v-if="account.appMail == false" class="btn-primary-mini" @click="showAppReqMail">認証</button>
                     </div>
                 </li>
                 <li class="setting-list-item">
@@ -225,7 +234,7 @@
                             <vm-input :disabled="true" name="password" :value="account.password" type="password"/>
                         </div>
                     </div>
-                    <div class="setting-list-change-btn .aligin-center">
+                    <div class="setting-list-change-btn ">
                         <button class="btn-normal-mini" @click="showChangePasswordModal">変更</button>
                     </div>
                 </li>
