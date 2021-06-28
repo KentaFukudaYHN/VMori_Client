@@ -84,11 +84,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, watch, ref, toRefs, reactive, SetupContext } from 'vue'
+import { defineComponent, computed, watch, ref, toRefs, reactive, SetupContext, watchEffect } from 'vue'
 import VM_Input from '@/components/VM_Input.vue'
 import VM_UploadVideo from '@/components/VM_UploadVideo.vue'
 import { useStore } from '@/store/store'
 import { VideoService } from '@/services/VideoService'
+import { AccountService } from '@/services/AccountService'
+import VMoriRepository from '@/repository/VMoriRepository'
+import { useRouter } from '@/router/router'
 
 const state = toRefs(reactive({
     uploadVideo:{
@@ -97,6 +100,7 @@ const state = toRefs(reactive({
 }))
 
 let videoService: VideoService
+let accountService: AccountService
 export default defineComponent({
     components:{
         'vm-input': VM_Input,
@@ -106,12 +110,17 @@ export default defineComponent({
     setup(props, context: SetupContext) {
         const store = useStore()
 
-        var iconBtnStyle = ref(createIconBtnStyle(store.state.account.icon))
-        watch(store.state.account,(newval, oldval)=>{
-           iconBtnStyle.value = createIconBtnStyle(newval.icon)
-        })
-
+        //各サービスの初期化
         videoService = new VideoService()
+        accountService = new AccountService(store, new VMoriRepository(useRouter()))
+
+        var iconBtnStyle = ref(createIconBtnStyle(accountService.getAcoccountIcon()))
+        // watch(store.state.account,(newval, oldval)=>{
+        //    iconBtnStyle.value = createIconBtnStyle(newval.icon)
+        // })
+        watchEffect(() =>{
+            iconBtnStyle.value = createIconBtnStyle(accountService.getAcoccountIcon())
+        })
 
         return{
             //動画アップロード
