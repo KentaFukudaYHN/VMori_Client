@@ -1,7 +1,6 @@
 <style lang="scss" scoped>
     .guide{
         display: flex;
-        height: 100%;
         &-container{
             width:200px;
             height: 100%;
@@ -9,6 +8,30 @@
 
         &-content{
             width: 100%;
+        }
+    }
+    .guide-sp{
+        display: none;
+        @include sp{
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: #fff;
+            padding: 10px 0 10px 0;
+                        
+        }
+        & .guidesp{
+
+            &-menu{
+                width: 30px;
+                height: 30px;
+                background-position: center;
+                background-repeat: no-repeat;
+                background-size: contain;
+            }
         }
     }
 </style>
@@ -32,6 +55,13 @@
             <slot name="content"></slot>
         </div>
     </div>
+    <div class="guide-sp">
+        <div class="guidesp-menu icon-menusp-search"></div>
+        <div class="guidesp-menu icon-menusp-like"></div>
+        <div class="guidesp-menu icon-menusp-up"></div>
+        <div class="guidesp-menu icon-menusp-history"></div>
+        <div class="guidesp-menu icon-menusp-channels"></div>
+    </div>    
 </template>
 
 <script lang="ts">

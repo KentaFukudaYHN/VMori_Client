@@ -39,4 +39,24 @@
 .icon-comment-send {
   background-image: url("../../assets/icon-send.png");
 }
+
+.icon-menusp-search {
+  background-image: url("../../assets/icon-menu-search.png");
+}
+
+.icon-menusp-like {
+  background-image: url("../../assets/icon-menu-like.png");
+}
+
+.icon-menusp-history {
+  background-image: url("../../assets/icon-menu-history.png");
+}
+
+.icon-menusp-channels {
+  background-image: url("../../assets/icon-menu-list.png");
+}
+
+.icon-menusp-up {
+  background-image: url("../../assets/icon-menu-up.png");
+}
 /*# sourceMappingURL=icon.css.map */
