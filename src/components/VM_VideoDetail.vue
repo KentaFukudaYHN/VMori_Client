@@ -571,32 +571,47 @@ export default defineComponent({
                     setWidth = String(targetWidth) + 'px'
                 }
 
-                let ss = String(contentRectJson.top as number) as string
-                console.log(`width: ${contentRectJson.top}`);
                 (playerCommentRef.value as HTMLElement).style.position = 'absolute' as string
 
+
+                //基準値の設定
+                const baseTop = target.getBoundingClientRect().top + window.scrollY as number
+                const baseLeft = target.getBoundingClientRect().left as number
+                
+                const baseRight = target.getBoundingClientRect().right as number
+                const baseBottom = target.getBoundingClientRect().bottom + window.scrollY as number
                 
                 //コメント用のオーバーレイを動画サイズに合わせて調整
-                (playerCommentRef.value as HTMLElement).style.top = (target.getBoundingClientRect().top + "px") as string
-                (playerCommentRef.value as HTMLElement).style.left = (target.getBoundingClientRect().left + "px") as string
-                (playerCommentRef.value as HTMLElement).style.right = (target.getBoundingClientRect().right + "px") as string
-                (playerCommentRef.value as HTMLElement).style.bottom = (target.getBoundingClientRect().bottom + "px") as string
+                (playerCommentRef.value as HTMLElement).style.top = (baseTop+ "px") as string
+                (playerCommentRef.value as HTMLElement).style.left = (baseLeft + "px") as string
+                (playerCommentRef.value as HTMLElement).style.right = (baseRight + "px") as string
+                (playerCommentRef.value as HTMLElement).style.bottom = (baseBottom + "px") as string
 
 
                 (playerCommentRef.value as HTMLElement).style.width = setWidth as string
                 (playerCommentRef.value as HTMLElement).style.height = setHeigt as string
 
                 //フルスクリーンレイヤーのサイズ調整
+                console.log('bottom: ' + baseBottom )
+                console.log('targetHeight: ' + targetHeight)
                 const fullCreenLayerElement = fullScreenLayerRef.value as HTMLElement
                 fullCreenLayerElement.style.width = setWidth as string
                 fullCreenLayerElement.style.height = String(Math.floor(targetHeight * 0.8)) + 'px'
-                fullCreenLayerElement.style.top = (target.getBoundingClientRect().top + "px") as string
-                fullCreenLayerElement.style.left = (target.getBoundingClientRect().left + "px") as string
-                fullCreenLayerElement.style.right = (target.getBoundingClientRect().right + "px") as string
+                fullCreenLayerElement.style.top = (baseTop+ "px") as string
+                fullCreenLayerElement.style.left = (baseLeft + "px") as string
+                fullCreenLayerElement.style.right = (baseRight+ "px") as string
 
                 //フルスクリーンボタンの位置を動画サイズに合わせて調整
-                let rightEnd = target.getBoundingClientRect().right - targetWidth
-                let fullScreenSetTop = target.getBoundingClientRect().bottom - (Math.floor(targetHeight * 0.15)) as number
+                let rightEnd = baseRight - targetWidth
+                //下から話す比率は画面サイズで変動させる
+                let bottomRatio = 0.18
+                if(targetWidth < appSetting.media.sp){
+                    bottomRatio = 0.45
+                }else if(targetWidth < appSetting.media.tab){
+                    bottomRatio = 0.3
+                }
+
+                let fullScreenSetTop = baseBottom - (Math.floor(targetHeight * bottomRatio)) as number
                 let fullScreenSetRight = rightEnd as number + 20 as number
 
                 const fullScreenBtnTarget = fullScreenBtnRef.value as HTMLElement
@@ -605,12 +620,12 @@ export default defineComponent({
 
                 //フルスクリーン時のコメントボックスを動画サイズに合わせて調整
                 const fullScreenCommentTarget = fullScreenCommentRef.value as HTMLElement
-                let fullScreenCommentWidth = target.getBoundingClientRect().right * 0.7
+                let fullScreenCommentWidth = baseRight * 0.7
 
                 //フルスクリーンボタンとかぶらないようにwidthを調整する ※5pxは余分にとる
-                const fullScreenCommentWidthAddBtnArea = fullScreenBtnTarget.getBoundingClientRect().width +  (target.getBoundingClientRect().right * 0.3 * 0.5) + 5
-                if(target.getBoundingClientRect().right < fullScreenCommentWidthAddBtnArea){
-                    fullScreenCommentWidth -= fullScreenCommentWidthAddBtnArea - target.getBoundingClientRect().right
+                const fullScreenCommentWidthAddBtnArea = fullScreenBtnTarget.getBoundingClientRect().width +  (baseRight * 0.3 * 0.5) + 5
+                if(baseRight < fullScreenCommentWidthAddBtnArea){
+                    fullScreenCommentWidth -= fullScreenCommentWidthAddBtnArea - baseRight
                 }
 
                 //最大の長さは850pxにする

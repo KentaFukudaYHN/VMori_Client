@@ -3,6 +3,8 @@ import { Router } from 'vue-router'
 import { BaseApiRes } from '@/apiReqRes/BaseApiRes' 
 
 const BASE_URL = process.env.API_URL
+// const BASE_URL = "https://vmori-dev.azurewebsites.net"
+console.log('apiurl: ' + process.env.API_URL)
 
 export default class VMoriRepository{
     private client: AxiosInstance
@@ -68,6 +70,7 @@ export default class VMoriRepository{
     }
 
     constructor(router: Router){
+        console.log(process.env.API_URL)
         this.router = router;
         this.client = axios.create({
             baseURL: BASE_URL,
