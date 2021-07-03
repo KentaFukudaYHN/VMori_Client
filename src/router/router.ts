@@ -11,6 +11,11 @@ import Videopage from '@/pages/VideoPage.vue'
 
 const route = [
     {
+        path: '/',
+        name: 'TOP',
+        component: Home
+    },
+    {
         path: '/Home',
         name: 'Home',
         component: Home

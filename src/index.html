@@ -8,6 +8,8 @@
         <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
         <link rel="preconnect" href="https://fonts.gstatic.com">
 
+        <!-- PWA マニフェスト -->
+        <link rel="manifest" href="./manifest.json">
 
         <!-- Foundation CSS -->
         <link rel="stylesheet" href="./css/Foundation/valiable.css">
@@ -51,7 +53,17 @@
                 },
             });
 
+
+            //PWA用にServiceWorkerの読み込み
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('./js/sw.js').then(registration => {
+                    console.log('ServiceWorker registration successful.');
+                }).catch(err => {
+                    console.log('ServiceWorker registration failed.');
+                });
+            }
         </script>
+        
         <style>
             .loading-wrap{
                 display: flex;

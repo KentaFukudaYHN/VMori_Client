@@ -350,6 +350,7 @@
     <vm-guide>
         <template v-slot:content>
             <div id="videoContainer">
+                v12
                 <div ref="fullScreenContainer"  :class="{'fullscreen-none': !isFullScreenMode, 'fullscreen-on': isFullScreenMode, 'player-playing': isPlaying, 'player-playing-no': !isPlaying, 'player-mousemove': isMouseMove}">
                     <div  id="playeroOverlay" ref="playerOverlayRef">
                         <div ref="playerRef" id="player" ></div>
@@ -766,14 +767,26 @@ async function adjustContentSize(target: HTMLDivElement){
                 const baseBottom = target.getBoundingClientRect().bottom + scrollY as number
                 
                 //コメント用のオーバーレイを動画サイズに合わせて調整
-                (playerCommentRef.value as HTMLElement).style.top = (baseTop+ "px") as string
-                (playerCommentRef.value as HTMLElement).style.left = (baseLeft + "px") as string
-                (playerCommentRef.value as HTMLElement).style.right = (baseRight + "px") as string
-                (playerCommentRef.value as HTMLElement).style.bottom = (baseBottom + "px") as string
-
-
                 (playerCommentRef.value as HTMLElement).style.width = setWidth as string
-                (playerCommentRef.value as HTMLElement).style.height = setHeigt as string
+                //widthよりheightが高い場合のフルスクリーンモードは、コメントがはみ出るので、heightを計算しなおす 横:縦 1:0.563で計算
+                debugger
+                if(videoService.getIsFullScreenMode() && targetHeight > targetWidth){
+                    (playerCommentRef.value as HTMLElement).style.top = (50+ "%") as string
+                    (playerCommentRef.value as HTMLElement).style.left = '0' as string
+                    (playerCommentRef.value as HTMLElement).style.right =  'auto' as string
+                    (playerCommentRef.value as HTMLElement).style.bottom ='auto' as string
+                    (playerCommentRef.value as HTMLElement).style.transform = 'translateY(-50%)' as string
+                    (playerCommentRef.value as HTMLElement).style.height = (Math.floor(targetWidth * 0.563)) + 'px' as string
+                }else{
+                    (playerCommentRef.value as HTMLElement).style.top = (baseTop+ "px") as string
+                    (playerCommentRef.value as HTMLElement).style.left = (baseLeft + "px") as string
+                    (playerCommentRef.value as HTMLElement).style.right = (baseRight + "px") as string
+                    (playerCommentRef.value as HTMLElement).style.bottom = (baseBottom + "px") as string
+                    (playerCommentRef.value as HTMLElement).style.transform = 'none' as string
+
+                    (playerCommentRef.value as HTMLElement).style.height = setHeigt as string
+                }
+
 
                 //フルスクリーンレイヤーのサイズ調整
                 const isTatenaga = targetWidth < targetHeight
