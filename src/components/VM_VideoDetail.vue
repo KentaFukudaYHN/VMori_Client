@@ -30,6 +30,9 @@
             z-index: 2;
             color: #fff;
             font-size: 30px;
+            @include sp{
+                font-size:15px;
+            }
             font-weight: bold;
             -webkit-text-stroke: 1px $gray-font-color;
             overflow: hidden;
@@ -194,7 +197,7 @@
             font-weight: 300;
 
             @include sp {
-                font-size: 10px;
+                font-size: 12px;
             }
 
             & .statistics{
@@ -996,10 +999,14 @@ function setVideoCommentAnimation(comments: VideoCommentApiRes[]){
 function addVideoComment(comment: VideoComment){
     playerCommentItems.value.push(comment)
     // videoService.registCommentForStore(x)
+
+    //動画サイズを取得
+    const videoWidth = (playerOverlayRef.value as HTMLElement).getBoundingClientRect().width
+
     setTimeout(() => {
         animations.push(gsap.to('#' + comment.id,{
-            duration:25,
-            x: - 5000,
+            duration:10,
+            x: (videoWidth + 1000) * -1, //幅は変わる可能性があるが、1000px以上変わることはないだろうと想定
             ease: 'none'
         }))
     })
