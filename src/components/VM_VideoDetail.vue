@@ -849,9 +849,13 @@ async function adjustContentSize(target: HTMLDivElement){
                 let fullScreenCommentWidth = baseRight * 0.7
 
                 //フルスクリーンボタンとかぶらないようにwidthを調整する ※5pxは余分にとる
-                const fullScreenCommentWidthAddBtnArea = (fullScreenBtnTarget.getBoundingClientRect().width + 10) * 2 - 10
-                if(fullScreenCommentWidth > fullScreenCommentWidthAddBtnArea){
-                    fullScreenCommentWidth = fullScreenCommentWidthAddBtnArea
+                // const fullScreenCommentWidthAddBtnArea = (fullScreenBtnTarget.getBoundingClientRect().width + 10) * 2 - 10
+                // if(fullScreenCommentWidth > fullScreenCommentWidthAddBtnArea){
+                //     fullScreenCommentWidth = fullScreenCommentWidthAddBtnArea
+                // }
+                const fullScreenCommentWidthAddBtnArea = targetWidth - ((fullScreenBtnTarget.getBoundingClientRect().width + 10) * 2)
+                if(targetHeight < targetWidth && fullScreenCommentWidth > fullScreenCommentWidthAddBtnArea){
+                    fullScreenCommentWidth = fullScreenCommentWidthAddBtnArea - 35
                 }
 
                 //最大の長さは850pxにする
