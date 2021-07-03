@@ -4,23 +4,41 @@
     flex-wrap: wrap;
     margin: 40px;
 
-    @include tab{
-        justify-content: center;
+    // @include tab{
+    //     justify-content: center;
+    // }
+
+    @include sp{
+        margin: 10px 6px;
     }
 }
 .video{
     &-container {
         cursor: pointer;
         margin: 0 15px 60px 15px;
-        min-width: 214.5px;
+        // min-width: 214.5px;
         // min-height: 250px;
+
+        @include tab{
+            border: solid 1px #cccccc;
+            // min-width: 0;
+        }
+
+        @include sp{
+            margin: 5px 5px 15px 5px;
+        }
     }
     &-thumbnail{
         width:100%;
         height:80%;
-        min-height: 112px;
+        // min-height: 112px;
         overflow: hidden;
         position: relative;
+
+        @include tab{
+            min-height: 0;
+        }
+
         & img{
             position: absolute;
             top: 50%;
@@ -36,6 +54,15 @@
         height: 20%;
         min-height: 6em;
         overflow: hidden;
+
+        @include tab{
+            padding: 5px 5px 5px 5px;
+            height: auto;
+        }
+
+        @include sp{
+            font-size: 10px;
+        }
     }
     &-title{
         display: -webkit-box;
@@ -45,6 +72,12 @@
         max-height: 3em;
         color: #030303;
         font-weight: bold;
+
+        
+
+        @include tab{
+            font-size: 12px;
+        }
     }
     &-channel{
         display: block;
@@ -58,8 +91,23 @@
         align-items: center;
         justify-content: space-between;
 
+        @include tab{
+            max-height: none;
+            display: block;
+        }
+
         & .statics-platformicon{
             height: 1em;
+            @include tab{
+                display: block;
+            }
+        }
+
+        & .statics-viewcount{
+            @include tab{
+                display: block;
+                margin-bottom: 2px;
+            }
         }
     }
 }
@@ -77,7 +125,7 @@
                 <span class="video-title">{{ item.title}}</span>
                 <span class="video-channel">{{ item.channelTitle }}</span>
                 <div class="video-stastics">
-                    <span>{{ displayStatistics(item.viewCount, item.publishDateTime) }}</span>
+                    <span class="statics-viewcount">{{ displayStatistics(item.viewCount, item.publishDateTime) }}</span>
                     <img class="statics-platformicon" :src="getPlatFormIconSrc(item.platFormKinds)">
                 </div>
             </div>
@@ -96,6 +144,8 @@ import { VideoItem } from '@/store/modules/VideoModule'
 import { date } from 'yup/lib/locale'
 import { VideoPlatFormKinds } from '@/commons/enum'
 import { Router } from 'vue-router'
+import { appSetting } from '@/entities/AppSetting'
+
 
 type Props = {
     videos: Array<VideoItem>
@@ -182,23 +232,32 @@ function onResizeThumbnail(){
     let colum = 4;
     if(listContainerWidth > 1500){
         colum = 5
-    }else if(listContainerWidth > 1024){
+    }else if(listContainerWidth > appSetting.media.pc){
         colum = 4
-    }else if(listContainerWidth > 748){
+    }else if(window.innerWidth > appSetting.media.tab){
         colum = 3
-    }else if(window.innerWidth > 748){
-        colum = 3
-    }else if(listContainerWidth > 480) {
+    // }else if(listContainerWidth > 480) {
+    //     colum = 2
+    // }
+    }else {
         colum = 2
     }
-    const margin = 30
+    let margin = 30
+
+    //スマホ表示はmarginが10になる ※cssで設定
+    if(window.innerWidth < appSetting.media.sp){
+        margin = 10
+    }
 
     //動画のmargin分を際引いた表示表示領域
     const canDisplayWidth = listContainerWidth - (margin * colum)
 
     //１動画のwidth
-    const calcVideoWidth = Math.floor(canDisplayWidth / colum) 
+    let calcVideoWidth = Math.floor(canDisplayWidth / colum) 
     console.log(calcVideoWidth)
+
+    //スマホ表示はboderを1px引くのでその分widthを引く ※borderはcssで設定済み
+    calcVideoWidth -= 2
 
     //1動画のheight 横1 縦 0.7
     const calcVideoHeight = Math.floor(calcVideoWidth * 0.7)

@@ -769,7 +769,7 @@ async function adjustContentSize(target: HTMLDivElement){
                 //コメント用のオーバーレイを動画サイズに合わせて調整
                 (playerCommentRef.value as HTMLElement).style.width = setWidth as string
                 //widthよりheightが高い場合のフルスクリーンモードは、コメントがはみ出るので、heightを計算しなおす 横:縦 1:0.563で計算
-                debugger
+
                 if(videoService.getIsFullScreenMode() && targetHeight > targetWidth){
                     (playerCommentRef.value as HTMLElement).style.top = (50+ "%") as string
                     (playerCommentRef.value as HTMLElement).style.left = '0' as string
