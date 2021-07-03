@@ -3,6 +3,7 @@ const { VueLoaderPlugin, default: loader } = require('vue-loader')
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 const webpack = require('webpack')
 const { config } = require('dotenv')
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 config()
 
@@ -12,7 +13,7 @@ module.exports = {
     entry: './src/main.ts',
     output: {
         path : path.resolve(__dirname, 'dist'),
-        filename: "bundle.js"
+        filename: "bundle.[contenthash].js"
     },
     resolve:{
         extensions: ['.webpack.js', '.web.js', '.ts', '.tsx', '.js'],
@@ -62,6 +63,10 @@ module.exports = {
     },
     plugins:[
         new VueLoaderPlugin(),
+        new HtmlWebpackPlugin({
+            filename: "index.html",
+            template: path.resolve(__dirname, "./src/index.html")
+        }),
         new webpack.DefinePlugin({
             'process.env':{
                 'API_URL': JSON.stringify(process.env.API_URL),

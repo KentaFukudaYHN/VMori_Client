@@ -5,7 +5,11 @@ import { router } from '@/router/router'
 import { AuthService } from './services/AuthServices'
 import VMoriRepository from './repository/VMoriRepository'
 import { AccountService } from './services/AccountService'
+import { boolean } from 'yup/lib/locale'
 const app = createApp(App)
+
+//スクリプト読み込みフラグのグルーバル変数を更新
+window['isLoading'] = true
 
 app.use(store, key)
 app.use(router)

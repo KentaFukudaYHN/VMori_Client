@@ -1,47 +1,11 @@
-<!DOCTYPE html>
-<html lang="ja">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
-
-        <title>VTimes</title>
-        <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
-        <link rel="preconnect" href="https://fonts.gstatic.com">
-
-
-        <!-- Foundation CSS -->
-        <link rel="stylesheet" href="./css/Foundation/valiable.css">
-        <link rel="stylesheet" href="./css/Foundation/reset.css">
-        <link rel="stylesheet" href="./css/Foundation/base.css">
-        <link rel="stylesheet" href="./css/Foundation/img.css">
-
-        <!-- Layout CSS -->
-        <link rel="stylesheet" href="./css/Layout/i-header.css">
-        <link rel="stylesheet" href="./css/Layout/i-container.css">
-        <link rel="stylesheet" href="./css/Layout/i-main.css">
-        <link rel="stylesheet" href="./css/Layout/i-footer.css">
-
-        <!-- Object CSS -->
-        <link rel="stylesheet" href="./css/Object/button.css">
-        <link rel="stylesheet" href="./css/Object/font.css">
-        <link rel="stylesheet" href="./css/Object/icon.css">
-        <link rel="stylesheet" href="./css/Object/title.css">
-        <link rel="stylesheet" href="./css/Object/checkbox.css">
-        <link rel="stylesheet" href="./css/Object/radio.css">
-        <link rel="stylesheet" href="./css/Object/valid.css">
-        <link rel="stylesheet" href="./css/Object/input.css">
-
-        <!-- Project CSS -->
-        <link rel="stylesheet" href="./css/Project/cropper.css">
-        <link rel="stylesheet" href="./css/Project/form.css">
-        <link rel="stylesheet" href="./css/Project/postscript.css">
-        <link rel="stylesheet" href="./css/Project/videoGenre.css">
-        <link rel="stylesheet" href="./css/Project/selecter.css">
-    </head>
-    <body>
-        <div id="app"></div>
-
-        <!-- youtube IFrame API -->
-        <script src="bundle.js"></script>
-    </body>
-</html>
+<!doctype html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"><title>VTimes</title><link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet"><link rel="preconnect" href="https://fonts.gstatic.com"><link rel="stylesheet" href="./css/Foundation/valiable.css"><link rel="stylesheet" href="./css/Foundation/reset.css"><link rel="stylesheet" href="./css/Foundation/base.css"><link rel="stylesheet" href="./css/Foundation/img.css"><link rel="stylesheet" href="./css/Layout/i-header.css"><link rel="stylesheet" href="./css/Layout/i-container.css"><link rel="stylesheet" href="./css/Layout/i-main.css"><link rel="stylesheet" href="./css/Layout/i-footer.css"><link rel="stylesheet" href="./css/Object/button.css"><link rel="stylesheet" href="./css/Object/font.css"><link rel="stylesheet" href="./css/Object/icon.css"><link rel="stylesheet" href="./css/Object/title.css"><link rel="stylesheet" href="./css/Object/checkbox.css"><link rel="stylesheet" href="./css/Object/radio.css"><link rel="stylesheet" href="./css/Object/valid.css"><link rel="stylesheet" href="./css/Object/input.css"><link rel="stylesheet" href="./css/Project/cropper.css"><link rel="stylesheet" href="./css/Project/form.css"><link rel="stylesheet" href="./css/Project/postscript.css"><link rel="stylesheet" href="./css/Project/videoGenre.css"><link rel="stylesheet" href="./css/Project/selecter.css"><script>//グローバル変数にバンドルJSのローディング有無のフラグを定義して監視
+            Object.defineProperty(window,'isLoading', {
+                configurable: false,
+                val: false,
+                get: function () { return this.val; },
+                set: function (x) {
+                    this.val = x;
+                    //アニメーションを終了(アニメーションのDOMを削除する)
+                    document.getElementById('_loading').remove()
+                },
+            });</script><script defer="defer" src="bundle.fc4ba9847d0ef0fcf878.js"></script></head><body><div id="_loading">Loading...</div><div id="app"></div></body></html>

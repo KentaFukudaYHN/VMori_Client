@@ -78,6 +78,10 @@
         }
         & .fullscreen-none.player-playing-no .fullscreen-item{
             visibility: hidden;
+            //スマホの時はフルスクリーンアイテム表示 ※タブレットも考えるとpc幅にせざるを得ない...?
+            @include pc{
+                visibility: visible;
+            }
         }
         & #fullScreenBtn{
             position: absolute;
@@ -104,7 +108,7 @@
         }
         & #fullScreenCommentContainer{
             position: absolute;
-            background: #fff;
+            background: transparent;
             border-radius: 5px;
             left: 50%;
             transform: translate(-50%, -50%);
@@ -127,6 +131,7 @@
         }
         & .comment-btn{
             width: 7em;
+            min-width: 7em;
             background-color: $theme-color;
             font-size:12px;
             font-weight: bold;
@@ -152,8 +157,8 @@
 
         & #fullScreenCommentContainer .comment-input{
             width: 100%;
-            max-width: 100%;
             height: 100%;
+            background: #fff;
         }
 
         & #fullScreenCommentContainer .comment-btn{
@@ -318,7 +323,7 @@
         <template v-slot:content>
             <div id="videoContainer">
                 <div ref="fullScreenContainer"  :class="{'fullscreen-none': !isFullScreenMode, 'fullscreen-on': isFullScreenMode, 'player-playing': isPlaying, 'player-playing-no': !isPlaying, 'player-mousemove': isMouseMove}">
-                    <div  id="playeroOverlay" ref="playerOverlayRef" >
+                    <div  id="playeroOverlay" ref="playerOverlayRef">
                         <div ref="playerRef" id="player" ></div>
                         <!-- <iframe id="player" width="560" height="315" :src="youtubeVideoSrc" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> -->
                     </div>
@@ -493,6 +498,10 @@ let commentInputVal = ref('')
 let playerCommentItems = ref([] as VideoComment[])
 let originalCommentItems = [] as VideoComment[]
 const maxCommentLength = 75
+let fullScreenLayerRef = ref(null)
+let fullScreenBtnRef = ref(null)
+let fullScreenCommentRef = ref(null)
+let playerOverlayRef = ref(null)
 export default defineComponent({
     components:{
         'vm-guide': VM_Guide,
@@ -518,11 +527,11 @@ export default defineComponent({
         commentInputVal.value = ''
 
         playerRef = ref(null)
-        let playerOverlayRef = ref(null)
+        playerOverlayRef = ref(null)
         playerCommentRef = ref(null)
-        let fullScreenBtnRef = ref(null)
-        let fullScreenCommentRef = ref(null)
-        let fullScreenLayerRef = ref(null)
+        fullScreenBtnRef = ref(null)
+        fullScreenCommentRef = ref(null)
+        fullScreenLayerRef = ref(null)
         fullScreenContainer = ref(null)
 
         let observer: ResizeObserver
@@ -551,105 +560,7 @@ export default defineComponent({
             const playerDom = playerOverlayRef.value as HTMLDivElement
             console.log('observer')
             observer = new ResizeObserver(async (entries) => {
-                // console.log(entries[0].contentRect.toJSON())
-                // console.log(`width: ${entries[0].contentRect.width}`);
-                // console.log(`height: ${entries[0].contentRect.height}`);
-
-                let contentRectJson = entries[0].contentRect.toJSON();
-
-                let target = entries[0].target as HTMLElement
-                let targetWidth = entries[0].target.getBoundingClientRect().width
-                let targetHeight = entries[0].target.getBoundingClientRect().height
-
-                let setHeigt = ''
-                let setWidth = ''
-                if(targetHeight == 0){
-                    setHeigt = '100vh'
-                    setWidth = '100vw'
-                }else{
-                    setHeigt = String(targetHeight) + 'px'
-                    setWidth = String(targetWidth) + 'px'
-                }
-
-                (playerCommentRef.value as HTMLElement).style.position = 'absolute' as string
-
-
-                //基準値の設定
-                const baseTop = target.getBoundingClientRect().top + window.scrollY as number
-                const baseLeft = target.getBoundingClientRect().left as number
-                
-                const baseRight = target.getBoundingClientRect().right as number
-                const baseBottom = target.getBoundingClientRect().bottom + window.scrollY as number
-                
-                //コメント用のオーバーレイを動画サイズに合わせて調整
-                (playerCommentRef.value as HTMLElement).style.top = (baseTop+ "px") as string
-                (playerCommentRef.value as HTMLElement).style.left = (baseLeft + "px") as string
-                (playerCommentRef.value as HTMLElement).style.right = (baseRight + "px") as string
-                (playerCommentRef.value as HTMLElement).style.bottom = (baseBottom + "px") as string
-
-
-                (playerCommentRef.value as HTMLElement).style.width = setWidth as string
-                (playerCommentRef.value as HTMLElement).style.height = setHeigt as string
-
-                //フルスクリーンレイヤーのサイズ調整
-                console.log('bottom: ' + baseBottom )
-                console.log('targetHeight: ' + targetHeight)
-                const fullCreenLayerElement = fullScreenLayerRef.value as HTMLElement
-                fullCreenLayerElement.style.width = setWidth as string
-                fullCreenLayerElement.style.height = String(Math.floor(targetHeight * 0.8)) + 'px'
-                fullCreenLayerElement.style.top = (baseTop+ "px") as string
-                fullCreenLayerElement.style.left = (baseLeft + "px") as string
-                fullCreenLayerElement.style.right = (baseRight+ "px") as string
-
-                //フルスクリーンボタンの位置を動画サイズに合わせて調整
-                let rightEnd = baseRight - targetWidth
-                //下から話す比率は画面サイズで変動させる
-                let bottomRatio = 0.18
-                if(targetWidth < appSetting.media.sp){
-                    bottomRatio = 0.45
-                }else if(targetWidth < appSetting.media.tab){
-                    bottomRatio = 0.3
-                }
-
-                let fullScreenSetTop = baseBottom - (Math.floor(targetHeight * bottomRatio)) as number
-                let fullScreenSetRight = rightEnd as number + 20 as number
-
-                const fullScreenBtnTarget = fullScreenBtnRef.value as HTMLElement
-                fullScreenBtnTarget.style.right = String(fullScreenSetRight) + 'px' as string
-                fullScreenBtnTarget.style.top = String(fullScreenSetTop) + 'px' as string
-
-                //フルスクリーン時のコメントボックスを動画サイズに合わせて調整
-                const fullScreenCommentTarget = fullScreenCommentRef.value as HTMLElement
-                let fullScreenCommentWidth = baseRight * 0.7
-
-                //フルスクリーンボタンとかぶらないようにwidthを調整する ※5pxは余分にとる
-                const fullScreenCommentWidthAddBtnArea = fullScreenBtnTarget.getBoundingClientRect().width +  (baseRight * 0.3 * 0.5) + 5
-                if(baseRight < fullScreenCommentWidthAddBtnArea){
-                    fullScreenCommentWidth -= fullScreenCommentWidthAddBtnArea - baseRight
-                }
-
-                //最大の長さは850pxにする
-                if(fullScreenCommentWidth > 850) { fullScreenCommentWidth = 850 }
-
-                // const fullScreenCommentDomRect = fullScreenCommentTarget.getBoundingClientRect()
-
-                //leftのサイズを計算
-                fullScreenCommentTarget.style.top = String(fullScreenSetTop) + 'px' as string
-                fullScreenCommentTarget.style.width = String(fullScreenCommentWidth) + 'px' as string
-                // const comments = document.getElementsByClassName('player-comment')
-                // if(comments != null){
-                //     for (let i = 0; i < comments.length; i++) {
-                //         (comments[i] as HTMLElement).style.right = commentStartRight + 'px' as string
-                //     }
-                // }
-
-                // console.log('フルスクリーンボタンのサイズ計算')
-                // console.log(`width: ${ target.getBoundingClientRect().bottom}`);
-                // console.log(`height: ${(Math.floor(targetHeight * 0.1))}`);
-
-                // console.log('コメントコンテナのサイズ')
-                // console.log(`width: ${ (playerCommentRef.value as HTMLElement).style.width}`);
-                // console.log(`height: ${(playerCommentRef.value as HTMLElement).style.height}`);
+                adjustContentSize(entries[0].target as HTMLDivElement)
             })
             observer.observe(playerDom)
             
@@ -663,12 +574,12 @@ export default defineComponent({
 
                 await videoService.updateIsLoadedYoutubePlayer(true)
 
-                window['onYouTubeIframeAPIReady'] = () => { 
+                window['onYouTubeIframeAPIReady'] = async () => { 
                     console.log('initYoutuve: ' + videoId)
-                    initYoutube(videoId) 
+                    await initYoutube(videoId) 
                 }
             }else{
-                initYoutube(videoId)
+                await initYoutube(videoId)
 
             }
         })
@@ -691,6 +602,9 @@ export default defineComponent({
             }else{
                 document.getElementById('player').style.height = ''
             }
+
+            //要素のサイズ調整
+            adjustContentSize(playerOverlayRef.value as HTMLDivElement)
         }
         document.removeEventListener('fullscreenchange', fullScreenChange)
         document.addEventListener('fullscreenchange',fullScreenChange)
@@ -763,11 +677,154 @@ export default defineComponent({
                 return isMouseMoveOnFullScreenLayer.value
             }),
             playVideo: () => { playVideo() },
-            registComment: async () => { await registComment(videoId) }
+            registComment: async () => { await registComment(videoId) },
         }
     },
 })
 
+//動画サイズに合わせて他の要素のサイズを調整する
+async function adjustContentSize(target: HTMLDivElement){
+                // console.log(entries[0].contentRect.toJSON())
+                // console.log(`width: ${entries[0].contentRect.width}`);
+                // console.log(`height: ${entries[0].contentRect.height}`);
+
+
+                let targetWidth = target.getBoundingClientRect().width
+                let targetHeight = target.getBoundingClientRect().height
+
+                let setHeigt = ''
+                let setWidth = ''
+                if(targetHeight == 0){
+                    setHeigt = '100vh'
+                    setWidth = '100vw'
+                }else{
+                    setHeigt = String(targetHeight) + 'px'
+                    setWidth = String(targetWidth) + 'px'
+                }
+
+                (playerCommentRef.value as HTMLElement).style.position = 'absolute' as string
+
+
+                //基準値の設定
+                let scrollX = 0
+                let scrollY = 0
+
+                // if(videoService.getIsFullScreenMode() == false){
+                //     scrollX = window.scrollX
+                //     scrollY = window.scrollY
+                // }
+                if(targetHeight != target.getBoundingClientRect().bottom){
+                    scrollY = window.scrollY
+                    scrollX = window.scrollX
+                }
+
+                const baseTop = target.getBoundingClientRect().top + scrollY as number
+                const baseLeft = target.getBoundingClientRect().left + scrollX as number
+                
+                const baseRight = target.getBoundingClientRect().right + scrollX as number
+                const baseBottom = target.getBoundingClientRect().bottom + scrollY as number
+                
+                //コメント用のオーバーレイを動画サイズに合わせて調整
+                (playerCommentRef.value as HTMLElement).style.top = (baseTop+ "px") as string
+                (playerCommentRef.value as HTMLElement).style.left = (baseLeft + "px") as string
+                (playerCommentRef.value as HTMLElement).style.right = (baseRight + "px") as string
+                (playerCommentRef.value as HTMLElement).style.bottom = (baseBottom + "px") as string
+
+
+                (playerCommentRef.value as HTMLElement).style.width = setWidth as string
+                (playerCommentRef.value as HTMLElement).style.height = setHeigt as string
+
+                //フルスクリーンレイヤーのサイズ調整
+                const isTatenaga = targetWidth < targetHeight
+                var fullScreenLayerHeightRatio = 0.8
+
+                    // if(targetWidth < appSetting.media.sp){
+                    //     fullScreenLayerHeightRatio = 0.6
+                    // }else if(targetWidth < appSetting.media.tab){
+                    //     fullScreenLayerHeightRatio = 0.6
+                    // }
+
+                if(targetWidth < appSetting.media.sp){
+                    fullScreenLayerHeightRatio = 0.6
+                }else if(targetWidth < appSetting.media.tab){
+                    fullScreenLayerHeightRatio = 0.6
+                }
+
+                if(isTatenaga){ fullScreenLayerHeightRatio = 0.7 }
+                const fullCreenLayerElement = fullScreenLayerRef.value as HTMLElement
+                fullCreenLayerElement.style.width = setWidth as string
+                fullCreenLayerElement.style.height = String(Math.floor(targetHeight * fullScreenLayerHeightRatio)) + 'px'
+                fullCreenLayerElement.style.top = (baseTop+ "px") as string
+                fullCreenLayerElement.style.left = (baseLeft + "px") as string
+                fullCreenLayerElement.style.right = (baseRight+ "px") as string
+
+                //フルスクリーンボタンの位置を動画サイズに合わせて調整
+                let rightEnd = baseRight - targetWidth
+                //下から話す比率は画面サイズで変動させる
+                let bottomRatio = 0.18
+                if(isTatenaga == false){
+                    if(targetWidth < appSetting.media.sp){
+                        bottomRatio = 0.3
+                    }else if(targetWidth < appSetting.media.tab){
+                        bottomRatio = 0.3
+                    }
+                }else{
+                    if(targetWidth < appSetting.media.sp){
+                        bottomRatio = 0.1
+                    }else if(targetWidth < appSetting.media.tab){
+                        bottomRatio = 0.15
+                    }
+                }
+
+
+                let fullScreenSetTop = baseBottom - (Math.floor(targetHeight * bottomRatio)) as number
+                let fullScreenSetRight = rightEnd as number + 20 as number
+
+                //ボタンの位置 ※縦長の時はコメントとずらす
+                const fullScreenBtnTarget = fullScreenBtnRef.value as HTMLElement
+                const fullScreenCommentTarget = fullScreenCommentRef.value as HTMLElement
+                let fullScreenSetTopByBtn = fullScreenSetTop
+                if(isTatenaga){
+                    fullScreenSetTopByBtn -= fullScreenCommentTarget.getBoundingClientRect().height + fullScreenBtnTarget.getBoundingClientRect().height
+                }
+
+                fullScreenBtnTarget.style.right = String(fullScreenSetRight) + 'px' as string
+                fullScreenBtnTarget.style.top = String(fullScreenSetTopByBtn) + 'px' as string
+
+                //フルスクリーン時のコメントボックスを動画サイズに合わせて調整
+                let fullScreenCommentWidth = baseRight * 0.7
+
+                //フルスクリーンボタンとかぶらないようにwidthを調整する ※5pxは余分にとる
+                const fullScreenCommentWidthAddBtnArea = (fullScreenBtnTarget.getBoundingClientRect().width + 10) * 2 - 10
+                if(fullScreenCommentWidth > fullScreenCommentWidthAddBtnArea){
+                    fullScreenCommentWidth = fullScreenCommentWidthAddBtnArea
+                }
+
+                //最大の長さは850pxにする
+                if(fullScreenCommentWidth > 850) { fullScreenCommentWidth = 850 }
+
+                // const fullScreenCommentDomRect = fullScreenCommentTarget.getBoundingClientRect()
+                console.log('fullScreenCommentWidth: ' + fullScreenCommentWidth)
+                //leftのサイズを計算
+                fullScreenCommentTarget.style.top = String(fullScreenSetTop) + 'px' as string
+                fullScreenCommentTarget.style.width = String(fullScreenCommentWidth) + 'px' as string
+                // const comments = document.getElementsByClassName('player-comment')
+                // if(comments != null){
+                //     for (let i = 0; i < comments.length; i++) {
+                //         (comments[i] as HTMLElement).style.right = commentStartRight + 'px' as string
+                //     }
+                // }
+
+                // console.log('フルスクリーンボタンのサイズ計算')
+                // console.log(`width: ${ target.getBoundingClientRect().bottom}`);
+                // console.log(`height: ${(Math.floor(targetHeight * 0.1))}`);
+
+                // console.log('コメントコンテナのサイズ')
+                // console.log(`width: ${ (playerCommentRef.value as HTMLElement).style.width}`);
+                // console.log(`height: ${(playerCommentRef.value as HTMLElement).style.height}`);
+}
+
+//コメントの登録
 async function registComment(videoId: string){
     if(commentInputVal.value == null || commentInputVal.value == '' || commentInputVal.value.length > maxCommentLength){ return }
 
@@ -1012,6 +1069,9 @@ async function initVideoSetup(videoid: string){
         videoItem.viewCount = x.viewCount
         state.channel.value.videos.push(videoItem)
     })
+
+    //scrollをTOPに持ってくる ※ページを更新した段階でScrollがTOPでないと、scroll位置を正確に取得することができずに、コンテンツのサイズの計算が狂ってしまう
+    window.scrollTo(0,0)
 }
 
 //該当のメニューが選択されているか
@@ -1080,7 +1140,6 @@ async function initYoutube(videoId: string){
     target.style.zIndex = '1' as string
     target.src = youtubeSrc + '&wmode=transparent'
     onResizeVideo()
-
 }
 
 

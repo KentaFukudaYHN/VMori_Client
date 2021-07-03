@@ -3,3 +3,4 @@ dist/bundle.js
 .env
 ./src/share-variable.css
 ./src/share-variable.css.map
+deploy-dev.bat
