@@ -7,7 +7,7 @@
         }
 
         @include sp{
-            font-size: 13px;
+            font-size: 12px;
         }
 
         & #player{
@@ -171,7 +171,7 @@
                 margin: 0 15px;
             }
             @include sp {
-                margin: 0 5px;
+                margin: 0 12px;
             }
         }
 
@@ -184,7 +184,7 @@
                 font-size: 18px;
             }
             @include sp{
-                font-size: 16px;
+                font-size: 14px;
             }
         }
         & #videoStatistics{
@@ -192,6 +192,10 @@
             font-size: 14px;
             color: $gray-font-color;
             font-weight: 300;
+
+            @include sp {
+                font-size: 10px;
+            }
 
             & .statistics{
                 &-langcontainer{
@@ -212,6 +216,7 @@
         }
         & #tagContainer{
             margin-top: 20px;
+            color: $gray-font-color;
             & .tag-item{
                 cursor: pointer;
                 margin: 0 3px;
@@ -243,6 +248,24 @@
             display: flex;
             justify-content: space-evenly;
             margin: 20px auto;
+
+            & .info-item-pc{
+                display: inline;
+
+                @include sp{
+                    display: none;
+                }
+            }
+
+            & .info-item-sp{
+                display: none;
+
+                @include sp{
+                    display: inline-block;
+                }
+            }
+
+
 
             & span{
                 display: block;
@@ -303,6 +326,7 @@
 
         & #summaryContainer{
             white-space: pre-wrap;
+            word-wrap: break-word;
             @include sp{
                 color: $gray-font-color;
             }
@@ -310,6 +334,7 @@
 
         & #channelContainer{
             white-space: pre-wrap;
+            word-wrap: break-word;
             @include sp{
                 color: $gray-font-color;
             }
@@ -377,11 +402,17 @@
                     <div class="info-container" >
                         <div class="info-header">
                             <span v-for="item in infoList" :key="item.kinds"
+                                class="info-item-pc"
                                 :class="{'info-item-select': item.selected}"
                                 @click="changeInfo(item.kinds)">
                                 {{ item.text }}
                             </span>
-                        </div>
+                            <span v-for="item in infoSpList" :key="item.kinds"
+                                class="info-item-sp"
+                                :class="{'info-item-select': item.selected}"
+                                @click="changeInfo(item.kinds)">
+                                {{ item.text }}
+                            </span>                        </div>
                         <div v-if="channel.title != null" class="channel-header">
                             <img class="channel-icon" :src="channel.thumbnailUrl"/>
                             <div class="channel-titlecontainer">
@@ -466,7 +497,13 @@ let state = toRefs(reactive({
             { text: 'チャンネル情報', kinds: infoKinds.channel, selected: false },
             { text: '動画一覧', kinds: infoKinds.videolist, selected: false },
             { text: 'チャンネル推移表', kinds: infoKinds.graph, selected: false }
-        ] as infoItem[]
+        ] as infoItem[],
+        spList: [
+            { text: '概要', kinds:infoKinds.summary, selected: true  },
+            { text: 'チャンネル', kinds: infoKinds.channel, selected: false },
+            { text: '動画一覧', kinds: infoKinds.videolist, selected: false },
+            { text: 'グラフ', kinds: infoKinds.graph, selected: false }
+        ]
     },
     channel:{
         thumbnailUrl: '',
@@ -643,6 +680,7 @@ export default defineComponent({
             // description: state.video.value.description,
             //メニュー情報
             infoList: state.info.value.list,
+            infoSpList: state.info.value.spList,
             //メニュー変更
             changeInfo : (kinds: number) => { changeInfo(kinds) },
             //概要を表示するか
@@ -1088,6 +1126,7 @@ function changeInfo(kinds:number){
     if(index < 0) { return }
 
     const dummyList = state.info.value.list.splice(0, state.info.value.list.length)
+    const dummySpList = state.info.value.spList.splice(0, state.info.value.spList.length)
 
     dummyList.forEach((x, i) => {
         let selected = false;
@@ -1098,6 +1137,17 @@ function changeInfo(kinds:number){
         }
 
         state.info.value.list.push(x)
+    })
+
+    dummySpList.forEach((x, i) => {
+        let selected = false;
+        if(i == index){
+            x.selected = true
+        }else{
+            x.selected = false
+        }
+
+        state.info.value.spList.push(x)
     })
 }
 

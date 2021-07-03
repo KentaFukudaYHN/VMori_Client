@@ -1,5 +1,6 @@
 node_modules/
 dist/bundle.js
+dist/bundle.*
 .env
 ./src/share-variable.css
 ./src/share-variable.css.map
