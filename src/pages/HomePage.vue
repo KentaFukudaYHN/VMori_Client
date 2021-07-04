@@ -4,10 +4,22 @@
         width: 80%;
         max-width: 1020px;
         margin: 0 auto;
+
+        @include sp {
+            display: flex;
+            width:auto;
+            margin: 0 11px;
+            align-items: center;
+            justify-content: end;
+        }
     }
 
     &-searchdetail{
         margin: 5px 10px;
+
+        @include sp{
+            margin: 5px 0;
+        }
     }
 }
 

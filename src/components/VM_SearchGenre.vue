@@ -1,5 +1,17 @@
 <style lang="scss" scoped>
     .searchgenre{
+        &-container{
+            @include sp{
+                display: none;
+            }
+
+            &-sp{
+                display: none;
+                @include sp{
+                    display: block;
+                }
+            }
+        }
         &-item{
             display: inline-block;
             cursor: pointer;
@@ -11,35 +23,73 @@
                 background-color: rgb(54, 54, 54);
                 color: #fff;
             }
+
+            &-selectsp{
+                background-color: $gray-font-color;
+                color: #fff;
+                padding: 5px 0px 5px 10px;
+
+                &::after{
+                    content: '';
+                    display: INLINE-BLOCK;
+                    background-color: transparent;
+                    width: 0;
+                    /* margin-bottom: -1px; */
+                    margin: 0px 5px -1px 5px;
+                    border-left: 7px solid transparent;
+                    border-right: 7px solid transparent;
+                    border-top: 10px solid #FFF;
+                }
+            }
+        }
+    }
+
+    ::v-deep .genrepalette-window{
+        @include sp{
+            width: 90%;
+        }
+
+        & .genrepalette-container{
+            height: auto;
         }
     }
 </style>
 
 <template>
-    <div class="searchgenre-container">
-        <span v-for="item in genreList" :key="item.kinds"
-              class="searchgenre-item" :class="{'searchgenre-item-select': item.selected}" 
-              @click="selectItem(item.val)">
-            {{ item.text }}
-        </span>
+    <div>
+        <div class="searchgenre-container">
+            <span v-for="item in genreList" :key="item.kinds"
+                class="searchgenre-item" :class="{'searchgenre-item-select': item.selected}" 
+                @click="selectItem(item.val)">
+                {{ item.text }}
+            </span>
+        </div>
+        <div class="searchgenre-container-sp">
+            <span class="searchgenre-item-selectsp" @click="showGenrePalette">{{ selectedItem.text }}</span>
+        </div>
+
+        <vm-selgenrepalette v-if="isShowGenrePalette" @emit-selectedGenre="selectGenrePalette" @emit-clickCloseBtn="closeGenrePalette" 
+                            windowClass="genrepalette-window" :addTop="true"></vm-selgenrepalette>
     </div>
 </template>
 
 <script lang="ts">
 import { SearchVideoGenreKinds, SearchVideoGenreKindsToString, VideoGenreKinds, VideoGenreKindsToString } from '@/commons/enum'
-import { genreItem } from '@/componentReqRes/serarchGenre'
 import { VideoService } from '@/services/VideoService'
-import { defineComponent, reactive, Ref, ref, toRefs, watch } from 'vue'
-import { useStore } from '@/store/store'
-import { useRouter } from '@/router/router'
+import { computed, defineComponent, reactive, Ref, ref, toRefs, watch } from 'vue'
 import { SelecterItem } from '@/componentReqRes/Selecter'
-import VMRepository from '@/repository/VMoriRepository'
+import VM_SelGenrePalette from '@/components/VM_SelGenrePalette.vue'
+
 const state = toRefs(reactive({
     selectGenre: SearchVideoGenreKinds.TOP, //選択中のジャンル
-    genreSelecerItems: [] as SelecterItem[] //ジャンルの選択肢
+    genreSelecerItems: [] as SelecterItem[],//ジャンルの選択肢
+    showGenrePalette: false
 }))
 let videoSearvice: VideoService
 export default defineComponent({
+    components:{
+        'vm-selgenrepalette' : VM_SelGenrePalette
+    },
     setup() {
         videoSearvice = new VideoService()
 
@@ -48,8 +98,30 @@ export default defineComponent({
         initGenreSelecterItems()
 
         return {
+            //ジャンル選択リスト
             genreList: state.genreSelecerItems,
-            selectItem: (val) => { selectItem(val) }
+            //選択中のジャンル取得 ※モバイル表示用
+            selectedItem: computed(() => { 
+                const result = state.genreSelecerItems.value.find(x => x.selected == true)  as SelecterItem
+                if(result == null){
+                    return {}
+                }
+
+                return result
+            }),
+            //ジャンル選択パレッドの表示有無
+            isShowGenrePalette: state.showGenrePalette,
+            //ジャンル選択パレッドの表示
+            showGenrePalette: () => { state.showGenrePalette.value = true },
+            //ジャンル選択パレッドを閉じる
+            closeGenrePalette: () => { state.showGenrePalette.value = false },
+            //ジャンルの選択
+            selectItem: (val) => { selectItem(val) },
+            //ジャンル選択パレッドでジャンルの選択
+            selectGenrePalette: (val) => { 
+                state.showGenrePalette.value = false
+                selectItem(val)
+            },
         }
     },
 })

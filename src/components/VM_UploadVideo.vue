@@ -281,7 +281,7 @@
             </div>
         </template>
     </vm-modal>
-    <vm-genre v-if="genreModal.showModal" @emit-selectedGenre="selectedGenre"></vm-genre>
+    <vm-genre v-if="genreModal.showModal" @emit-selectedGenre="selectedGenre" @emit-clickCloseBtn="closeGenreModal"></vm-genre>
 </template>
 
 <script lang="ts">
@@ -454,6 +454,7 @@ export default defineComponent({
             //ジャンル選択モーダル
             genreModal: state.genreModal.value,
             showGenreModal: () => { showGenreModal() },
+            closeGenreModal: () => { closeGenreModal() },
             selectedGenre,
             //タグの選択
             addTag: (tag: string) => { addTag(tag) },
@@ -527,10 +528,14 @@ function showGenreModal(){
     state.uploadVideoModal.value.showModal = false
 }
 
-//ジャンルの選択
-function selectedGenre(kinds: VideoGenreKinds){
+function closeGenreModal(){
     state.genreModal.value.showModal = false
     state.uploadVideoModal.value.showModal = true
+}
+
+//ジャンルの選択
+function selectedGenre(kinds: VideoGenreKinds){
+    closeGenreModal()
     state.uploadVideoModal.value.genre = kinds
 }
 

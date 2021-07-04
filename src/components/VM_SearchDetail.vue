@@ -12,6 +12,13 @@
             font-weight: bold;
             margin-left: 15px;
             cursor: pointer;
+
+            @include sp{
+                padding: 4px 10px;
+                border: solid 1px $form-border-color;
+                color: $gray-font-color;
+            }
+
             &-close::before{
                 content: '';
                 position: absolute;
@@ -24,6 +31,9 @@
                 border-left: 9px solid black;
                 border-top: 6px solid transparent;
                 border-bottom: 6px solid transparent;
+                @include sp{
+                    display: none;
+                }
             }
             &-open{
                 margin-left:18px;
@@ -37,6 +47,10 @@
                 border-right: 6px solid transparent;;
                 border-top: 9px solid black;
                 margin: 3px 3px 0 0px;  
+
+                @include sp{
+                    display: none;
+                }
             }
         }
         &-box{

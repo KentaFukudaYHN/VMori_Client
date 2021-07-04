@@ -10,7 +10,11 @@
 }
 
 .genre-color-unknown {
-  background: gray;
+  background: #363636;
+}
+
+.genre-color-top {
+  background: #363636;
 }
 
 .genre-color-smalltalk {

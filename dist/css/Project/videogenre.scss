@@ -14,7 +14,10 @@
 //https://flatuicolors.com/palette/nl
 .genre-color{
     &-unknown{
-        background: gray;
+        background: rgb(54, 54, 54);
+    }
+    &-top{
+        background: rgb(54, 54, 54);
     }
     //雑談
     &-smalltalk{
