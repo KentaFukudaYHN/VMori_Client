@@ -95,7 +95,7 @@ import { defineComponent, SetupContext } from 'vue'
 type Props = {
     showCloseBtn: boolean,
     windowClass: string,
-    width: string
+    width: string,
 }
 export default defineComponent({
     emits: ['emit-outsideClick', 'emit-clickCloseBtn'],
@@ -126,13 +126,12 @@ export default defineComponent({
             showCloseBtn: props.showCloseBtn,
             windowClass: windowClass,
             windowStyle: () => {
+                const result = {}
                 if(props.width != '' && props.width != null){
-                    return {
-                        '--width': props.width
-                    }
-                }else{
-                    return {}
+                    result['--width'] = props.width
                 }
+
+                return result
             }
         }
     },

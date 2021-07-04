@@ -58,15 +58,19 @@
     <div class="guide-sp">
         <div class="guidesp-menu icon-menusp-search"></div>
         <div class="guidesp-menu icon-menusp-like"></div>
-        <div class="guidesp-menu icon-menusp-up"></div>
+        <div class="guidesp-menu icon-menusp-up" @click="showUploadVideo"></div>
         <div class="guidesp-menu icon-menusp-history"></div>
         <div class="guidesp-menu icon-menusp-channels"></div>
-    </div>    
+    </div>
+
+    <vm-upvideo v-if="isShowUploadVideo" @emit-clickCloseBtn="closeUploadVideo"></vm-upvideo>
+
 </template>
 
 <script lang="ts">
 import VM_Header from '@/components/VM_VideoHeader.vue'
-import { defineComponent, reactive, toRefs } from 'vue'
+import { defineComponent, reactive, toRefs, ref } from 'vue'
+import VM_UploadVideo from '@/components/VM_UploadVideo.vue'
 
 const state = toRefs(reactive({
     menu:{
@@ -76,13 +80,22 @@ const state = toRefs(reactive({
 
 export default defineComponent({
     components:{
-        'vm_header': VM_Header
+        'vm_header': VM_Header,
+        'vm-upvideo': VM_UploadVideo
     },
     setup() {
+        let isShowUploadVideo = ref(false)
+
         //メニュー
         return{
             menu: state.menu.value,
-            onClickMenuBtn
+            onClickMenuBtn,
+            //動画アップロードコンポーネントの表示フラグ
+            isShowUploadVideo,
+            //動画アップロードコンポーネントの表示
+            showUploadVideo : () => { isShowUploadVideo.value = true },
+            //動画アップロードコンポーネントを閉じる
+            closeUploadVideo : () => { isShowUploadVideo.value = false }
         }
     },
 })

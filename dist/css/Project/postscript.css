@@ -1,12 +1,10 @@
 @charset "UTF-8";
 .postscript-container {
   position: relative;
-  margin: 20px auto 10px auto;
   background-image: repeating-linear-gradient(0deg, #127DD6, #127DD6 3px, white 3px, white 6px), repeating-linear-gradient(90deg, #127DD6, #127DD6 3px, white 3px, white 6px), repeating-linear-gradient(180deg, #127DD6, #127DD6 3px, white 3px, white 6px), repeating-linear-gradient(270deg, #127DD6, #e993ff 3px, white 3px, white 6px);
   background-size: 3px 100%, 100% 3px, 3px 100% , 100% 3px;
   background-position: 0 0, 0 0, 100% 0, 0 100%;
   background-repeat: no-repeat;
-  padding: 50px 20px;
 }
 
 .postscript-title {

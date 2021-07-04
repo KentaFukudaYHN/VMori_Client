@@ -1,4 +1,4 @@
-<!doctype html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"><title>VTimes</title><link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet"><link rel="preconnect" href="https://fonts.gstatic.com"><link rel="manifest" href="./manifest.json"><link rel="stylesheet" href="./css/Foundation/valiable.css"><link rel="stylesheet" href="./css/Foundation/reset.css"><link rel="stylesheet" href="./css/Foundation/base.css"><link rel="stylesheet" href="./css/Foundation/img.css"><link rel="stylesheet" href="./css/Layout/i-header.css"><link rel="stylesheet" href="./css/Layout/i-container.css"><link rel="stylesheet" href="./css/Layout/i-main.css"><link rel="stylesheet" href="./css/Layout/i-footer.css"><link rel="stylesheet" href="./css/Object/button.css"><link rel="stylesheet" href="./css/Object/font.css"><link rel="stylesheet" href="./css/Object/icon.css"><link rel="stylesheet" href="./css/Object/title.css"><link rel="stylesheet" href="./css/Object/checkbox.css"><link rel="stylesheet" href="./css/Object/radio.css"><link rel="stylesheet" href="./css/Object/valid.css"><link rel="stylesheet" href="./css/Object/input.css"><link rel="stylesheet" href="./css/Project/cropper.css"><link rel="stylesheet" href="./css/Project/form.css"><link rel="stylesheet" href="./css/Project/postscript.css"><link rel="stylesheet" href="./css/Project/videoGenre.css"><link rel="stylesheet" href="./css/Project/selecter.css"><script>//グローバル変数にバンドルJSのローディング有無のフラグを定義して監視
+<!doctype html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#13d5c7"><title>VTimes</title><link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet"><link rel="preconnect" href="https://fonts.gstatic.com"><link rel="manifest" href="./manifest.json"><link rel="stylesheet" href="./css/Foundation/valiable.css"><link rel="stylesheet" href="./css/Foundation/reset.css"><link rel="stylesheet" href="./css/Foundation/base.css"><link rel="stylesheet" href="./css/Foundation/img.css"><link rel="stylesheet" href="./css/Layout/i-header.css"><link rel="stylesheet" href="./css/Layout/i-container.css"><link rel="stylesheet" href="./css/Layout/i-main.css"><link rel="stylesheet" href="./css/Layout/i-footer.css"><link rel="stylesheet" href="./css/Object/button.css"><link rel="stylesheet" href="./css/Object/font.css"><link rel="stylesheet" href="./css/Object/icon.css"><link rel="stylesheet" href="./css/Object/title.css"><link rel="stylesheet" href="./css/Object/checkbox.css"><link rel="stylesheet" href="./css/Object/radio.css"><link rel="stylesheet" href="./css/Object/valid.css"><link rel="stylesheet" href="./css/Object/input.css"><link rel="stylesheet" href="./css/Project/cropper.css"><link rel="stylesheet" href="./css/Project/form.css"><link rel="stylesheet" href="./css/Project/postscript.css"><link rel="stylesheet" href="./css/Project/videoGenre.css"><link rel="stylesheet" href="./css/Project/selecter.css"><script>//グローバル変数にバンドルJSのローディング有無のフラグを定義して監視
             Object.defineProperty(window,'isLoading', {
                 configurable: false,
                 val: false,
@@ -6,9 +6,7 @@
                 set: function (x) {
                     this.val = x;
                     //アニメーションを終了(アニメーションのDOMを削除する)
-                    setTimeout(() =>{
-                        document.getElementById('_loading').remove()
-                    }, 3000)
+                    document.getElementById('_loading').remove()
                 },
             });
 
@@ -94,4 +92,4 @@
                 100%{
                     transform: translatex(100%);
                 }
-            }</style><script defer="defer" src="bundle.3018c42179d2d0762cec.js"></script></head><body><div id="_loading" class="loading-wrap"><div class="loading-item"><img src="./assets/loading.png"><p><span>loading...</span></p></div></div><div id="app"></div></body></html>
+            }</style><script defer="defer" src="bundle.8cc5e2d74cc5fdf9ae7b.js"></script></head><body><div id="_loading" class="loading-wrap"><div class="loading-item"><img src="./assets/loading.png"><p><span>loading...</span></p></div></div><div id="app"></div></body></html>

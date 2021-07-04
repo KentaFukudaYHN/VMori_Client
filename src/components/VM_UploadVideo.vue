@@ -11,6 +11,16 @@
         & .btn-primary{
             margin-top:30px;
             width: 100%;
+
+            @include sp{
+                margin-top: 20px;
+            }
+        }
+
+        & .form-item{
+            @include sp{
+                margin:0;
+            }
         }
     }
     .upvideo{
@@ -129,6 +139,28 @@
             color: #fff;
         }
     }
+
+    .postscript-container{
+        margin: 20px auto 10px auto;
+        padding: 50px 20px;
+
+        @include sp{
+            margin: 20px auto 0px auto;
+            padding: 20px 20px;
+        }
+    }
+
+    ::v-deep .modal-upvideo-window{
+        @include sp{
+            margin: 10px 0 0 0;
+        }
+    }
+
+    ::v-deep .modal-confirm-window{
+        @include sp{
+            width: 80%;
+        }
+    }
 </style>
 
 <template>
@@ -169,11 +201,12 @@
     <vm-confirm v-if="confirmModal.showModal"
                 :title="confirmModal.title"
                 :msg="confirmModal.msg"
+                windowClass="modal-confirm-window"
                 :kinds="confirmModal.kinds"
                 @emit-clickBtn="confirmModal.click"/>
 
     <!-- 動画アップロード確認モーダル -->
-    <vm-modal v-if="upVideoModal.showModal" @emit-clickCloseBtn="clickCloseBtn" :showCloseBtn="true">
+    <vm-modal v-if="upVideoModal.showModal" @emit-clickCloseBtn="clickCloseBtn" :showCloseBtn="true" windowClass="modal-upvideo-window">
         <template v-slot:content>
             <div class="upvideo">
                 <span class="title-success">動画のアップロード</span>

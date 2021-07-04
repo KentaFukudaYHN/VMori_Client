@@ -17,6 +17,9 @@
         &-title{
             display: block;
             margin-bottom: 50px;
+            @include sp {
+                margin-bottom: 20px;
+            }
             color: #12a5ff;
             font-weight: bold;
             width: 100%;
@@ -51,6 +54,9 @@
         }
         &-footer{
             margin-top: 50px;
+            @include sp {
+                margin-top: 20px;
+            }
             width:100%;
             display: flex;
             justify-content:flex-end;
