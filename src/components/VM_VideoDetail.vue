@@ -90,9 +90,96 @@
             position: absolute;
             color: #fff;
             font-weight: bold;
-            background: $theme-color;
+            background: transparent;
             padding: 5px 10px;
             cursor: pointer;
+              text-shadow    : 
+                    1px  1px 0.5px black,
+                    -1px  1px 0.5px black,
+                    1px -1px 0.5px black,
+                    -1px -1px 0.5px black,
+                    1px  0px 0.5px black,
+                    0px  1px 0.5px black,
+                    -1px  0px 0.5px black,
+                    0px -1px 0.5px black; 
+            & .fulscreenbtn-border{
+                &-one{
+                    position: absolute;
+                    left:0;
+                    top:0;
+                    width:8px;
+                    height:8px;
+                    background:transparent;
+                    border-top:solid 3px #fff;
+                    border-left:solid 3px #fff;
+                    z-index:200;
+                    &back{
+                        @extend .fulscreenbtn-border-one;
+                        top: -1px;
+                        left: -1px;
+                        border-top:solid 5px black;
+                        border-left:solid 5px black;
+                        z-index:100;
+                    }
+                }
+                &-two{
+                    position: absolute;
+                    right:0;
+                    top:0;
+                    width:8px;
+                    height:8px;
+                    background:transparent;
+                    border-top:solid 3px #fff;
+                    border-right:solid 3px #fff;
+                    z-index:200;
+                    &back{
+                        @extend .fulscreenbtn-border-two;
+                        top: -1px;
+                        right: -1px;
+                        border-top:solid 5px black;
+                        border-right:solid 5px black;
+                        z-index:100;
+                    }
+                }
+                &-three{
+                    position: absolute;
+                    left:0;
+                    bottom:0;
+                    width:8px;
+                    height:8px;
+                    background:transparent;
+                    border-bottom:solid 3px #fff;
+                    border-left:solid 3px #fff;
+                    z-index:200;
+                    &back{
+                        @extend .fulscreenbtn-border-three;
+                        bottom: -1px;
+                        left: -1px;
+                        border-bottom:solid 5px black;
+                        border-left:solid 5px black;
+                        z-index:100;
+                    }
+                }
+                &-four{
+                    position: absolute;
+                    right:0;
+                    bottom:0;
+                    width:8px;
+                    height:8px;
+                    background:transparent;
+                    border-bottom:solid 3px #fff;
+                    border-right:solid 3px #fff;
+                    z-index:200;
+                    &back{
+                        @extend .fulscreenbtn-border-four;
+                        bottom: -1px;
+                        right: -1px;
+                        border-bottom:solid 5px black;
+                        border-right:solid 5px black;
+                        z-index:100;
+                    }
+                }
+            }
         }
 
         & #fullScreeenLayer{
@@ -361,7 +448,18 @@
                         <span></span>
                         <span v-for="item in playerCommentItems" :key="item.id" :id="item.id" class="player-comment"> {{ item.text}}</span>
                     </div>
-                    <span ref="fullScreenBtnRef" id="fullScreenBtn" class="fullscreen-item" @click="onClickFullScreen">フルスクリーン</span>
+                    <div ref="fullScreenBtnRef" id="fullScreenBtn" class="fullscreen-item" @click="onClickFullScreen">
+                        <span class="fulscreenbtn-border-one"></span>
+                        <span class="fulscreenbtn-border-two"></span>
+                        <span class="fulscreenbtn-border-three"></span>
+                        <span class="fulscreenbtn-border-four"></span>
+                    <span class="fulscreenbtn-border-oneback"></span>
+                        <span class="fulscreenbtn-border-twoback"></span>
+                        <span class="fulscreenbtn-border-threeback"></span>
+                        <span class="fulscreenbtn-border-fourback"></span>
+
+                        フルスクリーン
+                    </div>
                     <!-- 1.フルスクリーン時に透明状態で表示してmouseoverイベントを検知してフルスクリーンを表示 -->
                     <!-- 2.クリックによるYoutubeの再生の切り替えを制御 -->
                     <div id="fullScreeenLayer" ref="fullScreenLayerRef" @mousemove="onMouseMoveFullScreenLayer" @click="playVideo"></div>

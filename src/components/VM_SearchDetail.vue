@@ -68,11 +68,58 @@
                 &:last-child{
                     margin-right: 0;
                 }
+                @include tab{
+                    margin:0;
+                }
+
+                &-transition{
+                    @include tab{
+                        margin-top:10px
+                    }
+                }
+                &-transitionlang{
+                    @include tab{
+                        margin-top:10px
+                    }
+                }
+            }
+            @include tab{
+                display: none;
+            }
+
+            &-modal{
+                display: none;
+                @include tab{
+                    display: block;
+                }
+
+                & .searchdetail-update{
+                    width:100%;
+                    margin-top:10px;
+                }
             }
         }
         &-itembox {
             display: flex;
             flex-wrap: wrap;
+        }
+        &-speaklangs{
+            @include tab{
+                display: block;
+                margin-top:10px;
+            }  
+        }
+        &-transition{
+            @include tab{
+                display: block;
+                margin:10px 0 0 0;
+            }
+        }
+        &-transitionlang{
+            @include tab{
+                display: block;
+                margin:10px 0 0 0;
+            }
         }
         &-selecter-container{
             margin: 10px 0;
@@ -80,11 +127,25 @@
             align-items: center;
             & .selecter-item-all{
                 margin-right: 10px;
+                    @include tab{
+                    display: inline-block;
+                }
+            }
+
+            & ::v-deep .selecter-item{            
+                @include tab{
+                    display: inline-block;
+                }
+            }
+
+            @include tab{
+                display: block;
             }
         }
         &-update{
             margin-bottom:4px;
         }
+
     }
 </style>
 
@@ -107,7 +168,7 @@
                     </div>
                 </div>
 
-                <div class="searchdetail-boxitem">
+                <div class="searchdetail-boxitem searchdetail-boxitem-transition">
                     <span>翻訳</span>
                     <div class="searchdetail-selecter-container">
                         <span class="selecter-item selecter-item-all" :class="{'selecter-item-select': selectAllTranslation}" @click="onChangeTransition(selectAllTranslationKinds)">全て</span>
@@ -127,6 +188,40 @@
                 <button class="searchdetail-update btn-normal-mini" @click="searchVideos">更新</button>
             </div>
         </div>
+        <vm-modal class="searchdetail-box-modal" v-if="showSearchBox">
+            <template v-slot:content>
+            <span class="title-success">詳細検索</span>
+            <div class="searchdetail-itembox">
+                <div class="searchdetail-boxitem">
+                    <span>話している言葉</span>
+                    <div class="searchdetail-selecter-container" >
+                        <span class="selecter-item selecter-item-all" :class="{'selecter-item-select': selectAllLangs}" @click="onChangeLang(selectAllLangsKinds)">全て</span>
+                        <vm-selecter class="searchdetail-speaklangs" @emit-change="onChangeLang" :list="langSelecterItems" :disabled="selectAllLangs"></vm-selecter>
+                    </div>
+                </div>
+
+                <div class="searchdetail-boxitem searchdetail-boxitem-transition">
+                    <span>翻訳</span>
+                    <div class="searchdetail-selecter-container">
+                        <span class="selecter-item selecter-item-all" :class="{'selecter-item-select': selectAllTranslation}" @click="onChangeTransition(selectAllTranslationKinds)">全て</span>
+                        <vm-selecter class="searchdetail-transition" @emit-change="onChangeTransition" :list="transitionSelecterItems" :disabled="selectAllTranslation"></vm-selecter>
+                    </div>
+                </div>
+
+                <div class="searchdetail-boxitem  searchdetail-boxitem-transitionlang" v-if="showTransitionLang">
+                    <span>翻訳している言葉</span>
+                    <div class="searchdetail-selecter-container">
+                        <span class="selecter-item selecter-item-all" :class="{'selecter-item-select': selectAllTranslationLang}" @click="onChangeTransitionLang(selectAllLangsKinds)">全て</span>
+                        <vm-selecter class="searchdetail-transitionlang" @emit-change="onChangeTransitionLang" :list="transitionLangSelecterItem" :disabled="selectAllTranslationLang"></vm-selecter>
+                    </div>
+                </div>
+
+                <div>
+                    <button class="searchdetail-update btn-primary-mini" @click="searchVideosByModal">更新</button>
+                </div>
+            </div>
+            </template>
+        </vm-modal>
     </div>
 </template>
 
@@ -136,12 +231,10 @@ import VM_RadioBox from '@/components/VM_RadioBox.vue'
 import VM_Selecter from '@/components/VM_Selecter.vue'
 import { SelecterItem } from '@/componentReqRes/Selecter'
 import { SearchVideoLanguageKindsToString, SearchVideoTranslationKinds, SearchVideoTranslationToString, VideoLanguageKinds, VideoLanguageKindsToString } from '@/commons/enum'
-import { State, useStore } from '@/store/store'
-import { useRouter } from '@/router/router'
+import { State } from '@/store/store'
 import { Store } from 'vuex'
 import { VideoService } from '@/services/VideoService'
-import VMRepository from '@/repository/VMoriRepository'
-import { boolean } from 'yup/lib/locale'
+import VM_Modal from '@/components/VM_Modal.vue'
 
 const state = toRefs(reactive({
     showSearchBox: false,
@@ -160,6 +253,7 @@ export default defineComponent({
     components:{
         'vm-radiobox': VM_RadioBox,
         'vm-selecter': VM_Selecter,
+        'vm-modal': VM_Modal
     },
     setup() {
         videoService = new VideoService()
@@ -191,7 +285,11 @@ export default defineComponent({
             selectAllTranslationLang: state.allTranslationLang,
             onChangeTransitionLang: (val) => { onChangeTransitionLang(val) },
             showTransitionLang: computed(() => { return videoService.getTranlation() == 10 }),
-            searchVideos: () => { videoService.searchDetailVideoItem() }
+            searchVideos: () => { videoService.searchDetailVideoItem() },
+            searchVideosByModal: () => { 
+                videoService.searchDetailVideoItem()
+                videoService.updateDetailAbailavle(false)
+             }
 
         }
     },
