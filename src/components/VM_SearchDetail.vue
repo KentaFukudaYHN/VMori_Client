@@ -188,7 +188,7 @@
                 <button class="searchdetail-update btn-normal-mini" @click="searchVideos">更新</button>
             </div>
         </div>
-        <vm-modal class="searchdetail-box-modal" v-if="showSearchBox">
+        <vm-modal class="searchdetail-box-modal" v-if="showSearchBox" :showCloseBtn="true" @emit-clickCloseBtn="closeSearchVideosModal">
             <template v-slot:content>
             <span class="title-success">詳細検索</span>
             <div class="searchdetail-itembox">
@@ -289,7 +289,8 @@ export default defineComponent({
             searchVideosByModal: () => { 
                 videoService.searchDetailVideoItem()
                 videoService.updateDetailAbailavle(false)
-             }
+            },
+            closeSearchVideosModal: () => { videoService.updateDetailAbailavle(false) }
 
         }
     },

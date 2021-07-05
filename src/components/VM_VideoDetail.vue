@@ -926,13 +926,13 @@ async function adjustContentSize(target: HTMLDivElement){
                 let bottomRatio = 0.18
                 if(isTatenaga == false){
                     if(targetWidth < appSetting.media.sp){
-                        bottomRatio = 0.3
+                        bottomRatio = 0.5
                     }else if(targetWidth < appSetting.media.tab){
                         bottomRatio = 0.3
                     }
                 }else{
                     if(targetWidth < appSetting.media.sp){
-                        bottomRatio = 0.1
+                        bottomRatio = 0.15
                     }else if(targetWidth < appSetting.media.tab){
                         bottomRatio = 0.15
                     }
