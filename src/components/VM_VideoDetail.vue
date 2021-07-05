@@ -204,6 +204,16 @@
             transform: translate(-50%, -50%);
             -webkit-transform: translate(-50%, -50%);
             -ms-transform: translate(-50%, -50%);
+            & .comment-input{
+                opacity: 0.7;
+
+                &:focus{
+                    opacity: 1;
+                }
+            }
+            & .comment-btn{
+                background-color: rgb(161, 161, 161);
+            }
         }
 
         & .comment-container{
@@ -466,7 +476,7 @@
 
                     <!-- コメント -->
                     <div ref="fullScreenCommentRef" id="fullScreenCommentContainer" class="comment-container fullscreen-item">
-                        <input class="input-normal comment-input" v-model="commentInputVal" placeholder=" コメント入力/75文字以内">
+                        <input class="input-normal comment-input" v-model="commentInputVal">
                         <button @click="registComment" class="comment-btn icon-comment-send" :class="{'comment-btn-disable': isOkComment == false}">コメント</button>
                     </div>                    
                 </div>
