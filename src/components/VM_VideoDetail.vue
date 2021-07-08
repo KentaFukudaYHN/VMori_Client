@@ -447,7 +447,6 @@
     <vm-guide>
         <template v-slot:content>
             <div id="videoContainer">
-                v12
                 <div ref="fullScreenContainer"  :class="{'fullscreen-none': !isFullScreenMode, 'fullscreen-on': isFullScreenMode, 'player-playing': isPlaying, 'player-playing-no': !isPlaying, 'player-mousemove': isMouseMove}">
                     <div  id="playeroOverlay" ref="playerOverlayRef">
                         <div ref="playerRef" id="player" ></div>
@@ -1177,7 +1176,7 @@ async function initVideoSetup(videoid: string){
 
     //再生回数・公開日の設定
     if(video.videoId != null && video.videoId != ''){
-        state.video.value.statistics = videoService.createDisplayStatistics(video.latestStatistic.viewCount, new Date(video.publishDateTime), true)
+        state.video.value.statistics = videoService.createDisplayStatistics(video.viewCount, new Date(video.publishDateTime), true)
     }
 
     //タグの設定

@@ -81,7 +81,7 @@ import { SelecterItem } from '@/componentReqRes/Selecter'
 import VM_SelGenrePalette from '@/components/VM_SelGenrePalette.vue'
 
 const state = toRefs(reactive({
-    selectGenre: SearchVideoGenreKinds.TOP, //選択中のジャンル
+    selectGenre: SearchVideoGenreKinds.All, //選択中のジャンル
     genreSelecerItems: [] as SelecterItem[],//ジャンルの選択肢
     showGenrePalette: false
 }))

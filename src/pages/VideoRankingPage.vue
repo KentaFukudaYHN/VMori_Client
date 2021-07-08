@@ -1,5 +1,5 @@
 <style lang="scss" scoped>
-.home{
+.vranking{
     &-searchcontainer{
         width: 80%;
         max-width: 1020px;
@@ -27,58 +27,52 @@
         }
     }
 }
-
 </style>
 
 <template>
     <vm-guide>
         <template v-slot:content>
-            <div class="home-searchcontainer">
-                <vm-search-genre class="home-searchgenre"></vm-search-genre>
-                <vm-search-detail class="home-searchdetail"></vm-search-detail>
+            <div class="vranking-searchcontainer">
+                <vm-search-genre></vm-search-genre>
+                <vm-search-detail class="vranking-searchdetail"></vm-search-detail>
             </div>
-                
-            <vm-videolist :videos="videos" @emit-selectedVideo="selectedVideo"></vm-videolist>
+            
+            <vm-ranking-videolist v-for="genreVideo in genreVideos" :key="genreVideo.genre" 
+                                  :isMulti="false"
+                                  :videos="genreVideo.items"/>
+            <!-- <vm-videolist :videos="videos" @emit-selectedVideo="selectedVideo"></vm-videolist> -->
         </template>
     </vm-guide>
 </template>
 
 <script lang="ts">
-import { defineComponent, watch, ref } from 'vue'
+import { defineComponent, ref, watch } from 'vue'
 import VM_Guide from '@/components/VM_GuideMenu.vue'
 import VM_VideoList from '@/components/VM_VideoList.vue'
 import VM_SearchGenre from '@/components/VM_SearchGenre.vue'
 import VM_SearchDetail from '@/components/VM_SearchDetail.vue'
-import { VideoService } from '@/services/VideoService'
+import VM_RankingVideoList from '@/components/VM_RankingVideoList.vue'
+import { RankingVideoService } from '@/services/RankingVideoService'
 import { useRouter } from '@/router/router'
 import { Router } from 'vue-router'
+import { useStore } from '@/store/store'
+import VMoriRepository from '@/repository/VMoriRepository'
 
 let router: Router
 export default defineComponent({
     components:{
-        'vm-videolist': VM_VideoList,
         'vm-guide': VM_Guide,
         'vm-search-genre': VM_SearchGenre,
-        'vm-search-detail': VM_SearchDetail
+        'vm-search-detail': VM_SearchDetail,
+        'vm-ranking-videolist': VM_RankingVideoList
     },
     async setup() {
-        //動画情報の初期化
         router = useRouter()
-        const videoService = new VideoService()
-        await videoService.initVideoItems()
-
-        var tmpVideos = videoService.getVideoItems()
-        const videos = ref(tmpVideos.slice(0, tmpVideos.length))
-
-        watch(videoService.getVideoItems(), (newval, oldval)=>{
-            const dummy = newval.slice(0, newval.length)
-            videos.value.splice(0, videos.value.length)
-            dummy.forEach(x => {
-                videos.value.push(x)
-            })
-        })
+        const rankingVideoService = new RankingVideoService(useStore(), new VMoriRepository(router))
+        const genreVideos = await rankingVideoService.getTopVideos()
+        console.log(genreVideos)
         return{
-            videos: videos,
+            genreVideos: genreVideos.items,
             selectedVideo: (videoId: string) => { selectedVideo(videoId) }
         }
     },

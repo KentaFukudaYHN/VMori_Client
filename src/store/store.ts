@@ -45,7 +45,7 @@ export const store = createStore<State>({
         //検索条件
         searchCriteriaVideo: {
             text: '',
-            genle: SearchVideoGenreKinds.TOP,
+            genle: SearchVideoGenreKinds.All,
             isActiveDetail: false,
             detail: {
                 langs: [VideoLanguageKinds.UnKnown] as VideoLanguageKinds[],

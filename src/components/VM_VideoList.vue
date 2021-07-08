@@ -136,14 +136,8 @@
 <script lang="ts">
 import { defineComponent, onBeforeUnmount, onMounted, ref, watch, PropType, SetupContext } from 'vue'
 import { VideoService } from '@/services/VideoService'
-import { useStore } from '@/store/store'
-import { useRouter } from '@/router/router'
-import VMoriRepository  from '@/repository/VMoriRepository'
-import { Video } from '@/store/getterTypes'
 import { VideoItem } from '@/store/modules/VideoModule'
-import { date } from 'yup/lib/locale'
 import { VideoPlatFormKinds } from '@/commons/enum'
-import { Router } from 'vue-router'
 import { appSetting } from '@/entities/AppSetting'
 
 

@@ -8,6 +8,7 @@ import Home from '@/pages/HomePage.vue'
 import Test from '@/pages/Test.vue'
 import ResetReqPassword from '@/pages/ResetReqPasswordPage.vue'
 import Videopage from '@/pages/VideoPage.vue'
+import VideoRankingPage from '@/pages/VideoRankingPage.vue'
 
 const route = [
     {
@@ -54,6 +55,11 @@ const route = [
         path: '/Video',
         name: 'Video',
         component: Videopage
+    },
+    {
+        path: '/VideoRanking',
+        name: 'VideoRanking',
+        component: VideoRankingPage
     },
     {
         path: '/Test',

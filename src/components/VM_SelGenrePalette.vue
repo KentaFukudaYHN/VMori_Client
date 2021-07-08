@@ -92,7 +92,7 @@ export default defineComponent({
         if(state.pickerModal.value.list == null || state.pickerModal.value.list.length == 0){
             Object.entries(VideoGenreKinds).forEach(([key, val]) =>{
                 var kindsNum = Number(key)
-                if(isNaN(kindsNum) == false && kindsNum != VideoGenreKinds.UnKnown){
+                if(isNaN(kindsNum) == false && kindsNum != VideoGenreKinds.All){
                     state.pickerModal.value.list.push({
                         text: VideoGenreKindsToString(kindsNum),
                         kinds: kindsNum,
@@ -104,7 +104,7 @@ export default defineComponent({
             if(props.addTop){
                 state.pickerModal.value.list.unshift({
                     text: 'TOP',
-                    kinds: VideoGenreKinds.UnKnown,
+                    kinds: VideoGenreKinds.All,
                     css: 'genrepalette-item genre-color-top'
                 })
             }

@@ -213,7 +213,7 @@ export class VideoService {
             Text: text
         })
 
-        await this._store.dispatch(SearchCriteriaVideoModule.UPDATE_GENRE, SearchVideoGenreKinds.TOP)
+        await this._store.dispatch(SearchCriteriaVideoModule.UPDATE_GENRE, SearchVideoGenreKinds.All)
         await this.changeGenreVideoItem()
         await this.updateDetailAbailavle(false)
         await this._store.dispatch(VideoModule.UPDATE_VIDEO_ITEMS, res.data.items)
@@ -223,7 +223,7 @@ export class VideoService {
     //ジャンル選択
     async changeGenreVideoItem(){
         let genre = this._store.state.searchCriteriaVideo.genle
-        if(genre == SearchVideoGenreKinds.TOP){
+        if(genre == SearchVideoGenreKinds.All){
             genre = null
         }
 
@@ -246,7 +246,7 @@ export class VideoService {
         }
 
         let genre = this._store.state.searchCriteriaVideo.genle
-        if(genre == SearchVideoGenreKinds.TOP){
+        if(genre == SearchVideoGenreKinds.All){
             genre = null
         }
 

@@ -322,7 +322,7 @@ const state = toRefs(reactive({
          * 設定情報
          */
         upReqOutsourceVideoToken: '',                           //動画登録リクエストToken
-        genre: VideoGenreKinds.UnKnown,                         //動画種類
+        genre: VideoGenreKinds.All,                         //動画種類
         tags: new Array() as string[],                          //タグ          
         langes: new Array() as VideoLanguageKinds[],            //言語
         isTransition: false,                                    //翻訳の有無
@@ -588,7 +588,7 @@ async function uploadRequest(repository: Repository, context:SetupContext){
     let isOk = true
     const stateByUpLoadModal = state.uploadVideoModal.value
     //ジャンルは選択されているか
-    if(stateByUpLoadModal.genre == null || stateByUpLoadModal.genre == VideoGenreKinds.UnKnown){
+    if(stateByUpLoadModal.genre == null || stateByUpLoadModal.genre == VideoGenreKinds.All){
         isOk = false
         state.uploadVideoModal.value.showRequiredByGenre = true
     }else{
@@ -683,7 +683,7 @@ function InitUploadModalData(){
 
     /** 設定情報リセット */
     state.uploadVideoModal.value.upReqOutsourceVideoToken = ''
-    state.uploadVideoModal.value.genre = VideoGenreKinds.UnKnown
+    state.uploadVideoModal.value.genre = VideoGenreKinds.All
     arrayReset(state.uploadVideoModal.value.tags)
     arrayReset(state.uploadVideoModal.value.langes)
     state.uploadVideoModal.value.isTransition = false

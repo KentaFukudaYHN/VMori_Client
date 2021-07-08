@@ -64,21 +64,26 @@ export type VideoItemApitRes = {
     publishDateTime: string   
     //V森への登録日時
     registDateTime: string
-    //統計情報
-    latestStatistic: VideoStatisticsApiRes
-}
-
-//動画統計情報
-export type VideoStatisticsApiRes = {
     //再生回数
     viewCount: number,
     //いいね回数
     LikeCount: number,
     //コメント回数
     commentCount: number,
-    //取得日時
-    getDateTime: string,
+
 }
+
+// //動画統計情報
+// export type VideoStatisticsApiRes = {
+//     //再生回数
+//     viewCount: number,
+//     //いいね回数
+//     LikeCount: number,
+//     //コメント回数
+//     commentCount: number,
+//     //取得日時
+//     getDateTime: string,
+// }
 
 export type VideoCommentApiRes = {
     //テキスト
