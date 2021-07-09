@@ -1,0 +1,117 @@
+@charset "UTF-8";
+@import "../Foundation/valiable";
+@import "../Foundation/mixin";
+.videolist-container{
+    display: flex;
+    flex-wrap: wrap;
+    margin: 40px;
+
+    // @include tab{
+    //     justify-content: center;
+    // }
+
+    @include sp{
+        margin: 10px 6px;
+    }
+
+    & .video{
+        &-container {
+            cursor: pointer;
+            margin: 0 15px 60px 15px;
+            // min-width: 214.5px;
+            // min-height: 250px;
+    
+            @include tab{
+                border: solid 1px #cccccc;
+                // min-width: 0;
+            }
+    
+            @include sp{
+                margin: 5px 5px 15px 5px;
+            }
+        }
+        &-thumbnail{
+            width:100%;
+            height:80%;
+            // min-height: 112px;
+            overflow: hidden;
+            position: relative;
+    
+            @include tab{
+                min-height: 0;
+            }
+    
+            & img{
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                -webkit-transform: translate(-50%, -50%);
+                -ms-transform: translate(-50%, -50%);
+                transform: translate(-50%, -50%);
+                width: 100%;
+                height: auto;
+            }
+        }
+        &-description{
+            height: 20%;
+            min-height: 6em;
+            overflow: hidden;
+    
+            @include tab{
+                padding: 5px 5px 5px 5px;
+                height: auto;
+            }
+    
+            @include sp{
+                font-size: 10px;
+            }
+        }
+        &-title{
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            overflow: hidden;
+            max-height: 3em;
+            color: #030303;
+            font-weight: bold;
+    
+            
+    
+            @include tab{
+                font-size: 12px;
+            }
+        }
+        &-channel{
+            display: block;
+            color:#606060;
+            max-height:1.5em;
+        }
+        &-stastics{
+            display: flex;
+            color: #606060;
+            max-height: 1.5em;
+            align-items: center;
+            justify-content: space-between;
+    
+            @include tab{
+                max-height: none;
+                display: block;
+            }
+    
+            & .statics-platformicon{
+                height: 1em;
+                @include tab{
+                    display: block;
+                }
+            }
+    
+            & .statics-viewcount{
+                @include tab{
+                    display: block;
+                    margin-bottom: 2px;
+                }
+            }
+        }
+    }
+    
+}

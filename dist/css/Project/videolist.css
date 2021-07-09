@@ -1,0 +1,134 @@
+.videolist-container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+  margin: 40px;
+}
+
+@media (max-width: 480px) {
+  .videolist-container {
+    margin: 10px 6px;
+  }
+}
+
+.videolist-container .video-container {
+  cursor: pointer;
+  margin: 0 15px 60px 15px;
+}
+
+@media (max-width: 748px) {
+  .videolist-container .video-container {
+    border: solid 1px #cccccc;
+  }
+}
+
+@media (max-width: 480px) {
+  .videolist-container .video-container {
+    margin: 5px 5px 15px 5px;
+  }
+}
+
+.videolist-container .video-thumbnail {
+  width: 100%;
+  height: 80%;
+  overflow: hidden;
+  position: relative;
+}
+
+@media (max-width: 748px) {
+  .videolist-container .video-thumbnail {
+    min-height: 0;
+  }
+}
+
+.videolist-container .video-thumbnail img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: auto;
+}
+
+.videolist-container .video-description {
+  height: 20%;
+  min-height: 6em;
+  overflow: hidden;
+}
+
+@media (max-width: 748px) {
+  .videolist-container .video-description {
+    padding: 5px 5px 5px 5px;
+    height: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .videolist-container .video-description {
+    font-size: 10px;
+  }
+}
+
+.videolist-container .video-title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  max-height: 3em;
+  color: #030303;
+  font-weight: bold;
+}
+
+@media (max-width: 748px) {
+  .videolist-container .video-title {
+    font-size: 12px;
+  }
+}
+
+.videolist-container .video-channel {
+  display: block;
+  color: #606060;
+  max-height: 1.5em;
+}
+
+.videolist-container .video-stastics {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  color: #606060;
+  max-height: 1.5em;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+}
+
+@media (max-width: 748px) {
+  .videolist-container .video-stastics {
+    max-height: none;
+    display: block;
+  }
+}
+
+.videolist-container .video-stastics .statics-platformicon {
+  height: 1em;
+}
+
+@media (max-width: 748px) {
+  .videolist-container .video-stastics .statics-platformicon {
+    display: block;
+  }
+}
+
+@media (max-width: 748px) {
+  .videolist-container .video-stastics .statics-viewcount {
+    display: block;
+    margin-bottom: 2px;
+  }
+}
+/*# sourceMappingURL=videolist.css.map */

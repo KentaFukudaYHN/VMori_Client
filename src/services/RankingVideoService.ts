@@ -14,13 +14,13 @@ export class RankingVideoService{
             searchReq:{
                 page: 1,
                 displayNum: 30,
-                sortKinds: SortKinds.RegistDateTime                
+                sortKinds: SortKinds.ViewCount                
             },
             genres:[SearchVideoGenreKinds.All, SearchVideoGenreKinds.SmallTalk,
                 SearchVideoGenreKinds.Entertainment, SearchVideoGenreKinds.Game,
                 SearchVideoGenreKinds.Song]
         })
-
+        console.log(res.data)
         if(res.isOk()){
             return res.data
         }
