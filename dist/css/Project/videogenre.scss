@@ -19,94 +19,82 @@
     &-top{
         background: rgb(54, 54, 54);
     }
+    &-all{
+        background: rgb(54, 54, 54);
+    }
     //雑談
     &-smalltalk{
         background: #FFC312;
 
     }
-    //ショートムービー
-    &-short{
+    &-entertainment{
         background: #aed01f;
     }
-    //エンターテイメント
-    &-entertainment{
+    &-song{
         background: #12CBC4;
     }
-    //game
-    &-game{
-        background: #FFC312;
-    }
-    //音楽
     &-music{
         background: #FDA7DF;
     }
-    //MMD
-    &-mad {
+    &-short{
+        background: #FFC312;
+    }
+    &-game{
         background: #ED4C67;
-
     }
-    //ダンス
-    &-dance {
+    &-drawing{
         background: #FFC312;
-
     }
-    //ラジオ
-    &-radio {
-        background: #F79F1F;
-
-    }
-    //動物
-    &-animal {
-        background: #A3CB38;
-
-    }
-    //自然
-    &-nature {
-        background: #1289A7;
-
-    }
-    //料理
-    &-cooking {
-        background: #D980FA;
-
-    }
-    //旅行
-    &-travel {
+    &-asmr{
         background: #B53471;
-
     }
-    //アウトドア
-    &-outdoor {
-        background: #EE5A24;
-
+    &-news{
+        background: #A3CB38;
     }
-    //スポーツ
-    &-sports {
-        background: #009432;
-
+    &-craft{
+        background: #1289A7;
     }
-    //政治・社会・時事
-    &-politics {
-        background: #0652DD;
-
-    }
-    //技術・工作
-    &-craft {
-        background: #9980FA;
-
-    }
-    //解説・講座
-    &-course {
+    &-course{
         background: #006266;
-
     }
-    //MMD
-    &-mmd {
-        background: #FFC312;
-
+    &-shock{
+        background: #F79F1F;
+    }
+    &-outdoor{
+        background: #EE5A24;
+    }
+    &-nature{
+        background: #009432;
+    }
+    &-sensitive{
+        background: #D980FA;
     }
     //その他
     &-other {
         background:#1B1464
-    }  
+    }
+    // //政治・社会・時事
+    // &-politics {
+    //     background: #0652DD;
+
+    // }
+    // //技術・工作
+    // &-craft {
+    //     background: #9980FA;
+
+    // }
+    // //解説・講座
+    // &-course {
+    //     background: #006266;
+
+    // }
+    // //MMD
+    // &-mmd {
+    //     background: #FFC312;
+
+    // }
+    // //その他
+    // &-other {
+    //     background:#1B1464
+    // }  
 }

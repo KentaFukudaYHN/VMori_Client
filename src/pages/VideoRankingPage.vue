@@ -5,7 +5,7 @@
         max-width: 1020px;
         margin: 0 auto;
 
-        @include sp {
+        @include pc {
             display: flex;
             width:auto;
             margin: 0 11px;
@@ -22,15 +22,18 @@
     &-searchdetail{
         margin: 5px 10px;
 
-        @include sp{
+        @include pc{
             margin: 5px 0;
         }
     }
 
     &-videolist-container{
         display: flex;
-        margin: 0 40px;
+        margin: 0 20px;
         width:100%;
+        @include pc{
+            margin: 0;
+        }
     }
 
     &-videolist-content{
@@ -43,6 +46,14 @@
         font-family: 'Open Sans', sans-serif;
         font-size: 45px;
         color: $gray-font-color;
+        text-align: center;
+        @include pc{
+            font-size: 35px;
+            text-align: right;
+        }
+        @include sp{
+            display: none;
+        }
     }
 }
 
@@ -102,6 +113,33 @@
         -webkit-line-clamp: 1;
     }
 }
+
+.vranking-single{
+    & .video-container{
+        display: flex;
+        max-width: 900px ;
+        @include sp{
+            margin:0;
+        }
+        & .video-thumbnail{
+            width: 300px !important;
+            height: 120px !important;
+
+            @include sp{
+                width: 200px !important;
+                height: 82px !important;
+            }
+        }
+
+        & .video-title{
+            font-size: 14px;
+        }
+
+        & .video-description{
+            width: 100%;
+        }
+    }
+}
 </style>
 
 <template>
@@ -112,7 +150,7 @@
                 <vm-search-detail class="vranking-searchdetail"></vm-search-detail>
             </div>
             
-            <div id="rankingVideoListContainer" class="vranking-videolist-container">
+            <div id="rankingVideoListContainer" class="vranking-videolist-container" :class="{'vranking-single': !isMulti}">
                 <!-- <vm-ranking-videolist v-for="genreVideo in genreVideos" :key="genreVideo.genre" 
                                     class="vranking-videolist"
                                     :isMulti="false"
@@ -125,7 +163,7 @@
                     </div>
                 </div>
                 <div class="vranking-videolist-content">
-                    <div  v-for="genreVideo in genreVideos" :key="genreVideo.genreKinds"
+                    <div  v-for="(genreVideo, index) in genreVideos" :key="genreVideo.genreKinds" v-show="isMulti != false || index ==0"
                         class="videolist-container">
                         <p class="videolist-genre-title">{{displayGenre(genreVideo.genreKinds)}}</p>
                         <div v-for="(item, index) in genreVideo.items" :key="item.id"
@@ -170,6 +208,7 @@ import { VideoGenreKinds, VideoGenreKindsToString } from '@/commons/enum'
 import { VideoService } from '@/services/VideoService'
 import { VideoSummaryByGenreApiRes, VideoSummaryInfoByGenreApiRes } from '@/apiReqRes/RankingVideo'
 import { appSetting } from '@/entities/AppSetting'
+import { VideoSummaryItemApiRes } from '@/apiReqRes/Video'
 
 let router: Router
 //ジャンル別ランキングの動画情報のref
@@ -179,6 +218,7 @@ type rankingVideosByGenreRef = {
 }
 let rankingVideosByGenreRef: {}
 let rankingVideos: VideoSummaryByGenreApiRes[]
+let isMulti: Ref<boolean>
 export default defineComponent({
     components:{
         'vm-guide': VM_Guide,
@@ -194,15 +234,19 @@ export default defineComponent({
             //画像のサイズ調整
             onResizeTumbnail()
         })
+
         onBeforeMount(() =>{
             //resizeイベントの破棄
             window.removeEventListener('resize', onResizeTumbnail)
         })
+
         router = useRouter()
         const rankingVideoService = new RankingVideoService(useStore(), new VMoriRepository(router))
         const videoService = new VideoService()
         const rankingVideoInfo = await rankingVideoService.getTopVideos()
+        isMulti = ref(false)
         rankingVideos = rankingVideoInfo.items.filter(x => x.items.length != 0)
+        
         const maxItemLength = rankingVideoInfo.items.sort((a, b) =>{
             return b.items.length - a.items.length
         })[0].items.length
@@ -211,7 +255,6 @@ export default defineComponent({
             rankingNumbers.push(i+1)
         }
 
-
         rankingVideosByGenreRef = createRefs(rankingVideoInfo)
         return{
             genreVideos: rankingVideos,
@@ -219,7 +262,8 @@ export default defineComponent({
             displayStatistics: (viewCount: number, publishDate: Date) => { return videoService.createDisplayStatistics(viewCount, publishDate) },
             displayGenre: (val) =>  VideoGenreKindsToString(val),
             rankingNumbers: rankingNumbers,
-            rankingVideosByGenreRef: rankingVideosByGenreRef
+            rankingVideosByGenreRef: rankingVideosByGenreRef,
+            isMulti: isMulti
         }
     },
 })
@@ -253,24 +297,35 @@ function onResizeTumbnail(){
     const videoListContainer = document.getElementById('rankingVideoListContainer')
     const rankingNumberContainer = document.getElementsByClassName('vranking-videolist-number')[0]
 
-    //現在のvideoListContainerが1024px以上なら4columnっで表示される様にサイズ調整
-    let listContainerWidth = videoListContainer.clientWidth - rankingNumberContainer.clientWidth - 40 - 40
-
-    console.log('videoListContainer Width :' + videoListContainer.clientWidth)
-    console.log('rankingNumberContainer Width :' + rankingNumberContainer.clientWidth)
-    console.log('listContainerWidth :' + listContainerWidth)
-
-    //videoListContainerが1024px以上なら5カラムで表示される様にサイズ調整
+    const windowWidth = document.body.clientWidth;
+    //windowが1024px以上なら5カラムで表示される様にサイズ調整
     let colum = 5;
-    if(listContainerWidth > 1500){
+    if(window.matchMedia('(min-width:1500px)').matches){
         colum = 5
-    }else if(listContainerWidth > appSetting.media.pc){
+    }else if(window.matchMedia('(min-width:' + appSetting.media.pc + 'px)').matches ){
+        console.log('window.match pc')
         colum = 5
-    }else if(window.innerWidth > appSetting.media.tab){
+    }else if(window.matchMedia('(min-width:' + appSetting.media.tab + 'px)').matches ){
+        console.log('window.match tab')
         colum = 1
+        setResizeVideos(rankingVideos[0].items, rankingVideos[0].genreKinds, 'auto', 'auto')
+        setTimeout(() =>{
+            initResizeRankingNumber(true)
+        })
+        isMulti.value = false
     }else {
+        console.log('window.match sp')
         colum = 1
+        setResizeVideos(rankingVideos[0].items, rankingVideos[0].genreKinds, 'auto', 'auto')
+        setTimeout(() =>{
+            initResizeRankingNumber(true)
+        })
+        isMulti.value = false
     }
+
+    if(colum == 1){ return }
+    isMulti.value = true
+
     let margin = 30
 
 
@@ -278,6 +333,9 @@ function onResizeTumbnail(){
     if(window.innerWidth < appSetting.media.sp){
         margin = 10
     }
+
+    //動画表示可能領域
+    let listContainerWidth = videoListContainer.clientWidth - rankingNumberContainer.clientWidth - 20 - 20
 
     //動画のmargin分を際引いた表示表示領域
     const canDisplayWidth = listContainerWidth - (margin * colum)
@@ -293,25 +351,46 @@ function onResizeTumbnail(){
 
     //計算したwidthとheightに更新
     for(let i=0;i<rankingVideos.length;i++){
-        const targetRankingVideos = rankingVideos[i].items
-        const targetRefEntity = rankingVideosByGenreRef[rankingVideos[i].genreKinds]
-        for (let j = 0; j < targetRankingVideos.length; j++) {
-            const target = targetRefEntity.refs[j][targetRankingVideos[j].id].value as HTMLElement
-            if(target == null) { continue }
-            target.style.width = String(calcVideoWidth) + 'px'
-
-            var thumsnail =  target.getElementsByClassName('video-thumbnail')[0] as HTMLElement
-            thumsnail.style.height = String(Math.floor(calcVideoHeight * 0.8)) + 'px'
-        }
+        const width = String(calcVideoWidth) + 'px'
+        const height = String(Math.floor(calcVideoHeight * 0.8)) + 'px'
+        setResizeVideos(rankingVideos[i].items, rankingVideos[i].genreKinds, width, height)
     }
-
+    debugger
     //ランキングのナンバーの高さも調整
+    setTimeout(() =>{
+        initResizeRankingNumber(false)
+    })
+}
+
+//動画のリサイズ
+function setResizeVideos(targetRankingVideos: VideoSummaryItemApiRes[], genre: VideoGenreKinds, width: string, height: string){
+    const targetRefEntity = rankingVideosByGenreRef[genre]
+    for (let j = 0; j < targetRankingVideos.length; j++) {
+        const target = targetRefEntity.refs[j][targetRankingVideos[j].id].value as HTMLElement
+        if(target == null) { continue }
+        target.style.width = width
+
+        var thumsnail =  target.getElementsByClassName('video-thumbnail')[0] as HTMLElement
+        thumsnail.style.height = height
+    }
+}
+
+//ランキングナンバーのリサイズ
+function initResizeRankingNumber(setLineHeight: boolean){
     const rankingNumberElms = document.getElementsByClassName('ranking-number')
     for(let i=0; i< rankingNumberElms.length; i++){
         const target = rankingNumberElms[i] as HTMLElement
         const videoHeighjt = (document.getElementsByClassName('video-container')[0] as HTMLElement ).clientHeight
         const targetHeight = videoHeighjt + 15
-        target.style.height = String(targetHeight) + 'px'
+        if(setLineHeight){
+            target.style.lineHeight = String(targetHeight) + 'px'
+            target.style.height = String(targetHeight - 15) + 'px'
+            target.style.marginBottom = '15px'
+        }else{
+            target.style.lineHeight = 'none'
+            target.style.height = String(targetHeight) + 'px'
+            target.style.marginBottom = '0'
+        }
     }
 }
 
