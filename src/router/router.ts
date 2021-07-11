@@ -1,25 +1,25 @@
 import { createRouter, createWebHistory, useRouter as BaseRouter } from 'vue-router'
-import Login from '@/pages/LoginPage.vue'
-import SignUp from '@/pages/SignUpPage.vue'
-import AppReqMail from '@/pages/AppReqMailPage.vue'
-import Account from '@/pages/AccountPage.vue'
-import UpVideo from '@/pages/UpVideoPage.vue'
-import Home from '@/pages/HomePage.vue'
-import Test from '@/pages/Test.vue'
-import ResetReqPassword from '@/pages/ResetReqPasswordPage.vue'
-import Videopage from '@/pages/VideoPage.vue'
-import VideoRankingPage from '@/pages/VideoRankingPage.vue'
+import Login from '@/front/pages/LoginPage.vue'
+import SignUp from '@/front/pages/SignUpPage.vue'
+import AppReqMail from '@/front/pages/AppReqMailPage.vue'
+import Account from '@/front/pages/AccountPage.vue'
+import UpVideo from '@/front/pages/UpVideoPage.vue'
+import LatestVideo from '@/front/pages/LatestVideoPage.vue'
+import Test from '@/front/pages/Test.vue'
+import ResetReqPassword from '@/front/pages/ResetReqPasswordPage.vue'
+import Videopage from '@/front/pages/VideoPage.vue'
+import VideoRankingPage from '@/front/pages/VideoRankingPage.vue'
 
 const route = [
     {
         path: '/',
         name: 'TOP',
-        component: Home
+        component: LatestVideo
     },
     {
-        path: '/Home',
-        name: 'Home',
-        component: Home
+        path: '/LatestVideo',
+        name: 'LatestVideo',
+        component: LatestVideo
     },
     {
         path: '/Login',
@@ -56,11 +56,11 @@ const route = [
         name: 'Video',
         component: Videopage
     },
-    {
-        path: '/VideoRanking',
-        name: 'VideoRanking',
-        component: VideoRankingPage
-    },
+    // {
+    //     path: '/VideoRanking',
+    //     name: 'VideoRanking',
+    //     component: VideoRankingPage
+    // },
     {
         path: '/Test',
         name: 'Test',

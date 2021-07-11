@@ -1,10 +1,10 @@
 import { createApp } from 'vue'
 import App from '@/App.vue'
-import { key, store } from '@/store/store' 
+import { key, store } from '@/dataAccess/store/store' 
 import { router } from '@/router/router'
-import { AuthService } from './services/AuthServices'
-import VMoriRepository from './repository/VMoriRepository'
-import { AccountService } from './services/AccountService'
+import { AuthService } from './core/services/AuthServices'
+import VMoriRepository from './dataAccess/repository/VMoriRepository'
+import { AccountService } from './core/services/AccountService'
 import { boolean } from 'yup/lib/locale'
 const app = createApp(App)
 
