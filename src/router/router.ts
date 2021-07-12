@@ -56,11 +56,11 @@ const route = [
         name: 'Video',
         component: Videopage
     },
-    // {
-    //     path: '/VideoRanking',
-    //     name: 'VideoRanking',
-    //     component: VideoRankingPage
-    // },
+    {
+        path: '/VideoRanking',
+        name: 'VideoRanking',
+        component: VideoRankingPage
+    },
     {
         path: '/Test',
         name: 'Test',

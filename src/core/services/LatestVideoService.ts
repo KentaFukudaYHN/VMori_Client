@@ -8,56 +8,56 @@ import { SearchDetail } from "@/front/componentReqRes/searchDetail"
 import { SearchDetailUpdateReq } from "@/dataAccess/storeReqRes/SearchDetail"
 
 export class LatestVideoService  {
-    private _store: Store<State>
+    // private _store: Store<State>
     private _repository: VMoriRepository
 
     private DISPLAY_NUM = 30
 
     /*最新動画情報取得*/
-    getVideoItems(){
-        return this._store.state.latestVideo.list
-    }
+    // getVideoItems(){
+    //     return this._store.state.latestVideo.list
+    // }
 
     /*******************
      * 処理系
      *******************/
     //詳細検索実行
-    async searchDetailVideoItem(searchDetail: SearchDetail){
+    async searchDetailVideoItem(text: string, genre: VideoGenreKinds, searchDetail: SearchDetail){
 
         //詳細検索の更新
-        const searchDetailUpdateStoreReq = {
-            langs:  searchDetail.langs,
-            translation: searchDetail.translation,
-            translationLangs: searchDetail.translationLangs
-        } as SearchDetailUpdateReq
-        this._store.dispatch(LatestVideoModule.UPDATE_DETAIL, searchDetailUpdateStoreReq)
+        // const searchDetailUpdateStoreReq = {
+        //     langs:  searchDetail.langs,
+        //     translation: searchDetail.translation,
+        //     translationLangs: searchDetail.translationLangs
+        // } as SearchDetailUpdateReq
+        // this._store.dispatch(LatestVideoModule.UPDATE_DETAIL, searchDetailUpdateStoreReq)
 
-        let text = await this.getSearchText()
+        // let text = await this.getSearchText()
 
         if(text == ''){
             text = null
         }
 
-        let genre = this._store.state.latestVideo.search.genre
+        // let genre = this._store.state.latestVideo.search.genre
         if(genre == VideoGenreKinds.All){
             genre = null
         }
 
         let langs = null
         //『全て(Unkonown)』が含まれていたら検索条件に含めない
-        if(this._store.state.latestVideo.search.detail.langs.indexOf(VideoLanguageKinds.UnKnown) == -1){
-            langs = this._store.state.latestVideo.search.detail.langs
+        if(searchDetail.langs.indexOf(VideoLanguageKinds.UnKnown) == -1){
+            langs = searchDetail.langs
         }
 
         let isTranslation = null
         //『全て』が含まれていたら検索条件に含めない
-        if(this._store.state.latestVideo.search.detail.translation != SearchVideoTranslationKinds.All){
-            isTranslation = this._store.state.latestVideo.search.detail.translation == SearchVideoTranslationKinds.Yes
+        if(searchDetail.translation != SearchVideoTranslationKinds.All){
+            isTranslation = searchDetail.translation == SearchVideoTranslationKinds.Yes
         }
 
         let translationLangs = null;
-        if(isTranslation == true && this._store.state.latestVideo.search.detail.translationLangs.indexOf(VideoLanguageKinds.UnKnown) == -1){
-            translationLangs = this._store.state.latestVideo.search.detail.translationLangs
+        if(isTranslation == true && searchDetail.translationLangs.indexOf(VideoLanguageKinds.UnKnown) == -1){
+            translationLangs = searchDetail.translationLangs
         }
 
         const data = {
@@ -71,8 +71,12 @@ export class LatestVideoService  {
         }
 
         const res = await this._repository.post<VideoSummaryInfoApiRes>('video/getsearchlist',data)
-
-        await this._store.dispatch(LatestVideoModule.UPDATE_VIDEO_ITEMS, res.data.items)
+        if(res.isOk()){
+            return res.data
+        }else{
+            return null
+        }
+        // await this._store.dispatch(LatestVideoModule.UPDATE_VIDEO_ITEMS, res.data.items)
     }
 
     //動画リストの初期化
@@ -84,10 +88,15 @@ export class LatestVideoService  {
             }
         })
 
-        await this._store.dispatch(LatestVideoModule.UPDATE_VIDEO_ITEMS, res.data.items)
+        if(res.isOk()){
+            return res.data
+        }else{
+            return null
+        }
+        // await this._store.dispatch(LatestVideoModule.UPDATE_VIDEO_ITEMS, res.data.items)
     }
     /*テキスト検索*/
-    async searchTextVideoItem(text: string){
+    async searchTextVideoItem(text: string, genre: VideoGenreKinds){
         if(text == ''){
             text = null
         }
@@ -95,22 +104,29 @@ export class LatestVideoService  {
         var res = await this._repository.post<VideoSummaryInfoApiRes>('video/getsearchlist',{
             Page: 1,
             DisplayNum: this.DISPLAY_NUM,
-            Text: text
+            Text: text,
+            Genre: genre
         })
 
+        if(res.isOk()){
+            return res.data
+        }else{
+            return null
+        }
+
         //テキスト検索の場合は全てのジャンルから検索するので、ジャンルを全てに更新する
-        await this._store.dispatch(LatestVideoModule.UPDATE_GENRE, SearchVideoGenreKinds.All)
-        await this.changeGenreVideoItem()
-        await this.updateDetailAbailavle(false)
+        // await this._store.dispatch(LatestVideoModule.UPDATE_GENRE, SearchVideoGenreKinds.All)
+        // await this.changeGenreVideoItem(genre)
+        // await this.updateDetailAbailavle(false)
 
 
 
-        await this._store.dispatch(LatestVideoModule.UPDATE_VIDEO_ITEMS, res.data.items)
+        // await this._store.dispatch(LatestVideoModule.UPDATE_VIDEO_ITEMS, res.data.items)
     }
 
     /*ジャンル選択*/
-    async changeGenreVideoItem(){
-        let genre = this._store.state.latestVideo.search.genre
+    async changeGenreVideoItem(genre: VideoGenreKinds){
+        // let genre = this._store.state.latestVideo.search.genre
         if(genre == VideoGenreKinds.All){
             genre = null
         }
@@ -121,7 +137,13 @@ export class LatestVideoService  {
             genre:genre
         })
 
-        await this._store.dispatch(LatestVideoModule.UPDATE_VIDEO_ITEMS, res.data.items)
+        if(res.isOk()){
+            return res.data
+        }else{
+            return null
+        }
+
+        // await this._store.dispatch(LatestVideoModule.UPDATE_VIDEO_ITEMS, res.data.items)
     }
 
     //表示用の統計情報を生成
@@ -187,84 +209,84 @@ export class LatestVideoService  {
     /*******************
      * 取得系
      *******************/
-    //検索テキストを取得
-    getSearchText(){
-        return this._store.state.latestVideo.search.text
-    }
+    // //検索テキストを取得
+    // getSearchText(){
+    //     return this._store.state.latestVideo.search.text
+    // }
 
-    //検索条件の取得
-    getSearchCreteriaVideoModule(){
-        return this._store.state.latestVideo.search
-    }
+    // //検索条件の取得
+    // getSearchCreteriaVideoModule(){
+    //     return this._store.state.latestVideo.search
+    // }
 
-    //検索条件_ジャンルの取得
-    getGenre(){
-        return this._store.state.latestVideo.search.genre
-    }
+    // //検索条件_ジャンルの取得
+    // getGenre(){
+    //     return this._store.state.latestVideo.search.genre
+    // }
 
-    //詳細検索の有効有無を取得
+    // //詳細検索の有効有無を取得
 
-    getDetailAvailavle(){
-        return this._store.state.latestVideo.search.isActiveDetail
-    }
+    // getDetailAvailavle(){
+    //     return this._store.state.latestVideo.search.isActiveDetail
+    // }
 
-    //検索の詳細を取得
-    getDetail(){
-        return this._store.state.latestVideo.search.detail
-    }
+    // //検索の詳細を取得
+    // getDetail(){
+    //     return this._store.state.latestVideo.search.detail
+    // }
 
-    /**
-     *　検索条件_話している言語の取得
-     * @returns 
-     */
-    getLangs(){
-        return this._store.state.latestVideo.search.detail.langs
-    }
+    // /**
+    //  *　検索条件_話している言語の取得
+    //  * @returns 
+    //  */
+    // getLangs(){
+    //     return this._store.state.latestVideo.search.detail.langs
+    // }
 
-    /**
-     * 検索条件_翻訳の有無を取得
-     * @returns 
-     */
-    getTranlation(){
-        return this._store.state.latestVideo.search.detail.translation
-    }
+    // /**
+    //  * 検索条件_翻訳の有無を取得
+    //  * @returns 
+    //  */
+    // getTranlation(){
+    //     return this._store.state.latestVideo.search.detail.translation
+    // }
 
-    /**
-     * 検索条件_翻訳している言葉の言語を取得
-     * @returns 
-     */
-    getTranslationLangs(){
-        return this._store.state.latestVideo.search.detail.translationLangs
-    }
+    // /**
+    //  * 検索条件_翻訳している言葉の言語を取得
+    //  * @returns 
+    //  */
+    // getTranslationLangs(){
+    //     return this._store.state.latestVideo.search.detail.translationLangs
+    // }
 
     /***************
      *　更新系 
      ***************/
     //検索テキストの更新
-    async updateSearchText(val: string){
-        await this._store.dispatch(LatestVideoModule.UPDATE_SEARCH_TEXT, val)
-    }
+    // async updateSearchText(val: string){
+    //     await this._store.dispatch(LatestVideoModule.UPDATE_SEARCH_TEXT, val)
+    // }
 
     //ジャンルの更新
-    async updateGenre(kinds: SearchVideoGenreKinds){
-        await this._store.dispatch(LatestVideoModule.UPDATE_GENRE, kinds)
-        await this.changeGenreVideoItem()
-        await this.updateSearchText('')
-        await this.updateDetailAbailavle(false)
-    }
+    // async updateGenre(kinds: VideoGenreKinds){
+    //     // await this._store.dispatch(LatestVideoModule.UPDATE_GENRE, kinds)
+    //     // await this.changeGenreVideoItem(kinds)
+    //     // await this.updateSearchText('')
+    //     // await this.updateDetailAbailavle(false)
+    // }
 
     //詳細検索の有効有無を更新
-    async updateDetailAbailavle(val: boolean){
-        await this._store.dispatch(LatestVideoModule.UPDATE_DETAIL_AVAILABLE, val)
-    }        
+    // async updateDetailAbailavle(val: boolean){
+    //     await this._store.dispatch(LatestVideoModule.UPDATE_DETAIL_AVAILABLE, val)
+    // }        
 
     /**
      * コンストラクタ
      * @param store 
      * @param repository 
      */
-    constructor(store: Store<State>, repository: VMoriRepository){
-        this._store = store
+    constructor(repository: VMoriRepository){
+        // this._store = store
         this._repository = repository
     }
 }

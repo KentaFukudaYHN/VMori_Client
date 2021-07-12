@@ -7,11 +7,7 @@ import { Store } from "vuex"
 export class RankingVideoService{
     private _store: Store<State>
     private _repository: VMoriRepository
-    private TOP_GENRE_KINDS_VAL = 99999
 
-    getTopGenreKindsVal(){
-        return this.TOP_GENRE_KINDS_VAL
-    }
 
     //ジャンルごとの動画ランキングを取得
     async getTopVideos(){

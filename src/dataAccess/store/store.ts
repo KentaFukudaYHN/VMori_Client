@@ -7,7 +7,7 @@ import { accountModule, State as accountState} from '@/dataAccess/store/modules/
 export type State = {
     // account: AccountModule,
     // video: VideoModule,
-    latestVideo: LatestVideoState,
+    // latestVideo: LatestVideoState,
     video: videoState,
     account: accountState
 }
@@ -18,7 +18,7 @@ export const key: InjectionKey<Store<State>> = Symbol()
 //Store本体
 export const store = createStore<State>({
     modules:{
-        latestVideo: latestVideoModule,
+        // latestVideo: latestVideoModule,
         video: videoModule,
         account: accountModule
     },

@@ -1,7 +1,7 @@
 import { VideoGenreKinds, VideoPlatFormKinds } from "@/core/enum"
 
 export type VideoSummaryInfoApiRes = {
-    items: VideoSummaryItemApiRes
+    items: VideoSummaryItemApiRes[]
 }
 
 //動画サマリー情報

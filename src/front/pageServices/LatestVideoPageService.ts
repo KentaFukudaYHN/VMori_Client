@@ -1,13 +1,15 @@
-import { LatestVideoService } from "@/core/services/LatestVideoService";
-import VMoriRepository from "@/dataAccess/repository/VMoriRepository";
-import { State } from "@/dataAccess/store/store";
-import { Store } from "vuex";
-import { computed, ref, Ref, watchEffect } from 'vue'
-import { SelecterItem } from "../componentReqRes/Selecter";
-import {  VideoGenreKinds, VideoGenreKindsToString } from "@/core/enum";
-import { useRouter } from "@/router/router";
-import { Router } from "vue-router";
-import { SearchDetail } from "../componentReqRes/searchDetail";
+import { LatestVideoService } from "@/core/services/LatestVideoService"
+import VMoriRepository from "@/dataAccess/repository/VMoriRepository"
+import { State } from "@/dataAccess/store/store"
+import { Store } from "vuex"
+import { ref, Ref } from 'vue'
+import { SelecterItem } from "../componentReqRes/Selecter"
+import {  SearchVideoTranslationKinds, VideoGenreKinds, VideoGenreKindsToString, VideoLanguageKinds } from "@/core/enum"
+import { useRouter } from "@/router/router"
+import { Router } from "vue-router"
+import { SearchDetail } from "../componentReqRes/searchDetail"
+import { vueUtility } from "../utilitys/vueUtility"
+import { VideoSummaryItemApiRes } from "@/core/apiReqRes/Video"
 
 //最新動画情報PageService
 export class LatestVideoPageService{
@@ -15,35 +17,56 @@ export class LatestVideoPageService{
     private _latestVideoService: LatestVideoService
     //VueRotuer
     private _router: Router
-    //選択中のジャンルRef
-    private _selectedGenre: Ref<VideoGenreKinds>
+
+    //最新動画情報ページの変動データ
+    private _state = {
+        list:ref([]) as Ref<VideoSummaryItemApiRes[]>,
+        search: {
+            text: ref(''),
+            genre: ref(VideoGenreKinds.All),
+            isActiveDetail: ref(false),
+            detail:{
+                langs: ref([VideoLanguageKinds.UnKnown]) as Ref<VideoLanguageKinds[]>,
+                translation: ref(SearchVideoTranslationKinds.All),
+                translationsLangs: ref([VideoLanguageKinds.UnKnown])as Ref<VideoLanguageKinds[]>
+            }
+        }
+    }
 
     /**
      * 初期処理
      */
     async init(){
         //動画情報の初期化
-        await this._latestVideoService.initVideoItems()
-        //watchの設定
-        this._settingWatch()
+        const result = await this._latestVideoService.initVideoItems()
+        vueUtility.updateArray(result.items as [], this._state.list as Ref<[]>)
     }
 
     /**
      * 動画検索
      */
-    searchVideosByText(text: string){
+    async searchVideosByText(text: string){
         if(text == ''){
             text = null
         }
-        this._latestVideoService.searchTextVideoItem(text)
+        const result =  await this._latestVideoService.searchTextVideoItem(text, this._state.search.genre.value)
+        vueUtility.updateArray(result.items as [], this._state.list as Ref<[]>)
     }
 
     /**
      * 詳細検索
      * @param searchDetail 
      */
-    searchVideoByDetail(searchDetail: SearchDetail){
-        this._latestVideoService.searchDetailVideoItem(searchDetail)
+    async searchVideoByDetail(searchDetail: SearchDetail){
+        //詳細検索の更新
+        vueUtility.updateArray(searchDetail.langs as [], this._state.search.detail.langs as Ref<[]>)
+        this._state.search.detail.translation.value = searchDetail.translation
+        vueUtility.updateArray(searchDetail.translationLangs as [], this._state.search.detail.translationsLangs as Ref<[]>)
+
+        const result = await this._latestVideoService.searchDetailVideoItem(this._state.search.text.value, 
+            this._state.search.genre.value, searchDetail)
+
+        vueUtility.updateArray(result.items as [], this._state.list as Ref<[]>)
     }
 
     /**
@@ -58,8 +81,10 @@ export class LatestVideoPageService{
      * ジャンルの選択
      * @param val VideoGenreKindsの値
      */
-    selectedGenre(val: number){
-        this._latestVideoService.updateGenre(val)
+    async selectedGenre(val: number){
+        this._state.search.genre.value = val
+        const result = await this._latestVideoService.changeGenreVideoItem(val)
+        vueUtility.updateArray(result.items as [], this._state.list as Ref<[]>)
     }
 
     /**
@@ -67,7 +92,7 @@ export class LatestVideoPageService{
      * @returns 最新動画情報
      */
     getVideos(){
-        return computed(() => this._latestVideoService.getVideoItems()) 
+        return this._state.list
     }
 
     /**
@@ -76,7 +101,6 @@ export class LatestVideoPageService{
      */
     getSelecterItemsByGenre(){
         const genreSelecterItems = [] as SelecterItem[]
-        this._selectedGenre = ref(this._latestVideoService.getGenre())
         Object.entries(VideoGenreKinds).forEach(([key, val]) =>{
             const kindsNum = Number(key)
             const kinds = kindsNum as VideoGenreKinds
@@ -84,7 +108,7 @@ export class LatestVideoPageService{
                 genreSelecterItems.push({
                     val: kinds,
                     text: VideoGenreKindsToString(kinds),
-                    selected: kinds == this._selectedGenre.value
+                    selected: kinds == this._state.search.genre.value
                 })
             }
         })
@@ -97,20 +121,7 @@ export class LatestVideoPageService{
      * @returns 選択中のジャンル
      */
     getSelectedGenreRef(){
-        return this._selectedGenre
-    }
-
-    /**
-     * Watchの設定
-     */
-    private _settingWatch(){
-        //選択中ジャンルの変更監視
-        watchEffect(() => {
-            const nowSelectedGenre = this._latestVideoService.getGenre()
-            if(nowSelectedGenre != this._selectedGenre.value){
-                this._selectedGenre.value = nowSelectedGenre
-            }
-        })
+        return this._state.search.genre
     }
 
     /**
@@ -119,7 +130,7 @@ export class LatestVideoPageService{
      * @param repository 
      */
     constructor(store: Store<State>, repository: VMoriRepository){
-        this._latestVideoService = new LatestVideoService(store, repository)
+        this._latestVideoService = new LatestVideoService(repository)
         this._router = useRouter()
     }
 }
