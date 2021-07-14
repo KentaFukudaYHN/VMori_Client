@@ -27,6 +27,7 @@ import { defineComponent, onBeforeUnmount, onMounted, ref, watch, PropType, Setu
 import { VideoSummary as VideoItem } from '@/dataAccess/entities/VideoSummary'
 import { VideoPlatFormKinds } from '@/core/enum'
 import { appSetting } from '@/dataAccess/entities/AppSetting'
+import { videoUtility } from '../utilitys/videoUtility'
 
 
 type Props = {
@@ -167,7 +168,6 @@ function getPlatFormIconSrc(kinds:VideoPlatFormKinds){
 
 //表示用の統計情報を生成
 function displayStatistics(viewCount: number, publishDate: Date){
-    return null;
-    // return videoService.createDisplayStatistics(viewCount, publishDate)
+    return videoUtility.createDisplayStatistics(viewCount, publishDate)
 }
 </script>

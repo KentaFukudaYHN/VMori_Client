@@ -12,6 +12,7 @@ import { VideoService } from "@/core/services/VideoService";
 import { vueUtility } from "../utilitys/vueUtility";
 import { GenrePallete } from "../componentReqRes/GenrePalette";
 import { AppStateService } from "@/core/services/AppStateService";
+import { HistoryVideoService } from "@/core/services/historyVideoService";
 
 /**
  * ランキング動画PageService
@@ -21,6 +22,8 @@ export class RankingVideoPageService {
     private _videoService: VideoService
     //アプリケーション状態サービス
     private _appStateService: AppStateService
+    //動画履歴サービス
+    private _historyService: HistoryVideoService
     //VueRouter
     private _router: Router
     //ジャンル選択欄にTOPを追加するので、そのEnumの値を無理やり定義しておく...動けばよいのだ...
@@ -416,6 +419,7 @@ export class RankingVideoPageService {
      * @param videoId 動画ID
      */
     selectedVideo(videoId: string){
+        this._historyService.registHistory(videoId)
         this._router.push({name: 'Video', query: { v:videoId }})
     }
 
@@ -427,6 +431,7 @@ export class RankingVideoPageService {
     constructor(store: Store<State>, router: Router){
         this._videoService = new VideoService(store, new VMoriRepository(router))
         this._appStateService = new AppStateService(store)
+        this._historyService = new HistoryVideoService(new VMoriRepository(router))
         this._router = router
     }
 

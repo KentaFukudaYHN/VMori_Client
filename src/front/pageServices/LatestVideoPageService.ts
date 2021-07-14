@@ -11,11 +11,13 @@ import { vueUtility } from "../utilitys/vueUtility"
 import { VideoSummaryItemApiRes } from "@/core/apiReqRes/Video"
 import { VideoService } from "@/core/services/VideoService"
 import { GenrePallete } from "../componentReqRes/GenrePalette"
+import { AppStateService } from "@/core/services/AppStateService"
 
 //最新動画情報PageService
 export class LatestVideoPageService{
     //最新動画情報Service
     private _videoService: VideoService
+    private _appStateService: AppStateService
     //VueRotuer
     private _router: Router
     //表示数
@@ -41,8 +43,13 @@ export class LatestVideoPageService{
      */
     async init(){
         //動画情報の初期化
-        const result = await this._videoService.getLatestVideos(1, this.DISPLAY_NUM)
-        vueUtility.updateArray(result.items as [], this._state.list as Ref<[]>)
+        try{
+            this._appStateService.updateIsLoadin(true)
+            const result = await this._videoService.getLatestVideos(1, this.DISPLAY_NUM)
+            vueUtility.updateArray(result.items as [], this._state.list as Ref<[]>)
+        }finally{
+            this._appStateService.updateIsLoadin(false)
+        }
     }
 
     /**
@@ -52,8 +59,13 @@ export class LatestVideoPageService{
         if(text == ''){
             text = null
         }
-        const result =  await this._videoService.getVideosByText(1, this.DISPLAY_NUM, text, this._state.search.genre.value)
-        vueUtility.updateArray(result.items as [], this._state.list as Ref<[]>)
+        try{
+            this._appStateService.updateIsLoadin(true)
+            const result =  await this._videoService.getVideosByText(1, this.DISPLAY_NUM, text, this._state.search.genre.value)
+            vueUtility.updateArray(result.items as [], this._state.list as Ref<[]>)
+        }finally{
+            this._appStateService.updateIsLoadin(false)
+        }
     }
 
     /**
@@ -61,15 +73,20 @@ export class LatestVideoPageService{
      * @param searchDetail 
      */
     async searchVideoByDetail(searchDetail: SearchDetail){
-        //詳細検索の更新
-        vueUtility.updateArray(searchDetail.langs as [], this._state.search.detail.langs as Ref<[]>)
-        this._state.search.detail.translation.value = searchDetail.translation
-        vueUtility.updateArray(searchDetail.translationLangs as [], this._state.search.detail.translationsLangs as Ref<[]>)
+        try{
+            this._appStateService.updateIsLoadin(true)
+            //詳細検索の更新
+            vueUtility.updateArray(searchDetail.langs as [], this._state.search.detail.langs as Ref<[]>)
+            this._state.search.detail.translation.value = searchDetail.translation
+            vueUtility.updateArray(searchDetail.translationLangs as [], this._state.search.detail.translationsLangs as Ref<[]>)
 
-        const result = await this._videoService.getVideosBySearchDetail(1, this.DISPLAY_NUM, this._state.search.text.value, 
-            this._state.search.genre.value, searchDetail)
+            const result = await this._videoService.getVideosBySearchDetail(1, this.DISPLAY_NUM, this._state.search.text.value, 
+                this._state.search.genre.value, searchDetail)
 
-        vueUtility.updateArray(result.items as [], this._state.list as Ref<[]>)
+            vueUtility.updateArray(result.items as [], this._state.list as Ref<[]>)
+        }finally{
+            this._appStateService.updateIsLoadin(false)
+        }
     }
 
     /**
@@ -85,9 +102,14 @@ export class LatestVideoPageService{
      * @param val VideoGenreKindsの値
      */
     async selectedGenre(val: number){
-        this._state.search.genre.value = val
-        const result = await this._videoService.getVideosByGenre(1, this.DISPLAY_NUM,val)
-        vueUtility.updateArray(result.items as [], this._state.list as Ref<[]>)
+        try{
+            this._appStateService.updateIsLoadin(true)
+            this._state.search.genre.value = val
+            const result = await this._videoService.getVideosByGenre(1, this.DISPLAY_NUM,val)
+            vueUtility.updateArray(result.items as [], this._state.list as Ref<[]>)
+        }finally{
+            this._appStateService.updateIsLoadin(false)
+        }
     }
 
     /**
@@ -158,6 +180,7 @@ export class LatestVideoPageService{
      */
     constructor(store: Store<State>, repository: VMoriRepository){
         this._videoService = new VideoService(store, repository)
+        this._appStateService = new AppStateService(store)
         this._router = useRouter()
     }
 }
