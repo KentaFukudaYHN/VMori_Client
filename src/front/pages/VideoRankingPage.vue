@@ -8,7 +8,7 @@
         @include pc {
             display: flex;
             width:auto;
-            margin: 0 11px;
+            margin: 0 15px;
             align-items: center;
             justify-content: end;
         }
@@ -47,11 +47,11 @@
         font-size: 45px;
         color: $gray-font-color;
         text-align: center;
-        @include pc{
+        @include tab{
             font-size: 35px;
             text-align: right;
         }
-        @include sp{
+        @include pc{
             display: none;
         }
     }
@@ -115,15 +115,27 @@
 }
 
 .vranking-single{
+    justify-content: center;
+    width: auto;
+    margin: auto;
+    & .vranking-videolist-content{
+        width: auto;
+    }
     & .video-container{
         display: flex;
+        width:auto !important;
         max-width: 900px ;
+        margin-bottom:0;
         @include sp{
             margin:0;
         }
         & .video-thumbnail{
-            width: 300px !important;
-            height: 120px !important;
+            width:610px !important;
+            height: 200px !important;
+            @include pc{
+                width: 300px !important;
+                height: 120px !important;
+            }
 
             @include sp{
                 width: 200px !important;
@@ -132,7 +144,26 @@
         }
 
         & .video-title{
-            font-size: 14px;
+            font-size: 16px;
+            color: #358a00;
+            @include sp{
+                font-size: 14px;
+                color: $base-font-color;
+            }
+        }
+
+        & .video-channel{
+            font-size: 15px;
+            @include sp{
+                font-size: 10px;
+            }
+        }
+
+        & .video-stastics{
+            font-size: 15px;
+            @include sp{
+                font-size: 10px;
+            }
         }
 
         & .video-description{
@@ -146,28 +177,32 @@
     <vm-guide>
         <template v-slot:content>
             <div class="vranking-searchcontainer">
-                <vm-search-genre :list="getGenreSelecterItems" :selectGenre="selectedGenre"></vm-search-genre>
+                <vm-search-genre :list="getGenreSelecterItems" :palleteList="getPaletteItemsByGenre" :selectGenre="selectedGenre" @emit-selectGenre="changeGenreVideos"></vm-search-genre>
                 <vm-search-detail class="vranking-searchdetail"></vm-search-detail>
             </div>
             
-            <div id="rankingVideoListContainer" class="vranking-videolist-container" :class="{'vranking-single': !isMulti}">
+            <div id="rankingVideoListContainer" class="vranking-videolist-container" :class="{'vranking-single': !isMulti }">
                 <!-- <vm-ranking-videolist v-for="genreVideo in genreVideos" :key="genreVideo.genre" 
                                     class="vranking-videolist"
                                     :isMulti="false"
                                     :videos="genreVideo.items"/> -->
 
+                <!-- ランキングナンバー -->
                 <div class="vranking-videolist-number">
                     <div v-for="ranking in rankingNumbers" :key="ranking"
                          class="ranking-number">
                         {{ ranking }}
                     </div>
                 </div>
+
+                <!-- ランキング動画 -->
                 <div class="vranking-videolist-content">
-                    <div  v-for="(genreVideo, index) in genreVideos" :key="genreVideo.genreKinds" v-show="isMulti != false || index ==0"
+                    <div  v-for="(genreVideo, index) in genreVideos" :key="index" v-show="isMulti != false || index ==0"
                         class="videolist-container">
                         <p class="videolist-genre-title">{{displayGenre(genreVideo.genreKinds)}}</p>
-                        <div v-for="(item, index) in genreVideo.items" :key="item.id"
-                            :ref="rankingVideosByGenreRef[Number(genreVideo.genreKinds)].refs[Number(index)][item.id]"
+                        <div v-for="(item, index2) in genreVideo.items" :key="index2"
+                            :ref="rankingVideosByGenreRef[Number(genreVideo.genreKinds)].refs[Number(index2)][item.id]"
+                            @click="selectedVideo(item.id)"
                             class="video-container">
                             <div class="video-thumbnail">
                                 <img :src="item.thumbnailLink"/>
@@ -202,7 +237,7 @@ import { useRouter } from '@/router/router'
 import { useStore } from '@/dataAccess/store/store'
 import { RankingVideoPageService } from '@/front/pageServices/RankingVideoPageService'
 import { videoUtility } from '@/front/utilitys/videoUtility'
-import { VideoGenreKindsToString } from '@/core/enum'
+import { VideoGenreKinds, VideoGenreKindsToString } from '@/core/enum'
 
 export default defineComponent({
     components:{
@@ -231,11 +266,17 @@ export default defineComponent({
             //ジャンル分けされた各動画のref
             rankingVideosByGenreRef: state.videosByGenreRef,
             //複数ジャンルのランキングを表示するかどうか
-            isMulti: state.isMulti,
+            isMulti: computed(() => rankingVideoService.getIsMulti()),
+            //複数ジャンルのランキングを表示するかどうか
             //ジャンル選択肢情報
             getGenreSelecterItems: rankingVideoService.getGenreSelecterItems(),
+            //ジャンルパレッド選択肢情報
+            getPaletteItemsByGenre: rankingVideoService.getPaletteItemsByGenre(),
             //選択中のジャンル
-            selectedGenre: computed(() => state.search.value.genre)
+            selectedGenre: state.search.genre,
+            //ジャンルの変更
+            changeGenreVideos: (val: VideoGenreKinds) => rankingVideoService.changeGenreVideos(val),
+            selectedVideo: (videoId: string) => rankingVideoService.selectedVideo(videoId)
         }
     },
 })

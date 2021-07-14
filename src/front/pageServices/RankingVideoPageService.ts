@@ -1,21 +1,26 @@
-import { RankingVideoService } from "@/core/services/RankingVideoService";
 import VMoriRepository from "@/dataAccess/repository/VMoriRepository";
 import { State } from "@/dataAccess/store/store";
-import { onMounted, reactive, toRefs, ref, onBeforeMount, Ref } from "vue";
+import { onMounted, reactive, toRefs, ref, onBeforeMount, Ref, computed } from "vue";
 import { Router } from "vue-router";
 import { Store } from "vuex";
 import { appSetting } from '@/dataAccess/entities/AppSetting'
 import { VideoSummaryByGenreApiRes, VideoSummaryInfoByGenreApiRes } from '@/core/apiReqRes/RankingVideo'
-import { VideoSummaryItemApiRes } from "@/core/apiReqRes/Video";
-import { SearchVideoGenreKinds, SearchVideoGenreKindsToString, VideoGenreKinds } from "@/core/enum";
+import { VideoSummaryInfoApiRes, VideoSummaryItemApiRes } from "@/core/apiReqRes/Video";
+import { SearchVideoGenreKinds, SearchVideoGenreKindsToString, VideoGenreKinds, VideoGenreKindsToString } from "@/core/enum";
 import { SelecterItem } from "../componentReqRes/Selecter";
+import { VideoService } from "@/core/services/VideoService";
+import { vueUtility } from "../utilitys/vueUtility";
+import { GenrePallete } from "../componentReqRes/GenrePalette";
+import { AppStateService } from "@/core/services/AppStateService";
 
 /**
  * ランキング動画PageService
  */
 export class RankingVideoPageService {
     //ランキング動画Service
-    private _rankingVideoService: RankingVideoService
+    private _videoService: VideoService
+    //アプリケーション状態サービス
+    private _appStateService: AppStateService
     //VueRouter
     private _router: Router
     //ジャンル選択欄にTOPを追加するので、そのEnumの値を無理やり定義しておく...動けばよいのだ...
@@ -25,18 +30,20 @@ export class RankingVideoPageService {
     //ジャンルの選択肢情報
     private _genreSelecterItems = [] as SelecterItem[]
     //画面の状態
-    private _state = toRefs(reactive({
+    private _state = {
         //動画情報APIレスポンス
-        videos: [] as VideoSummaryByGenreApiRes[],
+        videos: ref([]) as Ref<VideoSummaryByGenreApiRes[]>,
         //ジャンルごとに分けた動画情報ref
-        videosByGenreRef: null,
-        //複数ジャンル表示モードの有無
-        isMulti: false,
+        videosByGenreRef: ref(null),
+        //複数ジャンル表示モードの有無　※ジャンル選択時にフラグを変える
+        isMulti: ref(true),
+        //複数ジャンル表示モードの有無 ※サムネイルサイズ調整時にフラフを変える
+        isMultiBySize: ref(true),
         //選択中のジャンル
         search:{
-            genre: SearchVideoGenreKinds.All
+            genre: ref(VideoGenreKinds.All)
         }
-    }))
+    }
 
     /*************************************************
      * 処理系
@@ -48,64 +55,152 @@ export class RankingVideoPageService {
     async init(){
         onMounted(() => {
             //動的に画像の幅を変える為にresizeイベントを監視
-            window.addEventListener('resize', this.onResizeTumbnail)
+            window.addEventListener('resize', this.onResizeTumbnail.bind(this))
             //画像のサイズ調整
             this.onResizeTumbnail()
         })
 
         onBeforeMount(() =>{
             //resizeイベントの破棄
-            window.removeEventListener('resize', this.onResizeTumbnail)
+            window.removeEventListener('resize', this.onResizeTumbnail.bind(this))
         })
 
-        //動画情報の取得
-        const videosInfo = await this._rankingVideoService.getTopVideos()
-        //動画のないジャンルは除外
-        const videos = videosInfo.items.filter(x => x.items.length != 0)
-        this._state.videos = ref(videos)
+        try{
+            //ローディング開始
+            this._appStateService.updateIsLoadin(true)
+            /**
+             * 動画情報の取得
+             * ①画面幅が1カラム構成であれば、『全て』ジャンルの動画を取得、そうでなければ、複数ジャンルの動画を取得
+             */
+            this._state.videos.value.splice(0, this._state.videos.value.length)
+            if(window.matchMedia('(max-width:' + appSetting.media.tab + 'px)').matches){
+                //tab以下はカラム構成なので、『全て』ジャンルの動画を取得
+                const summaryInfo = await this._videoService.getVideosByGenre(1, 50, VideoGenreKinds.All)
+                this._state.videos.value.push({
+                    genreKinds: VideoGenreKinds.All,
+                    items:summaryInfo.items
+                })
+                this._state.isMulti.value = false
+            }else{
+                const videosInfo = await this._videoService.getRankingVideosByGenre()
+                //動画のないジャンルは除外
+                const videos = videosInfo.items.filter(x => x.items.length != 0)
+                vueUtility.updateArray(videos as [], this._state.videos as Ref<[]>)
+                this._state.isMulti.value = true
+            }
 
-        /*********************************************************
-        *1.ジャンル別のランキング動画で、一番項目数の多いジャンルを取得
-        *2.その数に合わせてジャンルのナンバーを生成
-        ***********************************************************/
-        //1.ジャンル別のランキング動画で、一番項目数の多いジャンルを取得
-        const maxItemLength = this._state.videos.value.sort((a, b) =>{
-            return b.items.length - a.items.length
-        })[0].items.length
+            /*********************************************************
+            *1.ジャンル別のランキング動画で、一番項目数の多いジャンルを取得
+            *2.その数に合わせてジャンルのナンバーを生成
+            ***********************************************************/
+            //1.ジャンル別のランキング動画で、一番項目数の多いジャンルを取得
+            const maxItemLength = this._state.videos.value.sort((a, b) =>{
+                return b.items.length - a.items.length
+            })[0].items.length
+            
+            //2.その数に合わせてジャンルのナンバーを生成
+            for (let i = 0; i < maxItemLength; i++) {
+                this._rankingNumbers.push(i+1)
+            }
+
+            /**************************
+             * ジャンル選択のリストを生成
+             * 1.ランキイングページ専用の、『ＴＯＰ』ジャンルを追加
+             * 2.現在選択中のジャンルをstoreから取得
+             * 3.SearchVideoGenreKindsに合わせて選択ジャンルリストを生成
+             **************************/
+            //1.ランキイングページ専用の、『ＴＯＰ』ジャンルを追加
+            this._state.search.genre.value = this.TOP_GENRE_KINDS_VAL as VideoGenreKinds
+            this._genreSelecterItems.push({
+                text: 'TOP',
+                val: this.TOP_GENRE_KINDS_VAL,
+                selected: this._state.search.genre.value == this.TOP_GENRE_KINDS_VAL
+            })
+
+            Object.entries(VideoGenreKinds).forEach(([key, val]) =>{
+                const kindsNum = Number(key)
+                const kinds = kindsNum as VideoGenreKinds
+                if(isNaN(kindsNum) == false){
+                    this._genreSelecterItems.push({
+                        val: kinds,
+                        text: VideoGenreKindsToString(kinds),
+                        selected: this._state.search.genre.value == kinds
+                    })
+                }
+            })
+
+            //各動画のrefをジャンル別に生成
+            this._state.videosByGenreRef = this.createVideoRefs(this._state.videos.value)
+        }catch(error){
+        }finally{
+            //ローディング終了
+            this._appStateService.updateIsLoadin(false)
+        }
+    }
+
+    /**
+     * ジャンルの変更
+     * @param val 
+     */
+    async changeGenreVideos(val: VideoGenreKinds){
+        try{
+            //ローディングの開始
+            this._appStateService.updateIsLoadin(true)
+            //ジャンルの変更を保持
+            this._state.search.genre.value = val
+            if(val == this.TOP_GENRE_KINDS_VAL){
+                //動画情報の取得
+                const videosInfo = await this._videoService.getRankingVideosByGenre()
+                //動画のないジャンルは除外
+                const videos = videosInfo.items.filter(x => x.items.length != 0)
+                this._state.videos.value.splice(0, this._state.videos.value.length)
+                videos.forEach((genreItems, index) => {
+                    this._state.videos.value.push(genreItems)
+                })
+                //refの再生成
+                this._state.videosByGenreRef = this.createVideoRefs(videos)
+                this._state.isMulti.value = true 
+                //サムネイルサイズを再計算
+                setTimeout(() => {
+                    this.onResizeTumbnail()
+                })
+                return;
+            }
+
+            //該当のチャンネルの動画情報を取得
+            const result = await this._videoService.getVideosByGenre(1, 30, val)
+            //動画情報を変換
+            const items = [] as VideoSummaryItemApiRes[]
+            result.items.forEach(x => {
+                items.push({
+                    id: x.id,
+                    title: x.title,
+                    channelTitle: x.channelTitle,
+                    thumbnailLink: x.thumbnailLink,
+                    viewCount: x.viewCount,
+                    platFormKinds: x.platFormKinds,
+                    publishDateTime: x.publishDateTime,
+                    registDateTime: x.registDateTime
+                })
+            })
+            const summaryByGenre = [{
+                genreKinds: val,
+                items: items
+            } as VideoSummaryByGenreApiRes]
+            //表示動画リストを更新
+            this._state.videos.value.splice(0, this._state.videos.value.length)
+            vueUtility.updateArray(summaryByGenre as [], this._state.videos as Ref<[]>)
         
-        //2.その数に合わせてジャンルのナンバーを生成
-        for (let i = 0; i < maxItemLength; i++) {
-            this._rankingNumbers.push(i+1)
+            this._state.isMulti.value = false
+
+            //refの再生成
+            this._state.videosByGenreRef = this.createVideoRefs(this._state.videos.value)
+            //サムネイルサイズを再計算
+            this.onResizeTumbnail()
+        }finally{
+            this._appStateService.updateIsLoadin(false)
         }
 
-        /**************************
-         * ジャンル選択のリストを生成
-         * 1.ランキイングページ専用の、『ＴＯＰ』ジャンルを追加
-         * 2.現在選択中のジャンルをstoreから取得
-         * 3.SearchVideoGenreKindsに合わせて選択ジャンルリストを生成
-         **************************/
-        //1.ランキイングページ専用の、『ＴＯＰ』ジャンルを追加
-        this._state.search.value.genre = this.TOP_GENRE_KINDS_VAL as SearchVideoGenreKinds
-        this._genreSelecterItems.push({
-            text: 'TOP',
-            val: this.TOP_GENRE_KINDS_VAL,
-            selected: this._state.search.value.genre == this.TOP_GENRE_KINDS_VAL
-        })
-
-        Object.entries(SearchVideoGenreKinds).forEach(([key, val]) =>{
-            const kindsNum = Number(key)
-            const kinds = kindsNum as SearchVideoGenreKinds
-            if(isNaN(kindsNum) == false){
-                this._genreSelecterItems.push({
-                    val: kinds,
-                    text: SearchVideoGenreKindsToString(kinds),
-                    selected: this._state.search.value.genre == kinds
-                })
-            }
-        })
-
-        //各動画のrefをジャンル別に生成
-        this._state.videosByGenreRef = this.createVideoRefs(videosInfo)
     }
 
     /**
@@ -113,10 +208,10 @@ export class RankingVideoPageService {
      * @param apiRes 
      * @returns 
      */
-    createVideoRefs(apiRes: VideoSummaryInfoByGenreApiRes){
+    createVideoRefs(items: VideoSummaryByGenreApiRes[]){
     const result = {}
     //ジャンルごとにrefを生成
-    apiRes.items.forEach(videoRankingByGenre => {
+    items.forEach(videoRankingByGenre => {
         //追加するrankingVideoByGenreRefを生成
         const rankingVideosByGenreRef = {} as rankingVideosByGenreRef
         rankingVideosByGenreRef.refs = []
@@ -144,11 +239,22 @@ export class RankingVideoPageService {
         const windowWidth = document.body.clientWidth;
         //windowが1024px以上なら5カラムで表示される様にサイズ調整
         let colum = 5;
+
+        if(this._state.isMulti.value == false){
+            this.setResizeVideos(this._state.videos.value[0].items, this._state.videos.value[0].genreKinds, 'auto', 'auto')
+            setTimeout(() =>{
+                this.initResizeRankingNumber(true)
+            })
+            return
+        }
+
         if(window.matchMedia('(min-width:1500px)').matches){
             colum = 5
+            this._state.isMultiBySize.value = true
         }else if(window.matchMedia('(min-width:' + appSetting.media.pc + 'px)').matches ){
             console.log('window.match pc')
             colum = 5
+            this._state.isMultiBySize.value = true
         }else if(window.matchMedia('(min-width:' + appSetting.media.tab + 'px)').matches ){
             console.log('window.match tab')
             colum = 1
@@ -156,19 +262,17 @@ export class RankingVideoPageService {
             setTimeout(() =>{
                 this.initResizeRankingNumber(true)
             })
-            this._state.isMulti.value = false
+            this._state.isMultiBySize.value = false
         }else {
-            console.log('window.match sp')
             colum = 1
             this.setResizeVideos(this._state.videos.value[0].items, this._state.videos.value[0].genreKinds, 'auto', 'auto')
             setTimeout(() =>{
                 this.initResizeRankingNumber(true)
             })
-            this._state.isMulti.value = false
+            this._state.isMultiBySize.value = false
         }
 
         if(colum == 1){ return }
-        this._state.isMulti.value = true
 
         let margin = 30
 
@@ -199,7 +303,6 @@ export class RankingVideoPageService {
             const height = String(Math.floor(calcVideoHeight * 0.8)) + 'px'
             this.setResizeVideos(this._state.videos.value[i].items, this._state.videos.value[i].genreKinds, width, height)
         }
-        debugger
         //ランキングのナンバーの高さも調整
         setTimeout(() =>{
             this.initResizeRankingNumber(false)
@@ -214,9 +317,9 @@ export class RankingVideoPageService {
      * @param height 
      */
     setResizeVideos(targetRankingVideos: VideoSummaryItemApiRes[], genre: VideoGenreKinds, width: string, height: string){
-        const targetRefEntity = this._state.videosByGenreRef[genre]
-        for (let j = 0; j < targetRankingVideos.length; j++) {
-            const target = targetRefEntity.refs[j][targetRankingVideos[j].id].value as HTMLElement
+        const targetRefEntity = document.getElementsByClassName('video-container')
+        for (let j = 0; j < targetRefEntity.length; j++) {
+            const target = targetRefEntity[j] as HTMLElement
             if(target == null) { continue }
             target.style.width = width
 
@@ -234,11 +337,11 @@ export class RankingVideoPageService {
         for(let i=0; i< rankingNumberElms.length; i++){
             const target = rankingNumberElms[i] as HTMLElement
             const videoHeighjt = (document.getElementsByClassName('video-container')[0] as HTMLElement ).clientHeight
-            const targetHeight = videoHeighjt + 15
+            const targetHeight = videoHeighjt + 15 + 2 //border
             if(setLineHeight){
                 target.style.lineHeight = String(targetHeight) + 'px'
                 target.style.height = String(targetHeight - 15) + 'px'
-                target.style.marginBottom = '15px'
+                target.style.marginBottom = '0px'
             }else{
                 target.style.lineHeight = 'none'
                 target.style.height = String(targetHeight) + 'px'
@@ -259,6 +362,12 @@ export class RankingVideoPageService {
         return this._state
     }
 
+    getIsMulti(){
+        if(!this._state.isMulti.value) { return false }
+
+        return this._state.isMultiBySize.value
+    }
+
     /**
      * ランキングナンバーを取得
      * @returns 表示用のランキングナンバー ※動画数に合わせて生成済み
@@ -275,13 +384,49 @@ export class RankingVideoPageService {
         return this._genreSelecterItems
     }
 
+        /**
+     * ジャンルパレッドの選択肢取得
+     */
+    getPaletteItemsByGenre(){
+        const items = [] as GenrePallete[]
+        items.push({
+            text: '全て',
+            kinds: VideoGenreKinds.All,
+            css: 'genrepalette-item genre-color-top'
+        })
+        Object.entries(VideoGenreKinds).forEach(([key, val]) =>{
+            var kindsNum = Number(key)
+            if(isNaN(kindsNum) == false && kindsNum != VideoGenreKinds.All){
+                items.push({
+                    text: VideoGenreKindsToString(kindsNum),
+                    kinds: kindsNum,
+                    css: 'genrepalette-item genre-color-' + (val as string).toLowerCase()
+                })
+            }
+        })
+
+        return items
+    }
+
+    /**************
+     * メソッド
+     *************/
+    /**
+     * 動画情報の選択
+     * @param videoId 動画ID
+     */
+    selectedVideo(videoId: string){
+        this._router.push({name: 'Video', query: { v:videoId }})
+    }
+
     /**
      * コンストラクタ
      * @param store 
      * @param router 
      */
     constructor(store: Store<State>, router: Router){
-        this._rankingVideoService = new RankingVideoService(store, new VMoriRepository(router))
+        this._videoService = new VideoService(store, new VMoriRepository(router))
+        this._appStateService = new AppStateService(store)
         this._router = router
     }
 

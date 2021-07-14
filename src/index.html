@@ -44,6 +44,7 @@
         <link rel="stylesheet" href="./css/Project/videoGenre.css">
         <link rel="stylesheet" href="./css/Project/selecter.css">
         <link rel="stylesheet" href="./css/Project/videolist.css">
+        <link rel="stylesheet" href="./css/Project/loading.css">
 
         <script>
             //グローバル変数にバンドルJSのローディング有無のフラグを定義して監視
@@ -70,81 +71,7 @@
         </script>
         
         <style>
-            .loading-wrap{
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                width: 100%;
-                height: 100vh;
-            }
-            .loading-item{
-                text-align: center;
-            }
-            .loading-item img{
-                width: 160px;
-                animation: anime_loading 1s infinite;
-            }
 
-            .loading-item p {
-                letter-spacing: 0.15em;
-                font-size: 13px;
-                font-weight: bold;
-                color: #5a564c;
-            }
-
-            .loading-item span{
-                display: inline-block;
-                position: relative;
-                overflow:hidden;
-            }
-
-            .loading-item span::before{
-                content: '';
-                position: absolute;
-                background-color: #fff;
-                top:0;
-                left:0;
-                right:0;
-                bottom:0;
-                display: block;
-                animation: anime_text 2.5s infinite;
-            }
-
-            @keyframes anime_loading {
-                0%{
-                    transform: scale(1.0,1.0) translate3d(0,0,0);
-                }
-
-                30%{
-                    transform: scale(1.0,1.06) translate3d(-3%,-2%,0) skew(4deg,0deg);
-                }
-
-                45%{
-                    transform: scale(1.0,0.99) translate3d(-1%,-1%,0) skew(1deg,0deg);
-                }
-
-                75%{
-                    transform: scale(1.0,1.06) translate3d(-3%,-2%,0) skew(-4deg,0deg);
-                }
-
-                90%{
-                    transform: scale(1.0,0.99) translate3d(1%,1%,0) skew(-1deg,0deg);
-                }
-
-                100%{
-                    transform: scale(1.0,1.0) translate3d(0,0,0);
-                }
-            }
-
-            @keyframes anime_text{
-                0%{
-                    transform: translatex(0%);
-                }
-
-                100%{
-                    transform: translatex(100%);
-                }
-            }
         </style>
     </head>
     <body>

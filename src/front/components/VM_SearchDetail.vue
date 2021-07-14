@@ -13,7 +13,7 @@
             margin-left: 15px;
             cursor: pointer;
 
-            @include sp{
+            @include pc{
                 padding: 4px 10px;
                 border: solid 1px $form-border-color;
                 color: $gray-font-color;
@@ -31,7 +31,7 @@
                 border-left: 9px solid black;
                 border-top: 6px solid transparent;
                 border-bottom: 6px solid transparent;
-                @include sp{
+                @include pc{
                     display: none;
                 }
             }
@@ -48,7 +48,7 @@
                 border-top: 9px solid black;
                 margin: 3px 3px 0 0px;  
 
-                @include sp{
+                @include pc{
                     display: none;
                 }
             }
@@ -68,28 +68,28 @@
                 &:last-child{
                     margin-right: 0;
                 }
-                @include tab{
+                @include pc{
                     margin:0;
                 }
 
                 &-transition{
-                    @include tab{
+                    @include pc{
                         margin-top:10px
                     }
                 }
                 &-transitionlang{
-                    @include tab{
+                    @include pc{
                         margin-top:10px
                     }
                 }
             }
-            @include tab{
+            @include pc{
                 display: none;
             }
 
             &-modal{
                 display: none;
-                @include tab{
+                @include pc{
                     display: block;
                 }
 
@@ -104,19 +104,19 @@
             flex-wrap: wrap;
         }
         &-speaklangs{
-            @include tab{
+            @include pc{
                 display: block;
                 margin-top:10px;
             }  
         }
         &-transition{
-            @include tab{
+            @include pc{
                 display: block;
                 margin:10px 0 0 0;
             }
         }
         &-transitionlang{
-            @include tab{
+            @include pc{
                 display: block;
                 margin:10px 0 0 0;
             }
@@ -127,18 +127,18 @@
             align-items: center;
             & .selecter-item-all{
                 margin-right: 10px;
-                    @include tab{
+                    @include pc{
                     display: inline-block;
                 }
             }
 
             & ::v-deep .selecter-item{            
-                @include tab{
+                @include pc{
                     display: inline-block;
                 }
             }
 
-            @include tab{
+            @include pc{
                 display: block;
             }
         }

@@ -1,13 +1,13 @@
 <style lang="scss" scoped>
     .searchgenre{
         &-container{
-            @include sp{
+            @include pc{
                 display: none;
             }
 
             &-sp{
                 display: none;
-                @include sp{
+                @include pc{
                     display: block;
                 }
             }
@@ -45,7 +45,7 @@
     }
 
     ::v-deep .genrepalette-window{
-        @include sp{
+        @include pc{
             width: 90%;
         }
 
@@ -68,8 +68,8 @@
             <span class="searchgenre-item-selectsp" @click="showGenrePalette">{{ selectedItem.text }}</span>
         </div>
 
-        <vm-selgenrepalette v-if="isShowGenrePalette" @emit-selectedGenre="selectGenrePalette" @emit-clickCloseBtn="closeGenrePalette" 
-                            windowClass="genrepalette-window" :addTop="true"></vm-selgenrepalette>
+        <vm-selgenrepalette v-if="isShowGenrePalette" :items="genprePaletteList" @emit-selectedGenre="selectGenrePalette" @emit-clickCloseBtn="closeGenrePalette" 
+                            windowClass="genrepalette-window"></vm-selgenrepalette>
     </div>
 </template>
 
@@ -78,10 +78,12 @@ import { SearchVideoGenreKinds} from '@/core/enum'
 import { computed, defineComponent, PropType, reactive, SetupContext, toRefs, watchEffect } from 'vue'
 import { SelecterItem } from '@/front/componentReqRes/Selecter'
 import VM_SelGenrePalette from '@/front/components/VM_SelGenrePalette.vue'
+import { GenrePallete } from '../componentReqRes/GenrePalette'
 
 type Props = {
     //選択肢のリスト
     list:SelecterItem[],
+    palleteList: GenrePallete[],
     //選択中の値
     selectGenre: number
 }
@@ -89,6 +91,7 @@ type Props = {
 const state = toRefs(reactive({
     selectGenre: SearchVideoGenreKinds.All, //選択中のジャンル
     genreSelecerItems: [] as SelecterItem[],//ジャンルの選択肢
+    genrePletteItems: [] as GenrePallete[], //ジャンルパレッドの選択肢
     showGenrePalette: false
 }))
 export default defineComponent({
@@ -97,7 +100,8 @@ export default defineComponent({
     },
     props:{
         list: Object as PropType<SelecterItem[]>,
-        selectGenre: Number
+        selectGenre: Number,
+        palleteList: Object as PropType<GenrePallete[]>
     },
     emits:['emit-selectGenre'],
     setup(props: Props, context:SetupContext) {
@@ -112,6 +116,8 @@ export default defineComponent({
         return {
             //ジャンル選択リスト
             genreList: state.genreSelecerItems,
+            //ジャンルパレッド選択肢リスト
+            genprePaletteList: props.palleteList,
             //選択中のジャンル取得 ※モバイル表示用
             selectedItem: computed(() => { 
                 const result = state.genreSelecerItems.value.find(x => x.selected == true)  as SelecterItem
@@ -137,6 +143,7 @@ export default defineComponent({
         }
     },
 })
+
 
 //ジャンルのリスト生成
 function initGenreSelecterItems(selectGenre: number, genreSelecterItems: SelecterItem[]){

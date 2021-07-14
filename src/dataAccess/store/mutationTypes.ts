@@ -1,5 +1,9 @@
 export const INIT_RECOMMEND_VIDEO_HEADER = 'INIT_RECOMMEND_VIDEO_HEADER'
 
+export namespace AppStateModule{
+    export const UPDATE_LOADING = "APPSTATE_UPDATE_LOADING"
+}
+
 //アカウント情報
 export namespace AccountModule {
     //アカウント情報の初期化

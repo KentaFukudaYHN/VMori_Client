@@ -53,25 +53,21 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, toRefs, SetupContext } from 'vue'
+import { defineComponent, reactive, toRefs, SetupContext, PropType } from 'vue'
 import VM_Modal from '@/front/components/VM_Modal.vue'
 import { VideoGenreKinds, VideoGenreKindsToString } from '@/core/enum'
-import { boolean } from 'yup/lib/locale'
+import { SelecterItem } from '@/front/componentReqRes/Selecter'
+import { GenrePallete } from '@/front/componentReqRes/GenrePalette'
 
-type genrePallet = {
-    text: string,
-    kinds: VideoGenreKinds,
-    css: string
-}
 
 type Props = {
     windowClass: string,
-    addTop: boolean
+    items: GenrePallete[]
 }
 
 const state = toRefs(reactive({
     pickerModal:{
-        list: new Array() as genrePallet[]
+        list: new Array() as GenrePallete[]
     },
 }))
 export default defineComponent({
@@ -83,32 +79,36 @@ export default defineComponent({
         windowClass:{
             type: String
         },
-        addTop:{
-            type: Boolean,
-            default: false,
+        items:{
+            type: [] as PropType<GenrePallete[]>,
         }
     },
     setup(props: Props, context: SetupContext) {
-        if(state.pickerModal.value.list == null || state.pickerModal.value.list.length == 0){
-            Object.entries(VideoGenreKinds).forEach(([key, val]) =>{
-                var kindsNum = Number(key)
-                if(isNaN(kindsNum) == false && kindsNum != VideoGenreKinds.All){
-                    state.pickerModal.value.list.push({
-                        text: VideoGenreKindsToString(kindsNum),
-                        kinds: kindsNum,
-                        css: 'genrepalette-item genre-color-' + (val as string).toLowerCase()
-                    })
-                }
-            })
 
-            if(props.addTop){
-                state.pickerModal.value.list.unshift({
-                    text: 'TOP',
-                    kinds: VideoGenreKinds.All,
-                    css: 'genrepalette-item genre-color-top'
-                })
-            }
-        }
+        props.items.forEach(x => {
+            state.pickerModal.value.list.push(x)
+        })
+
+        // if(props.items == null || props.items.length == 0){
+        //     Object.entries(VideoGenreKinds).forEach(([key, val]) =>{
+        //         var kindsNum = Number(key)
+        //         if(isNaN(kindsNum) == false && kindsNum != VideoGenreKinds.All){
+        //             state.pickerModal.value.list.push({
+        //                 text: VideoGenreKindsToString(kindsNum),
+        //                 kinds: kindsNum,
+        //                 css: 'genrepalette-item genre-color-' + (val as string).toLowerCase()
+        //             })
+        //         }
+        //     })
+
+        //     if(props.addTop){
+        //         state.pickerModal.value.list.unshift({
+        //             text: 'TOP',
+        //             kinds: VideoGenreKinds.All,
+        //             css: 'genrepalette-item genre-color-top'
+        //         })
+        //     }
+        // }
 
 
 

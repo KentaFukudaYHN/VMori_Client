@@ -26,13 +26,13 @@
 import { VideoService } from '@/core/services/VideoService'
 import { VideoSummary } from '@/dataAccess/entities/VideoSummary'
 import { computed, defineComponent, PropType, ref, SetupContext, watch } from 'vue'
+import { videoUtility } from '../utilitys/videoUtility'
 
 type Props = {
     isMulti: boolean
     videos: Array<VideoSummary>
 }
 
-let videoService: VideoService
 const refs = []
 const refKeys = []
 export default defineComponent({
@@ -48,7 +48,6 @@ export default defineComponent({
 
     },
     setup(props: Props, context: SetupContext) {
-        videoService = new VideoService()
         let videos = ref(props.videos.slice(0, props.videos.length))
         watch(props.videos, (newval, oldval) => {
             videos.value.splice(0, videos.value.length)
@@ -72,7 +71,7 @@ export default defineComponent({
             isMulti: computed(() => props.isMulti),
             videos: videos,
             refs,
-            displayStatistics: (viewCount: number, publishDate: Date) => { return videoService.createDisplayStatistics(viewCount, publishDate) }
+            displayStatistics: (viewCount: number, publishDate: Date) => { return videoUtility.createDisplayStatistics(viewCount, publishDate) }
         }
     },
 })

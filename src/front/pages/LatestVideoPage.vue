@@ -5,7 +5,7 @@
         max-width: 1020px;
         margin: 0 auto;
 
-        @include sp {
+        @include tab {
             display: flex;
             width:auto;
             margin: 0 11px;
@@ -22,7 +22,7 @@
     &-searchdetail{
         margin: 5px 10px;
 
-        @include sp{
+        @include tab{
             margin: 5px 0;
         }
     }
@@ -34,7 +34,7 @@
     <vm-guide @emit-search="searchVideosByText">
         <template v-slot:content>
             <div class="home-searchcontainer">
-                <vm-search-genre class="home-searchgenre" :list="genreSelecterItems" :selectGenre="selectedGenre" @emit-selectGenre="onSelectGenre"></vm-search-genre>
+                <vm-search-genre class="home-searchgenre" :list="genreSelecterItems" :palleteList="genrePaletteItems" :selectGenre="selectedGenre" @emit-selectGenre="onSelectGenre"></vm-search-genre>
                 <vm-search-detail class="home-searchdetail" @emit-clickSearchBtn="searchVideoByDetail"></vm-search-detail>
             </div>
                 
@@ -76,6 +76,8 @@ export default defineComponent({
             videos: latestVideoPageService.getVideos(),
             //ジャンル選択リスト
             genreSelecterItems: latestVideoPageService.getSelecterItemsByGenre(),
+            //ジャンルパレッド選択肢リスト
+            genrePaletteItems: latestVideoPageService.getPaletteItemsByGenre(),
             //選択中のジャンル
             selectedGenre: latestVideoPageService.getSelectedGenreRef(),
             //ジャンルの選択

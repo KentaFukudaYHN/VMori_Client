@@ -205,7 +205,6 @@ type Props = {
     searchText: string
 }
 
-let videoService: VideoService
 let accountService: AccountService
 let searchText: Ref<string>
 export default defineComponent({
@@ -223,7 +222,6 @@ export default defineComponent({
         const store = useStore()
         searchText = ref(props.searchText)
         //各サービスの初期化
-        videoService = new VideoService()
         accountService = new AccountService(store, new VMoriRepository(useRouter()))
 
         var iconBtnStyle = ref(createIconBtnStyle(accountService.getAcoccountIcon()))

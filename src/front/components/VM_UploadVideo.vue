@@ -300,6 +300,7 @@ import { GetUploadVideoRes, RegistUploadVideoRes, UploadVideoErrKinds} from '@/c
 import { ConfirmKinds, VideoGenreKinds, VideoGenreKindsToString, VideoLanguageKinds, VideoLanguageKindsToString, VideoPlatFormKinds } from '@/core/enum'
 import CheckBoxItem from '@/front/form/CheckBoxItem'
 import RadioBoxItem from '@/front/form/RadioBoxItem'
+import { GenrePallete } from '../componentReqRes/GenrePalette'
 
 
 //#region state
@@ -419,7 +420,8 @@ const state = toRefs(reactive({
      * ジャンル選択モーダル
      */
     genreModal:{
-        showModal: false
+        showModal: false,
+        items: [] as GenrePallete[]
     }
 }))
 //#endregion
@@ -437,6 +439,20 @@ export default defineComponent({
     emits: ['emit-clickCloseBtn'],
     setup(proprs: any, context: SetupContext) {
         const repository = new Repository(useRouter())
+
+        //ジャンル選択肢の生成
+        if(state.genreModal.value.items == null || state.genreModal.value.items.length == 0){
+            Object.entries(VideoGenreKinds).forEach(([key, val]) =>{
+                var kindsNum = Number(key)
+                if(isNaN(kindsNum) == false && kindsNum != VideoGenreKinds.All){
+                    state.genreModal.value.items.push({
+                        text: VideoGenreKindsToString(kindsNum),
+                        kinds: kindsNum,
+                        css: 'genrepalette-item genre-color-' + (val as string).toLowerCase()
+                    })
+                }
+            })
+        }
 
         return{
             //Url入力モーダル

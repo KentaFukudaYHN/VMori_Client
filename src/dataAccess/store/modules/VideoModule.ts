@@ -25,16 +25,16 @@ export const videoModule = {
     },
     mutations:{
         //選択中動画IDの更新
-        [MutationTypes.VideoModule.UPDATE_SELECTED_VIDEOID](state, videoId: string){
-            state.video.selectedVideoId = videoId
+        [MutationTypes.VideoModule.UPDATE_SELECTED_VIDEOID](state:State, videoId: string){
+            state.selectedVideoId = videoId
         },
         //Youtube動画プレイヤースクリプトの読み込み状態を更新
-        [MutationTypes.VideoModule.UPDATE_YOUTUBEPLAYER_ISLOADED](state, isloaded: boolean){
-            state.video.isLoadedYoutubePlayer = isloaded
+        [MutationTypes.VideoModule.UPDATE_YOUTUBEPLAYER_ISLOADED](state:State, isloaded: boolean){
+            state.isLoadedYoutubePlayer = isloaded
         },
         //フルスクリーンモードか更新
-        [MutationTypes.VideoModule.UPDATE_FULLSCREENMODE](state, isFllScreenMode: boolean){
-            state.video.isFullScreenMode = isFllScreenMode
+        [MutationTypes.VideoModule.UPDATE_FULLSCREENMODE](state:State, isFllScreenMode: boolean){
+            state.isFullScreenMode = isFllScreenMode
         },
     },
     actions:{

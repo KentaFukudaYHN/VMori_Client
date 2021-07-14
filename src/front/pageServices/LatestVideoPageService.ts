@@ -1,4 +1,3 @@
-import { LatestVideoService } from "@/core/services/LatestVideoService"
 import VMoriRepository from "@/dataAccess/repository/VMoriRepository"
 import { State } from "@/dataAccess/store/store"
 import { Store } from "vuex"
@@ -10,13 +9,17 @@ import { Router } from "vue-router"
 import { SearchDetail } from "../componentReqRes/searchDetail"
 import { vueUtility } from "../utilitys/vueUtility"
 import { VideoSummaryItemApiRes } from "@/core/apiReqRes/Video"
+import { VideoService } from "@/core/services/VideoService"
+import { GenrePallete } from "../componentReqRes/GenrePalette"
 
 //最新動画情報PageService
 export class LatestVideoPageService{
     //最新動画情報Service
-    private _latestVideoService: LatestVideoService
+    private _videoService: VideoService
     //VueRotuer
     private _router: Router
+    //表示数
+    private DISPLAY_NUM = 30
 
     //最新動画情報ページの変動データ
     private _state = {
@@ -38,7 +41,7 @@ export class LatestVideoPageService{
      */
     async init(){
         //動画情報の初期化
-        const result = await this._latestVideoService.initVideoItems()
+        const result = await this._videoService.getLatestVideos(1, this.DISPLAY_NUM)
         vueUtility.updateArray(result.items as [], this._state.list as Ref<[]>)
     }
 
@@ -49,7 +52,7 @@ export class LatestVideoPageService{
         if(text == ''){
             text = null
         }
-        const result =  await this._latestVideoService.searchTextVideoItem(text, this._state.search.genre.value)
+        const result =  await this._videoService.getVideosByText(1, this.DISPLAY_NUM, text, this._state.search.genre.value)
         vueUtility.updateArray(result.items as [], this._state.list as Ref<[]>)
     }
 
@@ -63,7 +66,7 @@ export class LatestVideoPageService{
         this._state.search.detail.translation.value = searchDetail.translation
         vueUtility.updateArray(searchDetail.translationLangs as [], this._state.search.detail.translationsLangs as Ref<[]>)
 
-        const result = await this._latestVideoService.searchDetailVideoItem(this._state.search.text.value, 
+        const result = await this._videoService.getVideosBySearchDetail(1, this.DISPLAY_NUM, this._state.search.text.value, 
             this._state.search.genre.value, searchDetail)
 
         vueUtility.updateArray(result.items as [], this._state.list as Ref<[]>)
@@ -83,7 +86,7 @@ export class LatestVideoPageService{
      */
     async selectedGenre(val: number){
         this._state.search.genre.value = val
-        const result = await this._latestVideoService.changeGenreVideoItem(val)
+        const result = await this._videoService.getVideosByGenre(1, this.DISPLAY_NUM,val)
         vueUtility.updateArray(result.items as [], this._state.list as Ref<[]>)
     }
 
@@ -117,6 +120,30 @@ export class LatestVideoPageService{
     }
 
     /**
+     * ジャンルパレッドの選択肢取得
+     */
+    getPaletteItemsByGenre(){
+        const items = [] as GenrePallete[]
+        items.push({
+            text: 'TOP',
+            kinds: VideoGenreKinds.All,
+            css: 'genrepalette-item genre-color-top'
+        })
+        Object.entries(VideoGenreKinds).forEach(([key, val]) =>{
+            var kindsNum = Number(key)
+            if(isNaN(kindsNum) == false && kindsNum != VideoGenreKinds.All){
+                items.push({
+                    text: VideoGenreKindsToString(kindsNum),
+                    kinds: kindsNum,
+                    css: 'genrepalette-item genre-color-' + (val as string).toLowerCase()
+                })
+            }
+        })
+
+        return items
+    }
+
+    /**
      * 選択中のジャンル取得
      * @returns 選択中のジャンル
      */
@@ -130,7 +157,7 @@ export class LatestVideoPageService{
      * @param repository 
      */
     constructor(store: Store<State>, repository: VMoriRepository){
-        this._latestVideoService = new LatestVideoService(repository)
+        this._videoService = new VideoService(store, repository)
         this._router = useRouter()
     }
 }

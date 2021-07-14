@@ -574,6 +574,8 @@ import { ChannelTransition } from '@/front/componentReqRes/channelTransition'
 import { gsap } from 'gsap'
 import { appSetting } from '@/dataAccess/entities/AppSetting'
 import { VideoSummary } from '@/dataAccess/entities/VideoSummary'
+import VMoriRepository from '@/dataAccess/repository/VMoriRepository'
+import { videoUtility } from '../utilitys/videoUtility'
 
 
 type Props = {
@@ -666,7 +668,7 @@ export default defineComponent({
     emits:['emit-changeVideo'],
     async setup(props: Props, context: SetupContext) {
         router = useRouter()
-        videoService = new VideoService()
+        videoService = new VideoService(useStore(), new VMoriRepository(router))
 
         if(props.id == '' || props.id == null){
             router.push('home')
@@ -1177,7 +1179,7 @@ async function initVideoSetup(videoid: string){
 
     //再生回数・公開日の設定
     if(video.videoId != null && video.videoId != ''){
-        state.video.value.statistics = videoService.createDisplayStatistics(video.viewCount, new Date(video.publishDateTime), true)
+        state.video.value.statistics = videoUtility.createDisplayStatistics(video.viewCount, new Date(video.publishDateTime), true)
     }
 
     //タグの設定

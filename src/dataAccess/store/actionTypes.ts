@@ -1,6 +1,10 @@
 
 export const INITIALIZE_RECOMMEND_VIDEOS = "INITIALIZZE_RECOMMEND_VIDEOS"
 
+export namespace AppStateModule{
+    export const UPDATE_LOADING = "APPSTATE_UPDATE_LOADING"
+}
+
 //アカウント情報
 export namespace AccountModule {
     //アカウント情報の初期化
