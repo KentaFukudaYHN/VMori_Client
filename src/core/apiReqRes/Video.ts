@@ -7,15 +7,17 @@ export type VideoSummaryInfoApiRes = {
 //動画サマリー情報
 export type VideoSummaryItemApiRes = {
     //ID
-    id: string,
+    id: string
     //タイトル
-    title: string,
+    title: string
     //チャンネル名
-    channelTitle: string,
+    channelTitle: string
     //サムネイルリンク
-    thumbnailLink: string,
+    thumbnailLink: string
     //再生回数
-    viewCount: number,
+    viewCount: number
+    //VMori再生回数
+    vMoriViewCount: number
     //動画プラットフォーム種類
     platFormKinds : VideoPlatFormKinds
     //投稿日時 iso8061形式
@@ -66,6 +68,8 @@ export type VideoItemApitRes = {
     registDateTime: string
     //再生回数
     viewCount: number,
+    //VMori再生回数
+    vMoriViewCount: number,
     //いいね回数
     LikeCount: number,
     //コメント回数

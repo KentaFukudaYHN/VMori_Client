@@ -4,6 +4,7 @@
         width: 80%;
         max-width: 1020px;
         margin: 0 auto;
+        flex-wrap: wrap;
 
         @include pc {
             display: flex;
@@ -20,7 +21,7 @@
     }
 
     &-searchdetail{
-        margin: 5px 10px;
+        margin: 10px 0px 10px 0;
 
         @include pc{
             margin: 5px 0;
@@ -55,6 +56,33 @@
             display: none;
         }
     }
+
+    &-searchgenre{
+        // margin-right: 5px;
+        @include pc{
+            padding: 0px;
+            background: transparent;
+            margin-right: 5px;
+        }
+
+        @include tab{
+            margin-top: 10px;
+        }
+    }
+    &-sort{
+        margin-right: 5px;
+
+        display: inline-block;
+        @include tab{
+            margin-top: 10px;
+        }
+    }
+    &-searchdetail{
+        margin-right: 5px;
+        @include tab{
+            margin-top: 15px;
+        }
+    }
 }
 
 .videolist{
@@ -78,6 +106,7 @@
 
             &-title{
                 font-size: 12px;
+                height:3em;
             }
 
             &-stastics{
@@ -89,6 +118,22 @@
                 display: block;
                 margin-bottom: 2px;
             }
+        }
+
+        & .icon-youtubeviewcount-before::before{
+            vertical-align: middle;
+            margin-right: 5px;
+            margin-bottom: 2px; 
+            width:20px;
+            height: 1em;
+        }
+
+        & .icon-vmoriviewcount-before::before{
+            vertical-align: middle;
+            margin-right: 5px;
+            margin-bottom: 2px; 
+            width:20px;
+            height: 1em;
         }
     }
     &-genre-title{
@@ -126,6 +171,7 @@
         width:auto !important;
         max-width: 900px ;
         margin-bottom:0;
+        border-bottom: 0;
         @include sp{
             margin:0;
         }
@@ -138,16 +184,18 @@
             }
 
             @include sp{
-                width: 200px !important;
-                height: 82px !important;
+                width: 156px !important;
+                height: 88px !important;
+                flex-shrink: 0;
             }
         }
 
         & .video-title{
             font-size: 16px;
             color: #358a00;
+            height: auto;
             @include sp{
-                font-size: 14px;
+                font-size: 12px;
                 color: $base-font-color;
             }
         }
@@ -168,6 +216,7 @@
 
         & .video-description{
             width: 100%;
+            padding:3px;
         }
     }
 }
@@ -177,8 +226,9 @@
     <vm-guide>
         <template v-slot:content>
             <div class="vranking-searchcontainer">
-                <vm-search-genre :list="getGenreSelecterItems" :palleteList="getPaletteItemsByGenre" :selectGenre="selectedGenre" @emit-selectGenre="changeGenreVideos"></vm-search-genre>
+                <vm-search-genre class="vranking-searchgenre" :list="getGenreSelecterItems" :palleteList="getPaletteItemsByGenre" :selectGenre="selectedGenre" @emit-selectGenre="changeGenreVideos"></vm-search-genre>
                 <vm-search-detail class="vranking-searchdetail"></vm-search-detail>
+                <vm-selectsort :selSortKinds="selSortKinds" @emit-changeSort="changeSort" class="vranking-sort"> </vm-selectsort>
             </div>
             
             <div id="rankingVideoListContainer" class="vranking-videolist-container" :class="{'vranking-single': !isMulti }">
@@ -211,7 +261,10 @@
                                 <span class="video-title">{{ item.title }}</span>
                                 <span class="video-channel">{{ item.channelTitle }}</span>
                                 <span class="video-stastics">
-                                    <span class="video-viewcount">
+                                    <span class="video-viewcount-vmori icon-vmoriviewcount-before">    
+                                        {{ displayStatistics(item.vMoriViewCount, item.registDateTime) }}
+                                    </span>
+                                    <span class="video-viewcount icon-youtubeviewcount-before">
                                         {{ displayStatistics(item.viewCount, item.publishDateTime) }}
                                     </span>
                                 </span>
@@ -237,14 +290,16 @@ import { useRouter } from '@/router/router'
 import { useStore } from '@/dataAccess/store/store'
 import { RankingVideoPageService } from '@/front/pageServices/RankingVideoPageService'
 import { videoUtility } from '@/front/utilitys/videoUtility'
-import { VideoGenreKinds, VideoGenreKindsToString } from '@/core/enum'
+import { SortKinds, VideoGenreKinds, VideoGenreKindsToString } from '@/core/enum'
+import VM_SelectSort from '@/front/components/VM_SelectSort.vue'
 
 export default defineComponent({
     components:{
         'vm-guide': VM_Guide,
         'vm-search-genre': VM_SearchGenre,
         'vm-search-detail': VM_SearchDetail,
-        'vm-ranking-videolist': VM_RankingVideoList
+        'vm-ranking-videolist': VM_RankingVideoList,
+        'vm-selectsort': VM_SelectSort
     },
     async setup() {
 
@@ -276,7 +331,12 @@ export default defineComponent({
             selectedGenre: state.search.genre,
             //ジャンルの変更
             changeGenreVideos: (val: VideoGenreKinds) => rankingVideoService.changeGenreVideos(val),
-            selectedVideo: (videoId: string) => rankingVideoService.selectedVideo(videoId)
+            //並び順の変更
+            changeSort: (val:SortKinds) => rankingVideoService.changeSort(val),
+            //動画の選択
+            selectedVideo: (videoId: string) => rankingVideoService.selectedVideo(videoId),
+            //並び順種類
+            selSortKinds: state.sortKinds
         }
     },
 })

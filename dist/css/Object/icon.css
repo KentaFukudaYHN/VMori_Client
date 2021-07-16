@@ -59,4 +59,22 @@
 .icon-menusp-up {
   background-image: url("../../assets/icon-menu-up.png");
 }
+
+.icon-youtubeviewcount-before::before {
+  content: '';
+  display: inline-block;
+  background-image: url("../../assets/icon_youtube_mini.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+.icon-vmoriviewcount-before::before {
+  content: '';
+  display: inline-block;
+  background-image: url("../../assets/icon_vmori_mini.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
 /*# sourceMappingURL=icon.css.map */

@@ -9,6 +9,7 @@
                 display: none;
                 @include pc{
                     display: block;
+                    margin: 5px 0;
                 }
             }
         }

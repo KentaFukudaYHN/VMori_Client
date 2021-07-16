@@ -41,7 +41,7 @@ export class VideoService {
      * @param searchDetail 
      * @returns 
      */
-    async getVideosBySearchDetail(page: number, displayNum: number, text: string, genre: VideoGenreKinds, searchDetail: SearchDetail){
+    async getVideosBySearchDetail(page: number, displayNum: number, text: string, genre: VideoGenreKinds, searchDetail: SearchDetail, sortKinds: SortKinds, isDesc: boolean){
 
         if(text == ''){
             text = null
@@ -76,9 +76,10 @@ export class VideoService {
             Genre: genre,
             Langs: langs,
             IsTranslation: isTranslation,
-            TransrationLangs: translationLangs
+            TransrationLangs: translationLangs,
+            sortKinds: sortKinds,
+            isDesc: isDesc
         }
-
         const res = await this._repository.post<VideoSummaryInfoApiRes>('video/getsearchlist',data)
         if(res.isOk()){
             return res.data
@@ -118,7 +119,7 @@ export class VideoService {
      * @param displayNum 
      * @param genre 
      */
-    async getVideosByGenre(page: number, displayNum: number, genre: VideoGenreKinds){
+    async getVideosByGenre(page: number, displayNum: number, genre: VideoGenreKinds, sortKinds: SortKinds, isDesc: boolean){
         if(genre == VideoGenreKinds.All){
             genre = null
         }
@@ -126,7 +127,9 @@ export class VideoService {
         const res = await this._repository.post<VideoSummaryInfoApiRes>('video/getsearchlist',{
             Page:page,
             DisplayNum: displayNum,
-            genre:genre
+            genre:genre,
+            sortKinds: sortKinds,
+            isDesc: isDesc
         })
 
         if(res.isOk()){
@@ -140,12 +143,13 @@ export class VideoService {
      * ジャンルごとの動画ランキングを取得
      * @returns 
      */
-    async getRankingVideosByGenre(){
+    async getRankingVideosByGenre(sortKinds: SortKinds){
         const res = await this._repository.post<VideoSummaryInfoByGenreApiRes>('video/GetListByGenre',{
             searchReq:{
                 page: 1,
                 displayNum: 30,
-                sortKinds: SortKinds.ViewCount                
+                sortKinds: sortKinds,
+                isDesc: true             
             },
             genres:[SearchVideoGenreKinds.All, SearchVideoGenreKinds.SmallTalk,
                 SearchVideoGenreKinds.Entertainment, SearchVideoGenreKinds.Game,

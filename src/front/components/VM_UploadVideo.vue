@@ -281,7 +281,7 @@
             </div>
         </template>
     </vm-modal>
-    <vm-genre v-if="genreModal.showModal" @emit-selectedGenre="selectedGenre" @emit-clickCloseBtn="closeGenreModal"></vm-genre>
+    <vm-genre v-if="genreModal.showModal" :items="genreModal.items" @emit-selectedGenre="selectedGenre" @emit-clickCloseBtn="closeGenreModal"></vm-genre>
 </template>
 
 <script lang="ts">
@@ -453,7 +453,7 @@ export default defineComponent({
                 }
             })
         }
-
+debugger
         return{
             //Url入力モーダル
             urlModal: state.urlModal.value,

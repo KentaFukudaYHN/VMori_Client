@@ -10,9 +10,8 @@
             -ms-user-select: none;
             user-select: none;
             font-weight: bold;
-            margin-left: 15px;
             cursor: pointer;
-
+            padding-left: 1em;
             @include pc{
                 padding: 4px 10px;
                 border: solid 1px $form-border-color;

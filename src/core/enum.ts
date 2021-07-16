@@ -247,4 +247,6 @@ export enum SortKinds{
     LikeCount = 20,
     //コメント順
     CommentCount = 30,
+    //VMori再生回数
+    VMoriViewCount = 40,
 }

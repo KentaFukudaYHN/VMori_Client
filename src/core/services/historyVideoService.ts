@@ -15,7 +15,7 @@ export class HistoryVideoService{
      * 履歴の登録
      * @param videoId 
      */
-    registHistory(videoId){
+    async registHistory(videoId){
         //履歴情報の存在チェック
         const videoHistoryJson = localStorage.getItem(this.LOCALSTORAGE_HISTORY_KEY)
 

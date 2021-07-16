@@ -72,3 +72,23 @@
 .icon-menusp-up{
     background-image: url('../../assets/icon-menu-up.png');
 }
+
+//youtube再生回数用アイコン
+.icon-youtubeviewcount-before::before{
+    content: '';
+    display: inline-block;
+    background-image: url('../../assets/icon_youtube_mini.png');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
+//vmori再生回数用アイコン
+.icon-vmoriviewcount-before::before{
+    content: '';
+    display: inline-block;
+    background-image: url('../../assets/icon_vmori_mini.png');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
