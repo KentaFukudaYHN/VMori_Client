@@ -3,7 +3,7 @@ import { State } from "@/dataAccess/store/store"
 import { Store } from "vuex"
 import { ref, Ref } from 'vue'
 import { SelecterItem } from "../componentReqRes/Selecter"
-import {  SearchVideoTranslationKinds, VideoGenreKinds, VideoGenreKindsToString, VideoLanguageKinds } from "@/core/enum"
+import {  SearchVideoTranslationKinds, SortKinds, VideoGenreKinds, VideoGenreKindsToString, VideoLanguageKinds } from "@/core/enum"
 import { useRouter } from "@/router/router"
 import { Router } from "vue-router"
 import { SearchDetail } from "../componentReqRes/searchDetail"
@@ -81,7 +81,7 @@ export class LatestVideoPageService{
             vueUtility.updateArray(searchDetail.translationLangs as [], this._state.search.detail.translationsLangs as Ref<[]>)
 
             const result = await this._videoService.getVideosBySearchDetail(1, this.DISPLAY_NUM, this._state.search.text.value, 
-                this._state.search.genre.value, searchDetail)
+                this._state.search.genre.value, searchDetail, SortKinds.RegistDateTime, true)
 
             vueUtility.updateArray(result.items as [], this._state.list as Ref<[]>)
         }finally{
@@ -105,7 +105,7 @@ export class LatestVideoPageService{
         try{
             this._appStateService.updateIsLoadin(true)
             this._state.search.genre.value = val
-            const result = await this._videoService.getVideosByGenre(1, this.DISPLAY_NUM,val)
+            const result = await this._videoService.getVideosByGenre(1, this.DISPLAY_NUM,val, SortKinds.RegistDateTime, true)
             vueUtility.updateArray(result.items as [], this._state.list as Ref<[]>)
         }finally{
             this._appStateService.updateIsLoadin(false)

@@ -143,13 +143,34 @@ export class VideoService {
      * ジャンルごとの動画ランキングを取得
      * @returns 
      */
-    async getRankingVideosByGenre(sortKinds: SortKinds){
+    async getRankingVideosByGenre(sortKinds: SortKinds, searchDetail: SearchDetail){
+
+        let langs = null
+        //『全て(Unkonown)』が含まれていたら検索条件に含めない
+        if(searchDetail.langs.indexOf(VideoLanguageKinds.UnKnown) == -1){
+            langs = searchDetail.langs
+        }
+
+        let isTranslation = null
+        //『全て』が含まれていたら検索条件に含めない
+        if(searchDetail.translation != SearchVideoTranslationKinds.All){
+            isTranslation = searchDetail.translation == SearchVideoTranslationKinds.Yes
+        }
+
+        let translationLangs = null;
+        if(isTranslation == true && searchDetail.translationLangs.indexOf(VideoLanguageKinds.UnKnown) == -1){
+            translationLangs = searchDetail.translationLangs
+        }
+
         const res = await this._repository.post<VideoSummaryInfoByGenreApiRes>('video/GetListByGenre',{
             searchReq:{
                 page: 1,
                 displayNum: 30,
                 sortKinds: sortKinds,
-                isDesc: true             
+                isDesc: true,
+                langs: langs,
+                isTranslation: isTranslation,
+                translationLangs: translationLangs 
             },
             genres:[SearchVideoGenreKinds.All, SearchVideoGenreKinds.SmallTalk,
                 SearchVideoGenreKinds.Entertainment, SearchVideoGenreKinds.Game,

@@ -227,7 +227,7 @@
         <template v-slot:content>
             <div class="vranking-searchcontainer">
                 <vm-search-genre class="vranking-searchgenre" :list="getGenreSelecterItems" :palleteList="getPaletteItemsByGenre" :selectGenre="selectedGenre" @emit-selectGenre="changeGenreVideos"></vm-search-genre>
-                <vm-search-detail class="vranking-searchdetail"></vm-search-detail>
+                <vm-search-detail class="vranking-searchdetail" @emit-clickSearchBtn="searchVieoByDetail"></vm-search-detail>
                 <vm-selectsort :selSortKinds="selSortKinds" @emit-changeSort="changeSort" class="vranking-sort"> </vm-selectsort>
             </div>
             
@@ -292,6 +292,7 @@ import { RankingVideoPageService } from '@/front/pageServices/RankingVideoPageSe
 import { videoUtility } from '@/front/utilitys/videoUtility'
 import { SortKinds, VideoGenreKinds, VideoGenreKindsToString } from '@/core/enum'
 import VM_SelectSort from '@/front/components/VM_SelectSort.vue'
+import { SearchDetail } from '../componentReqRes/searchDetail'
 
 export default defineComponent({
     components:{
@@ -336,7 +337,9 @@ export default defineComponent({
             //動画の選択
             selectedVideo: (videoId: string) => rankingVideoService.selectedVideo(videoId),
             //並び順種類
-            selSortKinds: state.sortKinds
+            selSortKinds: state.sortKinds,
+            //詳細検索
+            searchVieoByDetail: (searchDetail: SearchDetail) => rankingVideoService.searchVieoByDetail(searchDetail)
         }
     },
 })

@@ -51,10 +51,10 @@ export class RankingVideoPageService {
         search:{
             genre: ref(VideoGenreKinds.All),
             searchDetail:{
-                langs: [VideoLanguageKinds.UnKnown],
-                translation: SearchVideoTranslationKinds.All,
-                translationLangs: [VideoLanguageKinds.UnKnown]
-            } as SearchDetail
+                langs: ref([VideoLanguageKinds.UnKnown]),
+                translation: ref(SearchVideoTranslationKinds.All),
+                translationLangs: ref([VideoLanguageKinds.UnKnown])
+            }
         }
     }
 
@@ -95,7 +95,7 @@ export class RankingVideoPageService {
                 })
                 this._state.isMulti.value = false
             }else{
-                const videosInfo = await this._videoService.getRankingVideosByGenre(this._state.sortKinds.value)
+                const videosInfo = await this._videoService.getRankingVideosByGenre(this._state.sortKinds.value, this._createSearchDetail())
                 //動画のないジャンルは除外
                 const videos = videosInfo.items.filter(x => x.items.length != 0)
                 vueUtility.updateArray(videos as [], this._state.videos as Ref<[]>)
@@ -163,8 +163,13 @@ export class RankingVideoPageService {
             if(this._state.search.genre.value == this.TOP_GENRE_KINDS_VAL){
                 await this._updateTopGenre()
             }else{
+                const searchDetail = {
+                    langs: this._state.search.searchDetail.langs.value,
+                    translation: this._state.search.searchDetail.translation.value,
+                    translationLangs: this._state.search.searchDetail.translationLangs.value
+                } as SearchDetail
                 const videoInfo = await this._videoService.getVideosBySearchDetail(1, this._state.displayNum,
-                    '', this._state.search.genre.value, this._state.search.searchDetail,val, true)
+                    '', this._state.search.genre.value, searchDetail,val, true)
                 await this._updateVideos(videoInfo.items, this._state.search.genre.value)
             }
         }finally{
@@ -208,12 +213,24 @@ export class RankingVideoPageService {
     }
 
     /**
+     * 詳細検索条件インスタンスの生成
+     * @returns 
+     */
+    private _createSearchDetail(){
+        return {
+            langs: this._state.search.searchDetail.langs.value,
+            translation: this._state.search.searchDetail.translation.value,
+            translationLangs: this._state.search.searchDetail.translationLangs.value
+        } as SearchDetail
+    }
+
+    /**
      * TOPジャンルの更新
      * @param sort 
      */
     private async _updateTopGenre(){
         //動画情報の取得
-        const videosInfo = await this._videoService.getRankingVideosByGenre(this._state.sortKinds.value)
+        const videosInfo = await this._videoService.getRankingVideosByGenre(this._state.sortKinds.value, this._createSearchDetail())
         //動画のないジャンルは除外
         const videos = videosInfo.items.filter(x => x.items.length != 0)
         this._state.videos.value.splice(0, this._state.videos.value.length)
@@ -254,6 +271,31 @@ export class RankingVideoPageService {
             this._appStateService.updateIsLoadin(false)
         }
 
+    }
+
+    /**
+     * 詳細検索
+     * @param searchDetail 
+     */
+    async searchVieoByDetail(searchDetail: SearchDetail){
+        try{
+            this._appStateService.updateIsLoadin(true)
+            //詳細検索の更新
+            vueUtility.updateArray(searchDetail.langs as [], this._state.search.searchDetail.langs as Ref<[]>)
+            this._state.search.searchDetail.translation.value = searchDetail.translation
+            vueUtility.updateArray(searchDetail.translationLangs as [], this._state.search.searchDetail.translationLangs as Ref<[]>) 
+            
+            if(this._state.search.genre.value == this.TOP_GENRE_KINDS_VAL){
+                await this._updateTopGenre()
+            }else{
+                const result = await this._videoService.getVideosBySearchDetail(1, this._state.displayNum, '', this._state.search.genre.value,
+                searchDetail, this._state.sortKinds.value, true)
+
+                await this._updateVideos(result.items, this._state.search.genre.value)
+            }
+        }finally{
+            this._appStateService.updateIsLoadin(false)
+        }
     }
 
     /**
