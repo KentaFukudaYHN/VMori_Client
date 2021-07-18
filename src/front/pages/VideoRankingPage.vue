@@ -17,7 +17,11 @@
 
     &-searchgenre{
         padding: 10px;
+        margin-bottom: 10px;
         background: #f1f1f1;
+        @include pc{
+            margin-bottom: 0;
+        }
     }
 
     &-searchdetail{
@@ -65,23 +69,23 @@
             margin-right: 5px;
         }
 
-        @include tab{
-            margin-top: 10px;
-        }
+        // @include tab{
+        //     margin-top: 10px;
+        // }
     }
     &-sort{
         margin-right: 5px;
 
         display: inline-block;
-        @include tab{
-            margin-top: 10px;
-        }
+        // @include tab{
+        //     margin-top: 10px;
+        // }
     }
     &-searchdetail{
         margin-right: 5px;
-        @include tab{
-            margin-top: 15px;
-        }
+        // @include tab{
+        //     margin-top: 15px;
+        // }
     }
 }
 
@@ -220,6 +224,39 @@
         }
     }
 }
+
+.vranking-period{
+    &-container{
+        margin: 10px 0;
+        display: flex;
+        justify-content: space-around;
+        @include pc{
+            order: 4;
+            margin: 0 5px;
+        }
+    }
+    &-item{
+        cursor: pointer;
+        width: 100%;
+        text-align: center;
+        font-weight: bold;
+        border: solid 1px $theme-color;
+        border-radius: 3px;
+        background: #fff;
+        padding: 10px 0;
+        margin: 10px 10px 10px 0px;
+        color: $theme-color;;
+        white-space: nowrap;
+
+        @include pc{
+            padding: 5px 10px;
+        }
+    }
+}
+.period-item-selected{
+    background: $theme-color;
+    color: #fff;
+}
 </style>
 
 <template>
@@ -227,8 +264,15 @@
         <template v-slot:content>
             <div class="vranking-searchcontainer">
                 <vm-search-genre class="vranking-searchgenre" :list="getGenreSelecterItems" :palleteList="getPaletteItemsByGenre" :selectGenre="selectedGenre" @emit-selectGenre="changeGenreVideos"></vm-search-genre>
-                <vm-search-detail class="vranking-searchdetail" @emit-clickSearchBtn="searchVieoByDetail"></vm-search-detail>
+                <div class="vranking-period-container">
+                    <span class="vranking-period-item" :class="{'period-item-selected': item.selected}"
+                      v-for="item in periods" :key="item.val"
+                      @click="selectPeriod(item.val)">
+                        {{ item.text }}
+                    </span>
+                </div>
                 <vm-selectsort :selSortKinds="selSortKinds" @emit-changeSort="changeSort" class="vranking-sort"> </vm-selectsort>
+                <vm-search-detail class="vranking-searchdetail" @emit-clickSearchBtn="searchVieoByDetail"></vm-search-detail>
             </div>
             
             <div id="rankingVideoListContainer" class="vranking-videolist-container" :class="{'vranking-single': !isMulti }">
@@ -290,7 +334,7 @@ import { useRouter } from '@/router/router'
 import { useStore } from '@/dataAccess/store/store'
 import { RankingVideoPageService } from '@/front/pageServices/RankingVideoPageService'
 import { videoUtility } from '@/front/utilitys/videoUtility'
-import { SortKinds, VideoGenreKinds, VideoGenreKindsToString } from '@/core/enum'
+import { PeriodKinds, SortKinds, VideoGenreKinds, VideoGenreKindsToString } from '@/core/enum'
 import VM_SelectSort from '@/front/components/VM_SelectSort.vue'
 import { SearchDetail } from '../componentReqRes/searchDetail'
 
@@ -339,7 +383,11 @@ export default defineComponent({
             //並び順種類
             selSortKinds: state.sortKinds,
             //詳細検索
-            searchVieoByDetail: (searchDetail: SearchDetail) => rankingVideoService.searchVieoByDetail(searchDetail)
+            searchVieoByDetail: (searchDetail: SearchDetail) => rankingVideoService.searchVieoByDetail(searchDetail),
+            //期間
+            periods: rankingVideoService.getPeriods(),
+            //期間選択
+            selectPeriod: (kinds: PeriodKinds) => rankingVideoService.selectedPeriod(kinds),
         }
     },
 })

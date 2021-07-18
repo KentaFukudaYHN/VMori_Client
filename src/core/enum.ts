@@ -250,3 +250,26 @@ export enum SortKinds{
     //VMori再生回数
     VMoriViewCount = 40,
 }
+
+/**
+ * 期間種類
+ */
+export enum PeriodKinds{
+    /**
+     * 今日
+     */
+    ToDay = 10,
+    /**
+     * 今週
+     */
+    Week = 20,
+    /**
+     * 今月
+     */
+    Month = 30,
+    /**
+     * 全て
+     */
+    All = 1000
+
+}

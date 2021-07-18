@@ -6,7 +6,7 @@ import { Store } from "vuex";
 import { appSetting } from '@/dataAccess/entities/AppSetting'
 import { VideoSummaryByGenreApiRes, VideoSummaryInfoByGenreApiRes } from '@/core/apiReqRes/RankingVideo'
 import { VideoSummaryInfoApiRes, VideoSummaryItemApiRes } from "@/core/apiReqRes/Video";
-import { SearchVideoGenreKinds, SearchVideoGenreKindsToString, SearchVideoTranslationKinds, SortKinds, VideoGenreKinds, VideoGenreKindsToString, VideoLanguageKinds } from "@/core/enum";
+import { PeriodKinds, SearchVideoGenreKinds, SearchVideoGenreKindsToString, SearchVideoTranslationKinds, SortKinds, VideoGenreKinds, VideoGenreKindsToString, VideoLanguageKinds } from "@/core/enum";
 import { SelecterItem } from "../componentReqRes/Selecter";
 import { VideoService } from "@/core/services/VideoService";
 import { vueUtility } from "../utilitys/vueUtility";
@@ -29,10 +29,9 @@ export class RankingVideoPageService {
     private _router: Router
     //ジャンル選択欄にTOPを追加するので、そのEnumの値を無理やり定義しておく...動けばよいのだ...
     private TOP_GENRE_KINDS_VAL = 99999
-    //ランキングナンバー
-    private _rankingNumbers = [] as number[]
     //ジャンルの選択肢情報
     private _genreSelecterItems = [] as SelecterItem[]
+    private DISPLAY_NUM = 50
     //画面の状態
     private _state = {
         //動画情報APIレスポンス
@@ -45,6 +44,12 @@ export class RankingVideoPageService {
         isMultiBySize: ref(true),
         //並び順
         sortKinds: ref(SortKinds.ViewCount),
+        //期間
+        periodKinds: ref(PeriodKinds.All),
+        //期間の選択リスト
+        periodList: ref([]),
+        //ランキングの表示ナンバーリストs
+        rankingNumber: ref([] as number[]),
         //表示数
         displayNum: 50,
         //選択中のジャンル
@@ -81,6 +86,10 @@ export class RankingVideoPageService {
         try{
             //ローディング開始
             this._appStateService.updateIsLoadin(true)
+
+            //期間の選択し設定
+            vueUtility.updateArray(this._createPeriodList() as [], this._state.periodList as Ref<[]>)
+
             /**
              * 動画情報の取得
              * ①画面幅が1カラム構成であれば、『全て』ジャンルの動画を取得、そうでなければ、複数ジャンルの動画を取得
@@ -88,14 +97,16 @@ export class RankingVideoPageService {
             this._state.videos.value.splice(0, this._state.videos.value.length)
             if(window.matchMedia('(max-width:' + appSetting.media.tab + 'px)').matches){
                 //tab以下はカラム構成なので、『全て』ジャンルの動画を取得
-                const summaryInfo = await this._videoService.getVideosByGenre(1, 50, VideoGenreKinds.All, this._state.sortKinds.value, true)
+                const summaryInfo = await this._videoService.getVideos(1, this.DISPLAY_NUM, '',this._state.search.genre.value, this._createSearchDetail(),
+                this._state.sortKinds.value, true, this._state.periodKinds.value, true)
+
                 this._state.videos.value.push({
                     genreKinds: VideoGenreKinds.All,
                     items:summaryInfo.items
                 })
                 this._state.isMulti.value = false
             }else{
-                const videosInfo = await this._videoService.getRankingVideosByGenre(this._state.sortKinds.value, this._createSearchDetail())
+                const videosInfo = await this._videoService.getRankingVideosByGenre(this._state.sortKinds.value, this._createSearchDetail(), this._state.periodKinds.value)
                 //動画のないジャンルは除外
                 const videos = videosInfo.items.filter(x => x.items.length != 0)
                 vueUtility.updateArray(videos as [], this._state.videos as Ref<[]>)
@@ -106,15 +117,7 @@ export class RankingVideoPageService {
             *1.ジャンル別のランキング動画で、一番項目数の多いジャンルを取得
             *2.その数に合わせてジャンルのナンバーを生成
             ***********************************************************/
-            //1.ジャンル別のランキング動画で、一番項目数の多いジャンルを取得
-            const maxItemLength = this._state.videos.value.sort((a, b) =>{
-                return b.items.length - a.items.length
-            })[0].items.length
-            
-            //2.その数に合わせてジャンルのナンバーを生成
-            for (let i = 0; i < maxItemLength; i++) {
-                this._rankingNumbers.push(i+1)
-            }
+            this._initRankingNumber()
 
             /**************************
              * ジャンル選択のリストを生成
@@ -168,10 +171,13 @@ export class RankingVideoPageService {
                     translation: this._state.search.searchDetail.translation.value,
                     translationLangs: this._state.search.searchDetail.translationLangs.value
                 } as SearchDetail
-                const videoInfo = await this._videoService.getVideosBySearchDetail(1, this._state.displayNum,
-                    '', this._state.search.genre.value, searchDetail,val, true)
+                const videoInfo = await this._videoService.getVideos(1, this._state.displayNum,
+                    '', this._state.search.genre.value, searchDetail,val, true, PeriodKinds.All, false)
                 await this._updateVideos(videoInfo.items, this._state.search.genre.value)
             }
+
+            //ランキングナンバーの再生成
+            this._initRankingNumber()
         }finally{
             this._appStateService.updateIsLoadin(false)
         }
@@ -213,6 +219,23 @@ export class RankingVideoPageService {
     }
 
     /**
+     * ランキングナンバーを生成
+     * @param num 
+     */
+    private _initRankingNumber(){
+        let maxItemLength = 0
+        if(this._state.videos.value.length > 0){
+            maxItemLength = this._state.videos.value.sort((a, b) =>{
+                return b.items.length - a.items.length
+            })[0].items.length
+        }
+        this._state.rankingNumber.value.splice(0, this._state.rankingNumber.value.length)
+        for (let i = 0; i < maxItemLength; i++) {
+            this._state.rankingNumber.value.push(i+1)
+        }
+    }
+
+    /**
      * 詳細検索条件インスタンスの生成
      * @returns 
      */
@@ -230,7 +253,7 @@ export class RankingVideoPageService {
      */
     private async _updateTopGenre(){
         //動画情報の取得
-        const videosInfo = await this._videoService.getRankingVideosByGenre(this._state.sortKinds.value, this._createSearchDetail())
+        const videosInfo = await this._videoService.getRankingVideosByGenre(this._state.sortKinds.value, this._createSearchDetail(), this._state.periodKinds.value)
         //動画のないジャンルは除外
         const videos = videosInfo.items.filter(x => x.items.length != 0)
         this._state.videos.value.splice(0, this._state.videos.value.length)
@@ -263,9 +286,13 @@ export class RankingVideoPageService {
             }
 
             //該当のチャンネルの動画情報を取得
-            const result = await this._videoService.getVideosByGenre(1, 30, val, this._state.sortKinds.value, true)
+            const result = await this._videoService.getVideos(1, this.DISPLAY_NUM, '', this._state.search.genre.value, this._createSearchDetail(),
+            this._state.sortKinds.value, true, this._state.periodKinds.value, false)
             //動画情報を更新
             await this._updateVideos(result.items, val)
+
+            //ランキングナンバーの再生成
+            this._initRankingNumber()
             
         }finally{
             this._appStateService.updateIsLoadin(false)
@@ -288,11 +315,14 @@ export class RankingVideoPageService {
             if(this._state.search.genre.value == this.TOP_GENRE_KINDS_VAL){
                 await this._updateTopGenre()
             }else{
-                const result = await this._videoService.getVideosBySearchDetail(1, this._state.displayNum, '', this._state.search.genre.value,
-                searchDetail, this._state.sortKinds.value, true)
+                const result = await this._videoService.getVideos(1, this.DISPLAY_NUM, '', this._state.search.genre.value,
+                searchDetail, this._state.sortKinds.value, true, PeriodKinds.All, false)
 
                 await this._updateVideos(result.items, this._state.search.genre.value)
             }
+
+            //ランキングナンバーの再生成
+            this._initRankingNumber()
         }finally{
             this._appStateService.updateIsLoadin(false)
         }
@@ -445,6 +475,31 @@ export class RankingVideoPageService {
         }
     }
 
+    private _createPeriodList(){
+        return[
+            {
+                text: '今日',
+                val: PeriodKinds.ToDay,
+                selected: PeriodKinds.ToDay == this._state.periodKinds.value
+            },
+            {
+                text: '今週',
+                val: PeriodKinds.Week,
+                selected: PeriodKinds.Week == this._state.periodKinds.value
+            },
+            {
+                text: '今月',
+                val: PeriodKinds.Month,
+                selected: PeriodKinds.Month == this._state.periodKinds.value
+            },
+            {
+                text: '全期間',
+                val: PeriodKinds.All,
+                selected: PeriodKinds.All == this._state.periodKinds.value
+            },
+        ]
+    }
+
     /*******************************************
      * 取得系
      *******************************************/
@@ -468,7 +523,7 @@ export class RankingVideoPageService {
      * @returns 表示用のランキングナンバー ※動画数に合わせて生成済み
      */
     getRankingNumbers(){
-        return this._rankingNumbers
+        return this._state.rankingNumber
     }
 
     /**
@@ -479,7 +534,7 @@ export class RankingVideoPageService {
         return this._genreSelecterItems
     }
 
-        /**
+    /**
      * ジャンルパレッドの選択肢取得
      */
     getPaletteItemsByGenre(){
@@ -503,6 +558,14 @@ export class RankingVideoPageService {
         return items
     }
 
+    /**
+     * 期間選択情報の取得
+     */
+    getPeriods(){
+        return this._state.periodList
+    }
+
+
     /**************
      * メソッド
      *************/
@@ -513,6 +576,35 @@ export class RankingVideoPageService {
     selectedVideo(videoId: string){
         this._historyService.registHistory(videoId)
         this._router.push({name: 'Video', query: { v:videoId }})
+    }
+
+    /**
+     * 期間の選択
+     */
+    async selectedPeriod(periodKinds: PeriodKinds){
+        try{
+            this._appStateService.updateIsLoadin(true)
+            this._state.periodKinds.value = periodKinds
+    
+            if(this._state.search.genre.value == this.TOP_GENRE_KINDS_VAL){
+                await this._updateTopGenre()
+            }else{
+                
+                const videoInfo = await this._videoService.getVideos(1, this._state.displayNum,
+                    '', this._state.search.genre.value, this._createSearchDetail(),this._state.sortKinds.value, true, this._state.periodKinds.value, false)
+                await this._updateVideos(videoInfo.items, this._state.search.genre.value)
+            }
+
+            //ランキングナンバーの再生成
+            this._initRankingNumber()
+
+            //選択期間の更新
+            vueUtility.updateArray(this._createPeriodList() as [], this._state.periodList as Ref<[]>)
+        }finally{
+            this._appStateService.updateIsLoadin(false)
+        }
+
+
     }
 
     /**

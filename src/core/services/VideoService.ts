@@ -3,34 +3,35 @@ import { Store } from "vuex";
 import VMoriRepository from "@/dataAccess/repository/VMoriRepository";
 import { ChannelApiRes, VideoItemApitRes, VideoSummaryInfoApiRes, VideoSummaryItemApiRes, ChannelTransitionApiRes, VideoCommentApiRes}  from '@/core/apiReqRes/Video'
 import { VideoModule } from '@/dataAccess/store/actionTypes'
-import { SearchVideoGenreKinds, SearchVideoTranslationKinds, SortKinds, VideoGenreKinds, VideoLanguageKinds } from "../enum";
+import { PeriodKinds, SearchVideoGenreKinds, SearchVideoTranslationKinds, SortKinds, VideoGenreKinds, VideoLanguageKinds } from "../enum";
 import { SearchDetail } from "@/front/componentReqRes/searchDetail";
 import { VideoSummaryInfoByGenreApiRes } from "../apiReqRes/RankingVideo";
+import { dateUtility } from "@/front/utilitys/dateUtility";
 
 export class VideoService {
     private _store: Store<State>
     private _repository: VMoriRepository
 
-    /**
-     * 動画リストの取得
-     * @param page 
-     * @param displayNum 
-     * @returns 
-     */
-    async getLatestVideos(page: number, displayNum: number){
-        const res = await this._repository.get<VideoSummaryInfoApiRes>('video/getlist', {
-            params:{
-                page: page,
-                displayNum: displayNum
-            }
-        })
+    // /**
+    //  * 動画リストの取得
+    //  * @param page 
+    //  * @param displayNum 
+    //  * @returns 
+    //  */
+    // async getLatestVideos(page: number, displayNum: number){
+    //     const res = await this._repository.get<VideoSummaryInfoApiRes>('video/getlist', {
+    //         params:{
+    //             page: page,
+    //             displayNum: displayNum
+    //         }
+    //     })
 
-        if(res.isOk()){
-            return res.data
-        }else{
-            return null
-        }
-    }
+    //     if(res.isOk()){
+    //         return res.data
+    //     }else{
+    //         return null
+    //     }
+    // }
 
     /**
      * 詳細検索
@@ -41,7 +42,7 @@ export class VideoService {
      * @param searchDetail 
      * @returns 
      */
-    async getVideosBySearchDetail(page: number, displayNum: number, text: string, genre: VideoGenreKinds, searchDetail: SearchDetail, sortKinds: SortKinds, isDesc: boolean){
+    async getVideos(page: number, displayNum: number, text: string, genre: VideoGenreKinds, searchDetail: SearchDetail, sortKinds: SortKinds, isDesc: boolean, periodKinds: PeriodKinds, isVmoriPeriod: boolean){
 
         if(text == ''){
             text = null
@@ -69,6 +70,7 @@ export class VideoService {
             translationLangs = searchDetail.translationLangs
         }
 
+        const periods = this.createPeriodDateTime(periodKinds)
         const data = {
             Page: page,
             DisplayNum: displayNum,
@@ -78,7 +80,10 @@ export class VideoService {
             IsTranslation: isTranslation,
             TransrationLangs: translationLangs,
             sortKinds: sortKinds,
-            isDesc: isDesc
+            isDesc: isDesc,
+            Start: periods.start,
+            End: periods.end,
+            isPublish: isVmoriPeriod
         }
         const res = await this._repository.post<VideoSummaryInfoApiRes>('video/getsearchlist',data)
         if(res.isOk()){
@@ -114,36 +119,96 @@ export class VideoService {
     }
 
     /**
-     * ジャンル検索
-     * @param page 
-     * @param displayNum 
-     * @param genre 
+     * 期間情報の生成
+     * @param period 
+     * @returns 
      */
-    async getVideosByGenre(page: number, displayNum: number, genre: VideoGenreKinds, sortKinds: SortKinds, isDesc: boolean){
-        if(genre == VideoGenreKinds.All){
-            genre = null
+    private createPeriodDateTime(period: PeriodKinds){
+        const result = {
+            start:null as Date,
+            end: null as Date
+        }
+        let now = new Date()
+        now.setHours(0, 0, 0, 0)
+        switch(period){
+            //今日
+            case PeriodKinds.ToDay:
+                
+                const startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0 ,0)
+                const endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59 ,59)
+                result.start = startDate
+                result.end = endDate
+                break
+            //今週
+            case PeriodKinds.Week:
+                //週の月曜日
+                const monday = new Date(now)
+                const day_num = monday.getDay()
+                //計算の都合上、日曜は特別扱い
+                if(day_num == 0){
+                    monday.setDate(monday.getDate() - 5)
+                }else{
+                    monday.setDate(monday.getDate() - monday.getDay() + 1)
+                }
+
+                // //週の日曜日
+                // const sunday = new Date(now)
+                // sunday.setDate(sunday.getDate() - sunday.getDay() + 7)
+
+                result.start = monday
+                result.end = new Date()
+                break
+            //今月
+            case PeriodKinds.Month:
+                const startMonth = new Date()
+                startMonth.setDate(1)
+
+                const endMonth = new Date()
+                endMonth.setMonth(endMonth.getMonth() + 1)
+                endMonth.setDate(0)
+
+                result.start = startMonth
+                result.end = endMonth
+                break
         }
 
-        const res = await this._repository.post<VideoSummaryInfoApiRes>('video/getsearchlist',{
-            Page:page,
-            DisplayNum: displayNum,
-            genre:genre,
-            sortKinds: sortKinds,
-            isDesc: isDesc
-        })
-
-        if(res.isOk()){
-            return res.data
-        }else{
-            return null
-        }
+        if(result.start != null) { result.start = dateUtility.getUtc(result.start) }
+        if(result.end != null) { result.end = dateUtility.getUtc(result.end) }
+        
+        return result
     }
+
+    // /**
+    //  * ジャンル検索
+    //  * @param page 
+    //  * @param displayNum 
+    //  * @param genre 
+    //  */
+    // async getVideosByGenre(page: number, displayNum: number, genre: VideoGenreKinds, sortKinds: SortKinds, isDesc: boolean){
+    //     if(genre == VideoGenreKinds.All){
+    //         genre = null
+    //     }
+
+    //     const res = await this._repository.post<VideoSummaryInfoApiRes>('video/getsearchlist',{
+    //         Page:page,
+    //         DisplayNum: displayNum,
+    //         genre:genre,
+    //         sortKinds: sortKinds,
+    //         isDesc: isDesc
+    //     })
+
+    //     if(res.isOk()){
+    //         return res.data
+    //     }else{
+    //         return null
+    //     }
+    // }
 
     /**
      * ジャンルごとの動画ランキングを取得
      * @returns 
      */
-    async getRankingVideosByGenre(sortKinds: SortKinds, searchDetail: SearchDetail){
+    async getRankingVideosByGenre(sortKinds: SortKinds, searchDetail: SearchDetail, periodKinds: PeriodKinds){
 
         let langs = null
         //『全て(Unkonown)』が含まれていたら検索条件に含めない
@@ -162,6 +227,8 @@ export class VideoService {
             translationLangs = searchDetail.translationLangs
         }
 
+        const periodData = this.createPeriodDateTime(periodKinds)
+
         const res = await this._repository.post<VideoSummaryInfoByGenreApiRes>('video/GetListByGenre',{
             searchReq:{
                 page: 1,
@@ -170,7 +237,10 @@ export class VideoService {
                 isDesc: true,
                 langs: langs,
                 isTranslation: isTranslation,
-                translationLangs: translationLangs 
+                translationLangs: translationLangs,
+                start: periodData.start,
+                end: periodData.end,
+                isPublish: false
             },
             genres:[SearchVideoGenreKinds.All, SearchVideoGenreKinds.SmallTalk,
                 SearchVideoGenreKinds.Entertainment, SearchVideoGenreKinds.Game,
