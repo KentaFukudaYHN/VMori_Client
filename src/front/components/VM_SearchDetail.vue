@@ -231,7 +231,7 @@ import VM_Selecter from '@/front/components/VM_Selecter.vue'
 import { SelecterItem } from '@/front/componentReqRes/Selecter'
 import VM_Modal from '@/front/components/VM_Modal.vue'
 import { SearchVideoLanguageKindsToString, SearchVideoTranslationKinds, SearchVideoTranslationToString, VideoLanguageKinds } from '@/core/enum'
-import { SearchDetail } from '@/front/componentReqRes/SearchDetail'
+import { SearchDetail } from '../componentReqRes/SearchDetail'
 
 const state = toRefs(reactive({
     //詳細検索表示有無

@@ -4,7 +4,7 @@ import VMoriRepository from "@/dataAccess/repository/VMoriRepository";
 import { ChannelApiRes, VideoItemApitRes, VideoSummaryInfoApiRes, VideoSummaryItemApiRes, ChannelTransitionApiRes, VideoCommentApiRes}  from '@/core/apiReqRes/Video'
 import { VideoModule } from '@/dataAccess/store/actionTypes'
 import { PeriodKinds, SearchVideoGenreKinds, SearchVideoTranslationKinds, SortKinds, VideoGenreKinds, VideoLanguageKinds } from "../enum";
-import { SearchDetail } from "@/front/componentReqRes/searchDetail";
+import { SearchDetail } from "@/front/componentReqRes/SearchDetail";
 import { VideoSummaryInfoByGenreApiRes } from "../apiReqRes/RankingVideo";
 import { dateUtility } from "@/front/utilitys/dateUtility";
 

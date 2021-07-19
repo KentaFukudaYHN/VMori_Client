@@ -1,19 +1,19 @@
 import VMoriRepository from "@/dataAccess/repository/VMoriRepository";
 import { State } from "@/dataAccess/store/store";
-import { onMounted, reactive, toRefs, ref, onBeforeMount, Ref, computed } from "vue";
+import { onMounted, ref, onBeforeMount, Ref, } from "vue";
 import { Router } from "vue-router";
 import { Store } from "vuex";
 import { appSetting } from '@/dataAccess/entities/AppSetting'
-import { VideoSummaryByGenreApiRes, VideoSummaryInfoByGenreApiRes } from '@/core/apiReqRes/RankingVideo'
-import { VideoSummaryInfoApiRes, VideoSummaryItemApiRes } from "@/core/apiReqRes/Video";
-import { PeriodKinds, SearchVideoGenreKinds, SearchVideoGenreKindsToString, SearchVideoTranslationKinds, SortKinds, VideoGenreKinds, VideoGenreKindsToString, VideoLanguageKinds } from "@/core/enum";
+import { VideoSummaryByGenreApiRes} from '@/core/apiReqRes/RankingVideo'
+import { VideoSummaryItemApiRes } from "@/core/apiReqRes/Video";
+import { PeriodKinds, SearchVideoTranslationKinds, SortKinds, VideoGenreKinds, VideoGenreKindsToString, VideoLanguageKinds } from "@/core/enum";
 import { SelecterItem } from "../componentReqRes/Selecter";
 import { VideoService } from "@/core/services/VideoService";
 import { vueUtility } from "../utilitys/vueUtility";
 import { GenrePallete } from "../componentReqRes/GenrePalette";
 import { AppStateService } from "@/core/services/AppStateService";
 import { HistoryVideoService } from "@/core/services/historyVideoService";
-import { SearchDetail } from "../componentReqRes/searchDetail";
+import { SearchDetail } from "../componentReqRes/SearchDetail";
 
 /**
  * ランキング動画PageService
@@ -40,8 +40,6 @@ export class RankingVideoPageService {
         videosByGenreRef: ref(null),
         //複数ジャンル表示モードの有無　※ジャンル選択時にフラグを変える
         isMulti: ref(true),
-        //複数ジャンル表示モードの有無 ※サムネイルサイズ調整時にフラフを変える
-        isMultiBySize: ref(true),
         //並び順
         sortKinds: ref(SortKinds.ViewCount),
         //期間
@@ -54,7 +52,7 @@ export class RankingVideoPageService {
         displayNum: 50,
         //選択中のジャンル
         search:{
-            genre: ref(VideoGenreKinds.All),
+            genre: ref(this.TOP_GENRE_KINDS_VAL as VideoGenreKinds),
             searchDetail:{
                 langs: ref([VideoLanguageKinds.UnKnown]),
                 translation: ref(SearchVideoTranslationKinds.All),
@@ -63,10 +61,9 @@ export class RankingVideoPageService {
         }
     }
 
-    /*************************************************
-     * 処理系
-     *************************************************/
-
+    /*******************************************
+     * 初期化処理
+     *******************************************/
     /**
      * ランキング動画ページの初期化処理
      */
@@ -94,30 +91,7 @@ export class RankingVideoPageService {
              * 動画情報の取得
              * ①画面幅が1カラム構成であれば、『全て』ジャンルの動画を取得、そうでなければ、複数ジャンルの動画を取得
              */
-            this._state.videos.value.splice(0, this._state.videos.value.length)
-            if(window.matchMedia('(max-width:' + appSetting.media.tab + 'px)').matches){
-                //tab以下はカラム構成なので、『全て』ジャンルの動画を取得
-                const summaryInfo = await this._videoService.getVideos(1, this.DISPLAY_NUM, '',this._state.search.genre.value, this._createSearchDetail(),
-                this._state.sortKinds.value, true, this._state.periodKinds.value, true)
-
-                this._state.videos.value.push({
-                    genreKinds: VideoGenreKinds.All,
-                    items:summaryInfo.items
-                })
-                this._state.isMulti.value = false
-            }else{
-                const videosInfo = await this._videoService.getRankingVideosByGenre(this._state.sortKinds.value, this._createSearchDetail(), this._state.periodKinds.value)
-                //動画のないジャンルは除外
-                const videos = videosInfo.items.filter(x => x.items.length != 0)
-                vueUtility.updateArray(videos as [], this._state.videos as Ref<[]>)
-                this._state.isMulti.value = true
-            }
-
-            /*********************************************************
-            *1.ジャンル別のランキング動画で、一番項目数の多いジャンルを取得
-            *2.その数に合わせてジャンルのナンバーを生成
-            ***********************************************************/
-            this._initRankingNumber()
+            await this._updateVideos()
 
             /**************************
              * ジャンル選択のリストを生成
@@ -154,69 +128,148 @@ export class RankingVideoPageService {
         }
     }
 
+    /*******************************************
+     * 取得系
+     *******************************************/
+
     /**
-     * 並び順の変更
-     * @param val 
+     * Stateの取得
+     * @returns ページ状態情報
      */
-    async changeSort(val: SortKinds){
-        debugger
-        this._state.sortKinds.value = val
+     getState(){
+        return this._state
+    }
+
+    getIsMulti(){
+        return this._state.isMulti
+    }
+
+    /**
+     * ランキングナンバーを取得
+     * @returns 表示用のランキングナンバー ※動画数に合わせて生成済み
+     */
+    getRankingNumbers(){
+        return this._state.rankingNumber
+    }
+
+    /**
+     * ジャンル選択肢情報を取得
+     * @returns 
+     */
+    getGenreSelecterItems(){
+        return this._genreSelecterItems
+    }
+
+    /**
+     * ジャンルパレッドの選択肢取得
+     */
+    getPaletteItemsByGenre(){
+        const items = [] as GenrePallete[]
+        items.push({
+            text: '全て',
+            kinds: VideoGenreKinds.All,
+            css: 'genrepalette-item genre-color-top'
+        })
+        Object.entries(VideoGenreKinds).forEach(([key, val]) =>{
+            var kindsNum = Number(key)
+            if(isNaN(kindsNum) == false && kindsNum != VideoGenreKinds.All){
+                items.push({
+                    text: VideoGenreKindsToString(kindsNum),
+                    kinds: kindsNum,
+                    css: 'genrepalette-item genre-color-' + (val as string).toLowerCase()
+                })
+            }
+        })
+
+        return items
+    }
+
+    /**
+     * 期間選択情報の取得
+     */
+    getPeriods(){
+        return this._state.periodList
+    }
+
+    /*******************************************
+     * 更新系
+     *******************************************/
+    /**
+     * 動画情報の選択
+     * @param videoId 動画ID
+     */
+    selectedVideo(videoId: string){
+        this._historyService.registHistory(videoId)
+        this._router.push({name: 'Video', query: { v:videoId }})
+    }
+
+    /**
+     * 期間の選択
+     */
+    async selectedPeriod(periodKinds: PeriodKinds){
         try{
             this._appStateService.updateIsLoadin(true)
-            if(this._state.search.genre.value == this.TOP_GENRE_KINDS_VAL){
-                await this._updateTopGenre()
-            }else{
-                const searchDetail = {
-                    langs: this._state.search.searchDetail.langs.value,
-                    translation: this._state.search.searchDetail.translation.value,
-                    translationLangs: this._state.search.searchDetail.translationLangs.value
-                } as SearchDetail
-                const videoInfo = await this._videoService.getVideos(1, this._state.displayNum,
-                    '', this._state.search.genre.value, searchDetail,val, true, PeriodKinds.All, false)
-                await this._updateVideos(videoInfo.items, this._state.search.genre.value)
-            }
+            this._state.periodKinds.value = periodKinds
 
-            //ランキングナンバーの再生成
-            this._initRankingNumber()
+            await this._updateVideos()
+
+            //表示選択期間の更新
+            vueUtility.updateArray(this._createPeriodList() as [], this._state.periodList as Ref<[]>)
         }finally{
             this._appStateService.updateIsLoadin(false)
         }
     }
 
     /**
-     * 動画情報の更新
-     * @param videos 
+     * ジャンルの変更
+     * @param val 
      */
-    private async _updateVideos(videos: VideoSummaryItemApiRes[], genre: VideoGenreKinds){
-        const items = [] as VideoSummaryItemApiRes[]
-        videos.forEach(x => {
-            items.push({
-                id: x.id,
-                title: x.title,
-                channelTitle: x.channelTitle,
-                thumbnailLink: x.thumbnailLink,
-                viewCount: x.viewCount,
-                vMoriViewCount: x.vMoriViewCount,
-                platFormKinds: x.platFormKinds,
-                publishDateTime: x.publishDateTime,
-                registDateTime: x.registDateTime
-            })
-        })
-        const summaryByGenre = [{
-            genreKinds: genre,
-            items: items
-        } as VideoSummaryByGenreApiRes]
-        //表示動画リストを更新
-        this._state.videos.value.splice(0, this._state.videos.value.length)
-        vueUtility.updateArray(summaryByGenre as [], this._state.videos as Ref<[]>)
-    
-        this._state.isMulti.value = false
-
-        //refの再生成
-        this._state.videosByGenreRef = this.createVideoRefs(this._state.videos.value)
-        //サムネイルサイズを再計算
-        this.onResizeTumbnail()
+    async changeGenreVideos(val: VideoGenreKinds){
+        try{
+            this._appStateService.updateIsLoadin(true)
+            this._state.search.genre.value = val
+            await this._updateVideos()
+        }finally{
+            this._appStateService.updateIsLoadin(false)
+        }
     }
+    
+    /**
+     * 詳細検索
+     * @param searchDetail 
+     */
+    async searchVieoByDetail(searchDetail: SearchDetail){
+        try{
+            this._appStateService.updateIsLoadin(true)
+            //詳細検索の更新
+            vueUtility.updateArray(searchDetail.langs as [], this._state.search.searchDetail.langs as Ref<[]>)
+            this._state.search.searchDetail.translation.value = searchDetail.translation
+            vueUtility.updateArray(searchDetail.translationLangs as [], this._state.search.searchDetail.translationLangs as Ref<[]>) 
+            
+            this._updateVideos()
+        }finally{
+            this._appStateService.updateIsLoadin(false)
+        }
+    }
+
+    
+    /**
+     * 並び順の変更
+     * @param val 
+     */
+     async changeSort(val: SortKinds){
+        this._state.sortKinds.value = val
+        try{
+            this._appStateService.updateIsLoadin(true)
+            await this._updateVideos()
+        }finally{
+            this._appStateService.updateIsLoadin(false)
+        }
+    }
+
+    /*******************************************
+     * Private
+     *******************************************/
 
     /**
      * ランキングナンバーを生成
@@ -251,81 +304,40 @@ export class RankingVideoPageService {
      * TOPジャンルの更新
      * @param sort 
      */
-    private async _updateTopGenre(){
-        //動画情報の取得
-        const videosInfo = await this._videoService.getRankingVideosByGenre(this._state.sortKinds.value, this._createSearchDetail(), this._state.periodKinds.value)
-        //動画のないジャンルは除外
-        const videos = videosInfo.items.filter(x => x.items.length != 0)
-        this._state.videos.value.splice(0, this._state.videos.value.length)
-        videos.forEach((genreItems, index) => {
-            this._state.videos.value.push(genreItems)
-        })
+    private async _updateVideos(){
+        /** ウィンドウが『PC Media』以下の場合はTOPは取得しない */
+        debugger
+        if(this._state.search.genre.value == this.TOP_GENRE_KINDS_VAL && window.matchMedia('(min-width:' + appSetting.media.pc + 'px)').matches){
+            //動画情報の取得
+            const videosInfo = await this._videoService.getRankingVideosByGenre(this._state.sortKinds.value, this._createSearchDetail(), this._state.periodKinds.value)
+            //動画のないジャンルは除外
+            const videos = videosInfo.items.filter(x => x.items.length != 0)
+            this._state.videos.value.splice(0, this._state.videos.value.length)
+            videos.forEach((genreItems, index) => {
+                this._state.videos.value.push(genreItems)
+            })
+        }else{
+            //PC以下はカラム構成なので『全てのジャンルの動画を取得』
+            if(this._state.search.genre.value == this.TOP_GENRE_KINDS_VAL){ this._state.search.genre.value = VideoGenreKinds.All }
+            const videosInfo = await this._videoService.getVideos(1, this.DISPLAY_NUM, '',this._state.search.genre.value, this._createSearchDetail(),
+                             this._state.sortKinds.value, true, this._state.periodKinds.value, true)
+            
+            const stateVideoData = [{
+                genreKinds: this._state.search.genre.value,
+                items: videosInfo.items
+            }] as VideoSummaryByGenreApiRes[]
+            vueUtility.updateArray(stateVideoData as [], this._state.videos as Ref<[]>)
+        }
+
         //refの再生成
-        this._state.videosByGenreRef = this.createVideoRefs(videos)
-        this._state.isMulti.value = true 
+        this._state.videosByGenreRef = this.createVideoRefs(this._state.videos.value)
+        //ランキングナンバーの再生成
+        this._initRankingNumber()
         //サムネイルサイズを再計算
         setTimeout(() => {
             this.onResizeTumbnail()
         })
-    }
 
-    /**
-     * ジャンルの変更
-     * @param val 
-     */
-    async changeGenreVideos(val: VideoGenreKinds){
-        try{
-            //ローディングの開始
-            this._appStateService.updateIsLoadin(true)
-            //ジャンルの変更を保持
-            this._state.search.genre.value = val
-            if(val == this.TOP_GENRE_KINDS_VAL){
-                //動画情報の取得
-                this._updateTopGenre()
-                return;
-            }
-
-            //該当のチャンネルの動画情報を取得
-            const result = await this._videoService.getVideos(1, this.DISPLAY_NUM, '', this._state.search.genre.value, this._createSearchDetail(),
-            this._state.sortKinds.value, true, this._state.periodKinds.value, false)
-            //動画情報を更新
-            await this._updateVideos(result.items, val)
-
-            //ランキングナンバーの再生成
-            this._initRankingNumber()
-            
-        }finally{
-            this._appStateService.updateIsLoadin(false)
-        }
-
-    }
-
-    /**
-     * 詳細検索
-     * @param searchDetail 
-     */
-    async searchVieoByDetail(searchDetail: SearchDetail){
-        try{
-            this._appStateService.updateIsLoadin(true)
-            //詳細検索の更新
-            vueUtility.updateArray(searchDetail.langs as [], this._state.search.searchDetail.langs as Ref<[]>)
-            this._state.search.searchDetail.translation.value = searchDetail.translation
-            vueUtility.updateArray(searchDetail.translationLangs as [], this._state.search.searchDetail.translationLangs as Ref<[]>) 
-            
-            if(this._state.search.genre.value == this.TOP_GENRE_KINDS_VAL){
-                await this._updateTopGenre()
-            }else{
-                const result = await this._videoService.getVideos(1, this.DISPLAY_NUM, '', this._state.search.genre.value,
-                searchDetail, this._state.sortKinds.value, true, PeriodKinds.All, false)
-
-                await this._updateVideos(result.items, this._state.search.genre.value)
-            }
-
-            //ランキングナンバーの再生成
-            this._initRankingNumber()
-        }finally{
-            this._appStateService.updateIsLoadin(false)
-        }
     }
 
     /**
@@ -333,24 +345,24 @@ export class RankingVideoPageService {
      * @param apiRes 
      * @returns 
      */
-    createVideoRefs(items: VideoSummaryByGenreApiRes[]){
-    const result = {}
-    //ジャンルごとにrefを生成
-    items.forEach(videoRankingByGenre => {
-        //追加するrankingVideoByGenreRefを生成
-        const rankingVideosByGenreRef = {} as rankingVideosByGenreRef
-        rankingVideosByGenreRef.refs = []
-        rankingVideosByGenreRef.refKeys = []
+    private createVideoRefs(items: VideoSummaryByGenreApiRes[]){
+        const result = {}
+        //ジャンルごとにrefを生成
+        items.forEach(videoRankingByGenre => {
+            //追加するrankingVideoByGenreRefを生成
+            const rankingVideosByGenreRef = {} as rankingVideosByGenreRef
+            rankingVideosByGenreRef.refs = []
+            rankingVideosByGenreRef.refKeys = []
 
-        //動画ごとにregを生成
-        videoRankingByGenre.items.forEach(video => {
-            rankingVideosByGenreRef.refs.push({[video.id]: ref(null)})
-            rankingVideosByGenreRef.refKeys.push(video.id)
+            //動画ごとにregを生成
+            videoRankingByGenre.items.forEach(video => {
+                rankingVideosByGenreRef.refs.push({[video.id]: ref(null)})
+                rankingVideosByGenreRef.refKeys.push(video.id)
+            })
+            result[videoRankingByGenre.genreKinds] = rankingVideosByGenreRef
         })
-        result[videoRankingByGenre.genreKinds] = rankingVideosByGenreRef
-    })
-    return result
-}
+        return result
+    }
 
 
     /**
@@ -362,42 +374,42 @@ export class RankingVideoPageService {
         const rankingNumberContainer = document.getElementsByClassName('vranking-videolist-number')[0]
 
         const windowWidth = document.body.clientWidth;
+
+        //windo幅がpc以上でジャンルがTOPならIsMulti
+        if(window.matchMedia('(min-width:' + appSetting.media.pc + 'px)').matches && this._state.search.genre.value == this.TOP_GENRE_KINDS_VAL){
+            this._state.isMulti.value = true
+        }else{
+            this._state.isMulti.value = false
+        }
+
         //windowが1024px以上なら5カラムで表示される様にサイズ調整
         let colum = 5;
 
-        if(this._state.isMulti.value == false){
-            this.setResizeVideos(this._state.videos.value[0].items, this._state.videos.value[0].genreKinds, 'auto', 'auto')
-            setTimeout(() =>{
-                this.initResizeRankingNumber(true)
-            })
-            return
-        }
-
         if(window.matchMedia('(min-width:1500px)').matches){
-            colum = 5
-            this._state.isMultiBySize.value = true
+            if(this._state.isMulti.value){
+                colum = 5
+            }else{
+                colum = 1
+            }  
         }else if(window.matchMedia('(min-width:' + appSetting.media.pc + 'px)').matches ){
-            console.log('window.match pc')
-            colum = 5
-            this._state.isMultiBySize.value = true
+            if(this._state.isMulti.value){
+                colum = 5
+            }else{
+                colum = 1
+            }  
         }else if(window.matchMedia('(min-width:' + appSetting.media.tab + 'px)').matches ){
-            console.log('window.match tab')
             colum = 1
-            this.setResizeVideos(this._state.videos.value[0].items, this._state.videos.value[0].genreKinds, 'auto', 'auto')
-            setTimeout(() =>{
-                this.initResizeRankingNumber(true)
-            })
-            this._state.isMultiBySize.value = false
         }else {
             colum = 1
+        }
+
+        if(colum == 1){ 
             this.setResizeVideos(this._state.videos.value[0].items, this._state.videos.value[0].genreKinds, 'auto', 'auto')
             setTimeout(() =>{
                 this.initResizeRankingNumber(true)
             })
-            this._state.isMultiBySize.value = false
+            return 
         }
-
-        if(colum == 1){ return }
 
         let margin = 30
 
@@ -498,113 +510,6 @@ export class RankingVideoPageService {
                 selected: PeriodKinds.All == this._state.periodKinds.value
             },
         ]
-    }
-
-    /*******************************************
-     * 取得系
-     *******************************************/
-
-    /**
-     * Stateの取得
-     * @returns ページ状態情報
-     */
-    getState(){
-        return this._state
-    }
-
-    getIsMulti(){
-        if(!this._state.isMulti.value) { return false }
-
-        return this._state.isMultiBySize.value
-    }
-
-    /**
-     * ランキングナンバーを取得
-     * @returns 表示用のランキングナンバー ※動画数に合わせて生成済み
-     */
-    getRankingNumbers(){
-        return this._state.rankingNumber
-    }
-
-    /**
-     * ジャンル選択肢情報を取得
-     * @returns 
-     */
-    getGenreSelecterItems(){
-        return this._genreSelecterItems
-    }
-
-    /**
-     * ジャンルパレッドの選択肢取得
-     */
-    getPaletteItemsByGenre(){
-        const items = [] as GenrePallete[]
-        items.push({
-            text: '全て',
-            kinds: VideoGenreKinds.All,
-            css: 'genrepalette-item genre-color-top'
-        })
-        Object.entries(VideoGenreKinds).forEach(([key, val]) =>{
-            var kindsNum = Number(key)
-            if(isNaN(kindsNum) == false && kindsNum != VideoGenreKinds.All){
-                items.push({
-                    text: VideoGenreKindsToString(kindsNum),
-                    kinds: kindsNum,
-                    css: 'genrepalette-item genre-color-' + (val as string).toLowerCase()
-                })
-            }
-        })
-
-        return items
-    }
-
-    /**
-     * 期間選択情報の取得
-     */
-    getPeriods(){
-        return this._state.periodList
-    }
-
-
-    /**************
-     * メソッド
-     *************/
-    /**
-     * 動画情報の選択
-     * @param videoId 動画ID
-     */
-    selectedVideo(videoId: string){
-        this._historyService.registHistory(videoId)
-        this._router.push({name: 'Video', query: { v:videoId }})
-    }
-
-    /**
-     * 期間の選択
-     */
-    async selectedPeriod(periodKinds: PeriodKinds){
-        try{
-            this._appStateService.updateIsLoadin(true)
-            this._state.periodKinds.value = periodKinds
-    
-            if(this._state.search.genre.value == this.TOP_GENRE_KINDS_VAL){
-                await this._updateTopGenre()
-            }else{
-                
-                const videoInfo = await this._videoService.getVideos(1, this._state.displayNum,
-                    '', this._state.search.genre.value, this._createSearchDetail(),this._state.sortKinds.value, true, this._state.periodKinds.value, false)
-                await this._updateVideos(videoInfo.items, this._state.search.genre.value)
-            }
-
-            //ランキングナンバーの再生成
-            this._initRankingNumber()
-
-            //選択期間の更新
-            vueUtility.updateArray(this._createPeriodList() as [], this._state.periodList as Ref<[]>)
-        }finally{
-            this._appStateService.updateIsLoadin(false)
-        }
-
-
     }
 
     /**

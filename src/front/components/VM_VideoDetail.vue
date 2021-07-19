@@ -446,6 +446,7 @@
 <template>
     <vm-guide>
         <template v-slot:content>
+            v16
             <div id="videoContainer">
                 <div ref="fullScreenContainer"  :class="{'fullscreen-none': !isFullScreenMode, 'fullscreen-on': isFullScreenMode, 'player-playing': isPlaying, 'player-playing-no': !isPlaying, 'player-mousemove': isMouseMove}">
                     <div  id="playeroOverlay" ref="playerOverlayRef">
