@@ -53,6 +53,7 @@ export class RankingVideoPageService {
         //選択中のジャンル
         search:{
             genre: ref(this.TOP_GENRE_KINDS_VAL as VideoGenreKinds),
+            text: ref(''),
             searchDetail:{
                 langs: ref([VideoLanguageKinds.UnKnown]),
                 translation: ref(SearchVideoTranslationKinds.All),
@@ -140,6 +141,10 @@ export class RankingVideoPageService {
         return this._state
     }
 
+    /**
+     * 表示形式の取得
+     * @returns 
+     */
     getIsMulti(){
         return this._state.isMulti
     }
@@ -191,6 +196,14 @@ export class RankingVideoPageService {
         return this._state.periodList
     }
 
+    /**
+     * 検索テキスト
+     * @returns 
+     */
+    getSearchText(){
+        return this._state.search.text
+    }
+
     /*******************************************
      * 更新系
      *******************************************/
@@ -227,6 +240,11 @@ export class RankingVideoPageService {
     async changeGenreVideos(val: VideoGenreKinds){
         try{
             this._appStateService.updateIsLoadin(true)
+            //TOPに変更する場合はテキストをリセット
+            if(val == this.TOP_GENRE_KINDS_VAL) { 
+                debugger
+                this._state.search.text.value = ''
+            }
             this._state.search.genre.value = val
             await this._updateVideos()
         }finally{
@@ -247,6 +265,21 @@ export class RankingVideoPageService {
             vueUtility.updateArray(searchDetail.translationLangs as [], this._state.search.searchDetail.translationLangs as Ref<[]>) 
             
             this._updateVideos()
+        }finally{
+            this._appStateService.updateIsLoadin(false)
+        }
+    }
+
+    /**
+     * テキスト検索
+     */
+    async changeText(text: string){
+        try{
+            this._appStateService.updateIsLoadin(true)
+            //テキストの変更
+            this._state.search.text.value = text
+            //動画情報の更新
+            await this._updateVideos()
         }finally{
             this._appStateService.updateIsLoadin(false)
         }
@@ -305,8 +338,12 @@ export class RankingVideoPageService {
      * @param sort 
      */
     private async _updateVideos(){
+        //TOPでテキスト検索された場合、ジャンルを『全て』に変更
+        if(this._state.search.genre.value == this.TOP_GENRE_KINDS_VAL  && this._state.search.text.value != '' && this._state.search.text.value != null){
+            this._state.search.genre.value = VideoGenreKinds.All
+        }
+
         /** ウィンドウが『PC Media』以下の場合はTOPは取得しない */
-        debugger
         if(this._state.search.genre.value == this.TOP_GENRE_KINDS_VAL && window.matchMedia('(min-width:' + appSetting.media.pc + 'px)').matches){
             //動画情報の取得
             const videosInfo = await this._videoService.getRankingVideosByGenre(this._state.sortKinds.value, this._createSearchDetail(), this._state.periodKinds.value)
@@ -318,8 +355,9 @@ export class RankingVideoPageService {
             })
         }else{
             //PC以下はカラム構成なので『全てのジャンルの動画を取得』
+            debugger
             if(this._state.search.genre.value == this.TOP_GENRE_KINDS_VAL){ this._state.search.genre.value = VideoGenreKinds.All }
-            const videosInfo = await this._videoService.getVideos(1, this.DISPLAY_NUM, '',this._state.search.genre.value, this._createSearchDetail(),
+            const videosInfo = await this._videoService.getVideos(1, this.DISPLAY_NUM, this._state.search.text.value,this._state.search.genre.value, this._createSearchDetail(),
                              this._state.sortKinds.value, true, this._state.periodKinds.value, true)
             
             const stateVideoData = [{

@@ -5,7 +5,7 @@
         max-width: 1020px;
         margin: 0 auto;
 
-        @include tab {
+        @include pc {
             display: flex;
             width:auto;
             margin: 0 11px;
@@ -22,7 +22,7 @@
     &-searchdetail{
         margin: 5px 10px;
 
-        @include tab{
+        @include pc{
             margin: 5px 0;
         }
     }

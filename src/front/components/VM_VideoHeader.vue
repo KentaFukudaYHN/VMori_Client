@@ -221,6 +221,12 @@ export default defineComponent({
     setup(props:Props, context: SetupContext) {
         const store = useStore()
         searchText = ref(props.searchText)
+
+        watchEffect(() => {
+            debugger
+            searchText.value = props.searchText
+        })
+
         //各サービスの初期化
         accountService = new AccountService(store, new VMoriRepository(useRouter()))
 
@@ -241,7 +247,7 @@ export default defineComponent({
             hideUpVideoModal: () => { state.uploadVideo.value.showModal = false },
             iconBtnStyle: iconBtnStyle,
             //検索
-            searchTextVal: searchText.value,
+            searchTextVal: searchText,
             onChangeSearchText: async (val) => { onChangeSearchText(val)},
             //メニューボタン
             clickMenubtn: () => { context.emit("emit-clickMenuBtn") },
@@ -263,7 +269,6 @@ function createIconBtnStyle(backgroundImageUrl: string){
 
 //検索
 function search(context: SetupContext){
-    debugger
     context.emit('emit-clickSearchBtn', searchText.value)
 }
 

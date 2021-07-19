@@ -261,7 +261,7 @@
 </style>
 
 <template>
-    <vm-guide>
+    <vm-guide @emit-search="changeText" :searchText="searchText">
         <template v-slot:content>
             <div class="vranking-searchcontainer">
                 <vm-search-genre class="vranking-searchgenre" :list="getGenreSelecterItems" :palleteList="getPaletteItemsByGenre" :selectGenre="selectedGenre" @emit-selectGenre="changeGenreVideos"></vm-search-genre>
@@ -389,6 +389,10 @@ export default defineComponent({
             periods: rankingVideoService.getPeriods(),
             //期間選択
             selectPeriod: (kinds: PeriodKinds) => rankingVideoService.selectedPeriod(kinds),
+            //テキスト検索
+            changeText: (text: string) => rankingVideoService.changeText(text),
+            //検索テキスト
+            searchText: state.search.text
         }
     },
 })

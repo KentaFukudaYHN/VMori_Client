@@ -37,7 +37,7 @@
 </style>
 
 <template>
-    <vm-header @emit-clickMenuBtn="onClickMenuBtn" @emit-clickSearchBtn="onClickSearchBtn"/>
+    <vm-header :searchText="searchText" @emit-clickMenuBtn="onClickMenuBtn" @emit-clickSearchBtn="onClickSearchBtn"/>
     <div class="guide">
         <div v-if="menu.show" class="guide-container">
             <nav>
@@ -69,13 +69,18 @@
 
 <script lang="ts">
 import VM_Header from '@/front/components/VM_VideoHeader.vue'
-import { defineComponent, reactive, toRefs, ref, SetupContext } from 'vue'
+import { defineComponent, reactive, toRefs, ref, SetupContext, watchEffect, computed } from 'vue'
 import VM_UploadVideo from '@/front/components/VM_UploadVideo.vue'
+
+type Props = {
+    searchText: string
+}
 
 const state = toRefs(reactive({
     menu:{
         show: false
-    }
+    },
+    searchText: ''
 }))
 
 export default defineComponent({
@@ -83,9 +88,18 @@ export default defineComponent({
         'vm-header': VM_Header,
         'vm-upvideo': VM_UploadVideo
     },
+    props:{
+        searchText: {
+            type: String
+        }
+    },
     emits:['emit-search'],
-    setup(props, context: SetupContext) {
+    setup(props: Props, context: SetupContext) {
         let isShowUploadVideo = ref(false)
+
+        watchEffect(() => {
+            state.searchText.value = props.searchText
+        })
 
         //メニュー
         return{
@@ -98,7 +112,9 @@ export default defineComponent({
             //動画アップロードコンポーネントを閉じる
             closeUploadVideo : () => { isShowUploadVideo.value = false },
             //検索実行
-            onClickSearchBtn: (text: string) => { onClickSearchBtn(text, context) }
+            onClickSearchBtn: (text: string) => { onClickSearchBtn(text, context) },
+            //検索テキスト
+            searchText: state.searchText,
         }
     },
 })
