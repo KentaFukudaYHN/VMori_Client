@@ -3,10 +3,10 @@ import { State } from "@/dataAccess/store/store"
 import { Store } from "vuex"
 import { ref, Ref } from 'vue'
 import { SelecterItem } from "../componentReqRes/Selecter"
-import {  SearchVideoTranslationKinds, SortKinds, VideoGenreKinds, VideoGenreKindsToString, VideoLanguageKinds } from "@/core/enum"
+import {  PeriodKinds, SearchVideoTranslationKinds, SortKinds, VideoGenreKinds, VideoGenreKindsToString, VideoLanguageKinds } from "@/core/enum"
 import { useRouter } from "@/router/router"
 import { Router } from "vue-router"
-import { SearchDetail } from "../componentReqRes/searchDetail"
+import { SearchDetail } from "../componentReqRes/SearchDetail"
 import { vueUtility } from "../utilitys/vueUtility"
 import { VideoSummaryItemApiRes } from "@/core/apiReqRes/Video"
 import { VideoService } from "@/core/services/VideoService"
@@ -45,7 +45,8 @@ export class LatestVideoPageService{
         //動画情報の初期化
         try{
             this._appStateService.updateIsLoadin(true)
-            const result = await this._videoService.getLatestVideos(1, this.DISPLAY_NUM)
+            const result = await this._videoService.getVideos(1, this.DISPLAY_NUM, '', this._state.search.genre.value, this._createSearchDetail(),
+            SortKinds.RegistDateTime, true, PeriodKinds.All, false)
             vueUtility.updateArray(result.items as [], this._state.list as Ref<[]>)
         }finally{
             this._appStateService.updateIsLoadin(false)
@@ -80,8 +81,8 @@ export class LatestVideoPageService{
             this._state.search.detail.translation.value = searchDetail.translation
             vueUtility.updateArray(searchDetail.translationLangs as [], this._state.search.detail.translationsLangs as Ref<[]>)
 
-            const result = await this._videoService.getVideosBySearchDetail(1, this.DISPLAY_NUM, this._state.search.text.value, 
-                this._state.search.genre.value, searchDetail, SortKinds.RegistDateTime, true)
+            const result = await this._videoService.getVideos(1, this.DISPLAY_NUM, this._state.search.text.value, 
+                this._state.search.genre.value, searchDetail, SortKinds.RegistDateTime, true, PeriodKinds.All, false)
 
             vueUtility.updateArray(result.items as [], this._state.list as Ref<[]>)
         }finally{
@@ -105,7 +106,7 @@ export class LatestVideoPageService{
         try{
             this._appStateService.updateIsLoadin(true)
             this._state.search.genre.value = val
-            const result = await this._videoService.getVideosByGenre(1, this.DISPLAY_NUM,val, SortKinds.RegistDateTime, true)
+            const result = await this._videoService.getVideos(1, this.DISPLAY_NUM, '', val, this._createSearchDetail(),  SortKinds.RegistDateTime, true, PeriodKinds.All, false)
             vueUtility.updateArray(result.items as [], this._state.list as Ref<[]>)
         }finally{
             this._appStateService.updateIsLoadin(false)
@@ -171,6 +172,19 @@ export class LatestVideoPageService{
      */
     getSelectedGenreRef(){
         return this._state.search.genre
+    }
+
+    /**
+     * 詳細検索情報生成
+     */
+    private _createSearchDetail(){
+        const searchDetail = {
+            langs: this._state.search.detail.langs.value,
+            translation: this._state.search.detail.translation.value,
+            translationLangs: this._state.search.detail.translationsLangs.value
+        }as SearchDetail
+
+        return searchDetail
     }
 
     /**

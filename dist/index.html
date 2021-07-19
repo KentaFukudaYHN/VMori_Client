@@ -1,4 +1,4 @@
-<!doctype html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#127DD6"><title>VTimes</title><link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet"><link rel="preconnect" href="https://fonts.gstatic.com"><link rel="manifest" href="./manifest.json"><link rel="stylesheet" href="./css/Foundation/valiable.css"><link rel="stylesheet" href="./css/Foundation/reset.css"><link rel="stylesheet" href="./css/Foundation/base.css"><link rel="stylesheet" href="./css/Foundation/img.css"><link rel="stylesheet" href="./css/Layout/i-header.css"><link rel="stylesheet" href="./css/Layout/i-container.css"><link rel="stylesheet" href="./css/Layout/i-main.css"><link rel="stylesheet" href="./css/Layout/i-footer.css"><link rel="stylesheet" href="./css/Object/button.css"><link rel="stylesheet" href="./css/Object/font.css"><link rel="stylesheet" href="./css/Object/icon.css"><link rel="stylesheet" href="./css/Object/title.css"><link rel="stylesheet" href="./css/Object/checkbox.css"><link rel="stylesheet" href="./css/Object/radio.css"><link rel="stylesheet" href="./css/Object/valid.css"><link rel="stylesheet" href="./css/Object/input.css"><link rel="stylesheet" href="./css/Project/cropper.css"><link rel="stylesheet" href="./css/Project/form.css"><link rel="stylesheet" href="./css/Project/postscript.css"><link rel="stylesheet" href="./css/Project/videoGenre.css"><link rel="stylesheet" href="./css/Project/selecter.css"><link rel="stylesheet" href="./css/Project/videolist.css"><script>//グローバル変数にバンドルJSのローディング有無のフラグを定義して監視
+<!doctype html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#13d5c7"><title>VTimes</title><link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet"><link rel="preconnect" href="https://fonts.gstatic.com"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@600&display=swap" rel="stylesheet"><link rel="manifest" href="./manifest.json"><link rel="stylesheet" href="./css/Foundation/valiable.css"><link rel="stylesheet" href="./css/Foundation/reset.css"><link rel="stylesheet" href="./css/Foundation/base.css"><link rel="stylesheet" href="./css/Foundation/img.css"><link rel="stylesheet" href="./css/Layout/i-header.css"><link rel="stylesheet" href="./css/Layout/i-container.css"><link rel="stylesheet" href="./css/Layout/i-main.css"><link rel="stylesheet" href="./css/Layout/i-footer.css"><link rel="stylesheet" href="./css/Object/button.css"><link rel="stylesheet" href="./css/Object/font.css"><link rel="stylesheet" href="./css/Object/icon.css"><link rel="stylesheet" href="./css/Object/title.css"><link rel="stylesheet" href="./css/Object/checkbox.css"><link rel="stylesheet" href="./css/Object/radio.css"><link rel="stylesheet" href="./css/Object/valid.css"><link rel="stylesheet" href="./css/Object/input.css"><link rel="stylesheet" href="./css/Project/cropper.css"><link rel="stylesheet" href="./css/Project/form.css"><link rel="stylesheet" href="./css/Project/postscript.css"><link rel="stylesheet" href="./css/Project/videoGenre.css"><link rel="stylesheet" href="./css/Project/selecter.css"><link rel="stylesheet" href="./css/Project/videolist.css"><link rel="stylesheet" href="./css/Project/loading.css"><script>//グローバル変数にバンドルJSのローディング有無のフラグを定義して監視
             Object.defineProperty(window,'isLoading', {
                 configurable: false,
                 val: false,
@@ -18,78 +18,4 @@
                 }).catch(err => {
                     console.log('ServiceWorker registration failed.');
                 });
-            }</script><style>.loading-wrap{
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                width: 100%;
-                height: 100vh;
-            }
-            .loading-item{
-                text-align: center;
-            }
-            .loading-item img{
-                width: 160px;
-                animation: anime_loading 1s infinite;
-            }
-
-            .loading-item p {
-                letter-spacing: 0.15em;
-                font-size: 13px;
-                font-weight: bold;
-                color: #5a564c;
-            }
-
-            .loading-item span{
-                display: inline-block;
-                position: relative;
-                overflow:hidden;
-            }
-
-            .loading-item span::before{
-                content: '';
-                position: absolute;
-                background-color: #fff;
-                top:0;
-                left:0;
-                right:0;
-                bottom:0;
-                display: block;
-                animation: anime_text 2.5s infinite;
-            }
-
-            @keyframes anime_loading {
-                0%{
-                    transform: scale(1.0,1.0) translate3d(0,0,0);
-                }
-
-                30%{
-                    transform: scale(1.0,1.06) translate3d(-3%,-2%,0) skew(4deg,0deg);
-                }
-
-                45%{
-                    transform: scale(1.0,0.99) translate3d(-1%,-1%,0) skew(1deg,0deg);
-                }
-
-                75%{
-                    transform: scale(1.0,1.06) translate3d(-3%,-2%,0) skew(-4deg,0deg);
-                }
-
-                90%{
-                    transform: scale(1.0,0.99) translate3d(1%,1%,0) skew(-1deg,0deg);
-                }
-
-                100%{
-                    transform: scale(1.0,1.0) translate3d(0,0,0);
-                }
-            }
-
-            @keyframes anime_text{
-                0%{
-                    transform: translatex(0%);
-                }
-
-                100%{
-                    transform: translatex(100%);
-                }
-            }</style><script defer="defer" src="bundle.33f8a09fbed6121824b3.js"></script></head><body><div id="_loading" class="loading-wrap"><div class="loading-item"><img src="./assets/loading.png"><p><span>loading...</span></p></div></div><div id="app"></div></body></html>
+            }</script><style></style><script defer="defer" src="bundle.55389dc3f24ae82eea6f.js"></script></head><body><div id="_loading" class="loading-wrap"><div class="loading-item"><img src="./assets/loading.png"><p><span>loading...</span></p></div></div><div id="app"></div></body></html>

@@ -232,7 +232,8 @@
         justify-content: space-around;
         @include pc{
             order: 4;
-            margin: 0 5px;
+            width: 100%;
+            margin: 0;
         }
     }
     &-item{
@@ -336,7 +337,7 @@ import { RankingVideoPageService } from '@/front/pageServices/RankingVideoPageSe
 import { videoUtility } from '@/front/utilitys/videoUtility'
 import { PeriodKinds, SortKinds, VideoGenreKinds, VideoGenreKindsToString } from '@/core/enum'
 import VM_SelectSort from '@/front/components/VM_SelectSort.vue'
-import { SearchDetail } from '../componentReqRes/searchDetail'
+import { SearchDetail } from '../componentReqRes/SearchDetail'
 
 export default defineComponent({
     components:{
@@ -366,7 +367,7 @@ export default defineComponent({
             //ジャンル分けされた各動画のref
             rankingVideosByGenreRef: state.videosByGenreRef,
             //複数ジャンルのランキングを表示するかどうか
-            isMulti: computed(() => rankingVideoService.getIsMulti()),
+            isMulti: rankingVideoService.getIsMulti(),
             //複数ジャンルのランキングを表示するかどうか
             //ジャンル選択肢情報
             getGenreSelecterItems: rankingVideoService.getGenreSelecterItems(),
