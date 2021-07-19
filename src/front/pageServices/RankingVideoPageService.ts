@@ -12,7 +12,7 @@ import { VideoService } from "@/core/services/VideoService";
 import { vueUtility } from "../utilitys/vueUtility";
 import { GenrePallete } from "../componentReqRes/GenrePalette";
 import { AppStateService } from "@/core/services/AppStateService";
-import { HistoryVideoService } from "@/core/services/historyVideoService";
+import { HistoryVideoService } from "@/core/services/HistoryVideoService";
 import { SearchDetail } from "../componentReqRes/SearchDetail";
 
 /**

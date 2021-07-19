@@ -5,6 +5,8 @@ export type VideoHistoryItem = {
     //動画ID
     videoId: string
     //視聴日時
-    date: number
+    date: number,
+    //カウントアップを更新した日時
+    lastCountUpDateTime,
 }
 
