@@ -8,6 +8,7 @@
 
         &-content{
             width: 100%;
+            margin-bottom: 60px;
         }
     }
     .guide-sp{

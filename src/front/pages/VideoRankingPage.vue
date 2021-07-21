@@ -143,6 +143,9 @@
     &-genre-title{
         text-align: center;
         font-weight: bold;
+        @include sp{
+            display: none;
+        }
     }
 }
 .video{
@@ -258,6 +261,110 @@
     background: $theme-color;
     color: #fff;
 }
+
+.vranking-pagination{
+    display: flex;
+    justify-content: center;
+}
+.vranking-pagination{
+    display: flex;
+    justify-content: center;
+    @include pc{
+        order: 5;
+        width: 100%;
+
+        & ::v-deep{
+            & .pagination-item{
+                @include sp{
+                    margin: 0 3px;
+                }
+            }
+            & .item-next {
+                @include tab{
+                    background: transparent;
+                    font-size:0;
+                    cursor: pointer;
+                    position: relative;
+                    vertical-align: middle;
+                    text-decoration: none;
+                }
+
+                @include sp{
+                    padding: 5px 5px;
+                    margin: 0;
+                }
+                
+                &::after{
+                    @include tab{
+                        position: absolute;
+                        margin: auto;
+                        content: "";
+                        vertical-align: middle;
+                        left: 5px;
+                        top: 0px;
+                        width: 8px;
+                        height: 8px;
+                        border-top: 2px solid $gray-font-color;
+                        border-right: 2px solid $gray-font-color;
+                        -webkit-transform: rotate(45deg);
+                        transform: rotate(45deg);
+                    }
+
+                    @include sp{
+                        left:0;
+                        margin: 0;
+                    }
+                }
+            }
+
+            & .item-prev {
+                @include tab{
+                    background: transparent;
+                    font-size:0;
+                    cursor: pointer;
+                    position: relative;
+                    vertical-align: middle;
+                    text-decoration: none;
+                }
+
+                @include sp{
+                    padding: 5px 5px;
+                }
+                
+                &::after{
+                    @include tab{
+                        position: absolute;
+                        margin: auto;
+                        content: "";
+                        vertical-align: middle;
+                        right: 5px;
+                        top: 0px;
+                        width: 8px;
+                        height: 8px;
+                        border-top: 2px solid $gray-font-color;
+                        border-right: 2px solid $gray-font-color;
+                        -webkit-transform: rotate(225deg);
+                        transform: rotate(225deg);
+                    }
+
+                    @include sp{
+                        right:0;
+                    }
+                }
+            }
+
+        }
+    }
+}
+.vranking-pagination-header{
+    @include sp{
+        margin-bottom: 10px;
+    }
+}
+
+.vranking-pagination-footer{
+    margin-top:10px;
+}
 </style>
 
 <template>
@@ -274,6 +381,9 @@
                 </div>
                 <vm-selectsort :selSortKinds="selSortKinds" @emit-changeSort="changeSort" class="vranking-sort"> </vm-selectsort>
                 <vm-search-detail class="vranking-searchdetail" @emit-clickSearchBtn="searchVieoByDetail"></vm-search-detail>
+                <div class="vranking-pagination vranking-pagination-header" v-if="showPagination">
+                    <vm-pagination :currentPage="currentPage" :totalRecord="totalRecord" :displayItem="displayItem" :rangeSize="paginationRange" @emit-clickPage="selectedPage"></vm-pagination>
+                </div>
             </div>
             
             <div id="rankingVideoListContainer" class="vranking-videolist-container" :class="{'vranking-single': !isMulti }">
@@ -296,7 +406,6 @@
                         class="videolist-container">
                         <p class="videolist-genre-title">{{displayGenre(genreVideo.genreKinds)}}</p>
                         <div v-for="(item, index2) in genreVideo.items" :key="index2"
-                            :ref="rankingVideosByGenreRef[Number(genreVideo.genreKinds)].refs[Number(index2)][item.id]"
                             @click="selectedVideo(item.id)"
                             class="video-container">
                             <div class="video-thumbnail">
@@ -318,8 +427,11 @@
 
                     </div>
                 </div>
-
             </div>
+            <div class="vranking-pagination vranking-pagination-footer" v-if="showPagination">
+                <vm-pagination :currentPage="currentPage" :totalRecord="totalCount" :displayItem="displayNum" :rangeSize="paginationRange" @emit-clickPage="selectedPage">></vm-pagination>
+            </div>
+
             <!-- <vm-videolist :videos="videos" @emit-selectedVideo="selectedVideo"></vm-videolist> -->
         </template>
     </vm-guide>
@@ -338,6 +450,7 @@ import { videoUtility } from '@/front/utilitys/videoUtility'
 import { PeriodKinds, SortKinds, VideoGenreKinds, VideoGenreKindsToString } from '@/core/enum'
 import VM_SelectSort from '@/front/components/VM_SelectSort.vue'
 import { SearchDetail } from '../componentReqRes/SearchDetail'
+import VM_Pagenation from '@/front/components/VM_Pagination.vue'
 
 export default defineComponent({
     components:{
@@ -345,7 +458,8 @@ export default defineComponent({
         'vm-search-genre': VM_SearchGenre,
         'vm-search-detail': VM_SearchDetail,
         'vm-ranking-videolist': VM_RankingVideoList,
-        'vm-selectsort': VM_SelectSort
+        'vm-selectsort': VM_SelectSort,
+        'vm-pagination': VM_Pagenation,
     },
     async setup() {
 
@@ -363,11 +477,9 @@ export default defineComponent({
             //ジャンルの表示文字列
             displayGenre: (val) =>  VideoGenreKindsToString(val),
             //ランキングのナンバー ※一番動画が多いジャンルの数に合わせて生成
-            rankingNumbers: rankingVideoService.getRankingNumbers(),
-            //ジャンル分けされた各動画のref
-            rankingVideosByGenreRef: state.videosByGenreRef,
+            rankingNumbers: state.rankingNumber,
             //複数ジャンルのランキングを表示するかどうか
-            isMulti: rankingVideoService.getIsMulti(),
+            isMulti: state.isMulti,
             //複数ジャンルのランキングを表示するかどうか
             //ジャンル選択肢情報
             getGenreSelecterItems: rankingVideoService.getGenreSelecterItems(),
@@ -386,13 +498,27 @@ export default defineComponent({
             //詳細検索
             searchVieoByDetail: (searchDetail: SearchDetail) => rankingVideoService.searchVieoByDetail(searchDetail),
             //期間
-            periods: rankingVideoService.getPeriods(),
+            periods: state.periodList,
             //期間選択
             selectPeriod: (kinds: PeriodKinds) => rankingVideoService.selectedPeriod(kinds),
             //テキスト検索
             changeText: (text: string) => rankingVideoService.changeText(text),
             //検索テキスト
-            searchText: state.search.text
+            searchText: state.search.text,
+            //現在のページ
+            currentPage: state.currentPage,
+            //ページネーションの表示有無
+            showPaging: state.showPaging,
+            //1ページの表示数
+            displayNum: rankingVideoService.getDisplayNum(),
+            //動画の総数
+            totalCount: state.totalItemCount,
+            //ページの選択
+            selectedPage: (page: number) => rankingVideoService.selectedPatge(page),
+            //ページネーションの表示有無
+            showPagination: rankingVideoService.showPagination(),
+            //ページネーションの番号どれだけ表示するか
+            paginationRange: state.pagingRangeSize
         }
     },
 })

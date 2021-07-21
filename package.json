@@ -9,6 +9,7 @@
   },
   "main": "main.js",
   "dependencies": {
+    "@hennge/vue3-pagination": "^1.0.17",
     "@nuxtjs/composition-api": "^0.24.5",
     "@types/youtube": "0.0.43",
     "axios": "^0.21.1",
@@ -22,6 +23,7 @@
     "vue": "^3.0.0-beta.1",
     "vue-loader": "^16.2.0",
     "vue-router": "^4.0.6",
+    "vuejs-paginate": "^2.1.0",
     "vuex": "^4.0.0-alpha.1",
     "vuex-module-decorators": "^1.0.1"
   },

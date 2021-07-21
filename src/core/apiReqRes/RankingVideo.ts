@@ -3,7 +3,7 @@ import { VideoSummaryItemApiRes } from "./Video";
 
 //ジャンルトップページレスポンス
 export type VideoSummaryInfoByGenreApiRes = {
-    items: VideoSummaryByGenreApiRes[]
+    items: VideoSummaryByGenreApiRes[],
 }
 
 //ジャンルごとの動画情報レスポンス

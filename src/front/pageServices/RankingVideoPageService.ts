@@ -14,6 +14,7 @@ import { GenrePallete } from "../componentReqRes/GenrePalette";
 import { AppStateService } from "@/core/services/AppStateService";
 import { HistoryVideoService } from "@/core/services/HistoryVideoService";
 import { SearchDetail } from "../componentReqRes/SearchDetail";
+import { computed } from "vue";
 
 /**
  * ランキング動画PageService
@@ -31,13 +32,11 @@ export class RankingVideoPageService {
     private TOP_GENRE_KINDS_VAL = 99999
     //ジャンルの選択肢情報
     private _genreSelecterItems = [] as SelecterItem[]
-    private DISPLAY_NUM = 50
+    private DISPLAY_NUM = 30
     //画面の状態
     private _state = {
         //動画情報APIレスポンス
         videos: ref([]) as Ref<VideoSummaryByGenreApiRes[]>,
-        //ジャンルごとに分けた動画情報ref
-        videosByGenreRef: ref(null),
         //複数ジャンル表示モードの有無　※ジャンル選択時にフラグを変える
         isMulti: ref(true),
         //並び順
@@ -48,8 +47,14 @@ export class RankingVideoPageService {
         periodList: ref([]),
         //ランキングの表示ナンバーリストs
         rankingNumber: ref([] as number[]),
-        //表示数
-        displayNum: 50,
+        //検索結果の総数
+        totalItemCount: ref(1),
+        //現在のページ数を基準にいくつページ番号を表示するか
+        pagingRangeSize: ref(1),
+        //現在のページ
+        currentPage: ref(1),
+        //ページネーションの表示有無
+        showPaging: ref(false),
         //選択中のジャンル
         search:{
             genre: ref(this.TOP_GENRE_KINDS_VAL as VideoGenreKinds),
@@ -101,7 +106,7 @@ export class RankingVideoPageService {
              * 3.SearchVideoGenreKindsに合わせて選択ジャンルリストを生成
              **************************/
             //1.ランキイングページ専用の、『ＴＯＰ』ジャンルを追加
-            this._state.search.genre.value = this.TOP_GENRE_KINDS_VAL as VideoGenreKinds
+            // this._state.search.genre.value = this.TOP_GENRE_KINDS_VAL as VideoGenreKinds
             this._genreSelecterItems.push({
                 text: 'TOP',
                 val: this.TOP_GENRE_KINDS_VAL,
@@ -119,9 +124,6 @@ export class RankingVideoPageService {
                     })
                 }
             })
-
-            //各動画のrefをジャンル別に生成
-            this._state.videosByGenreRef = this.createVideoRefs(this._state.videos.value)
         }catch(error){
         }finally{
             //ローディング終了
@@ -142,19 +144,11 @@ export class RankingVideoPageService {
     }
 
     /**
-     * 表示形式の取得
+     * １ページの動画表示数
      * @returns 
      */
-    getIsMulti(){
-        return this._state.isMulti
-    }
-
-    /**
-     * ランキングナンバーを取得
-     * @returns 表示用のランキングナンバー ※動画数に合わせて生成済み
-     */
-    getRankingNumbers(){
-        return this._state.rankingNumber
+    getDisplayNum(){
+        return this.DISPLAY_NUM
     }
 
     /**
@@ -190,18 +184,14 @@ export class RankingVideoPageService {
     }
 
     /**
-     * 期間選択情報の取得
+     * ページネーションの表示有無
      */
-    getPeriods(){
-        return this._state.periodList
-    }
-
-    /**
-     * 検索テキスト
-     * @returns 
-     */
-    getSearchText(){
-        return this._state.search.text
+    showPagination(){
+        return computed(() => {
+            if(this._state.search.genre.value == this.TOP_GENRE_KINDS_VAL) { return false }
+            if(this._state.totalItemCount.value <= this.DISPLAY_NUM) { return false}
+            return true
+        })
     }
 
     /*******************************************
@@ -300,6 +290,16 @@ export class RankingVideoPageService {
         }
     }
 
+    async selectedPatge(page: number){
+        try{
+            this._state.currentPage.value = page
+            this._appStateService.updateIsLoadin(true)
+            await this._updateVideos()
+        }finally{
+            this._appStateService.updateIsLoadin(false)
+        }
+    }
+
     /*******************************************
      * Private
      *******************************************/
@@ -355,20 +355,19 @@ export class RankingVideoPageService {
             })
         }else{
             //PC以下はカラム構成なので『全てのジャンルの動画を取得』
-            debugger
             if(this._state.search.genre.value == this.TOP_GENRE_KINDS_VAL){ this._state.search.genre.value = VideoGenreKinds.All }
-            const videosInfo = await this._videoService.getVideos(1, this.DISPLAY_NUM, this._state.search.text.value,this._state.search.genre.value, this._createSearchDetail(),
+            const videosInfo = await this._videoService.getVideos(this._state.currentPage.value, this.DISPLAY_NUM, this._state.search.text.value,this._state.search.genre.value, this._createSearchDetail(),
                              this._state.sortKinds.value, true, this._state.periodKinds.value, true)
             
             const stateVideoData = [{
                 genreKinds: this._state.search.genre.value,
                 items: videosInfo.items
             }] as VideoSummaryByGenreApiRes[]
+
             vueUtility.updateArray(stateVideoData as [], this._state.videos as Ref<[]>)
+            this._state.totalItemCount.value = videosInfo.totalCount
         }
 
-        //refの再生成
-        this._state.videosByGenreRef = this.createVideoRefs(this._state.videos.value)
         //ランキングナンバーの再生成
         this._initRankingNumber()
         //サムネイルサイズを再計算
@@ -391,6 +390,8 @@ export class RankingVideoPageService {
             const rankingVideosByGenreRef = {} as rankingVideosByGenreRef
             rankingVideosByGenreRef.refs = []
             rankingVideosByGenreRef.refKeys = []
+
+            debugger
 
             //動画ごとにregを生成
             videoRankingByGenre.items.forEach(video => {
@@ -424,20 +425,32 @@ export class RankingVideoPageService {
         let colum = 5;
 
         if(window.matchMedia('(min-width:1500px)').matches){
+            //ページネーションの番号表示数を画面幅によってかえる
+            this._state.pagingRangeSize.value = 5
+
             if(this._state.isMulti.value){
                 colum = 5
             }else{
                 colum = 1
             }  
         }else if(window.matchMedia('(min-width:' + appSetting.media.pc + 'px)').matches ){
+            //ページネーションの番号表示数を画面幅によってかえる
+            this._state.pagingRangeSize.value = 5
+
             if(this._state.isMulti.value){
                 colum = 5
             }else{
                 colum = 1
             }  
         }else if(window.matchMedia('(min-width:' + appSetting.media.tab + 'px)').matches ){
+            //ページネーションの番号表示数を画面幅によってかえる
+            this._state.pagingRangeSize.value = 3
+
             colum = 1
         }else {
+            //ページネーションの番号表示数を画面幅によってかえる
+            this._state.pagingRangeSize.value = 2
+
             colum = 1
         }
 

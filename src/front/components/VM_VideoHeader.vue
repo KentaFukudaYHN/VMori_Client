@@ -223,7 +223,6 @@ export default defineComponent({
         searchText = ref(props.searchText)
 
         watchEffect(() => {
-            debugger
             searchText.value = props.searchText
         })
 
