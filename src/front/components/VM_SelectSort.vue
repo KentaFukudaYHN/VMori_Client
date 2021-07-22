@@ -109,6 +109,16 @@ const sortList = [
         css: 'icon-vmoriviewcount-before',
         text: '再生回数順',
         val: SortKinds.VMoriViewCount
+    },
+    {
+        css: 'icon-youtubeviewcount-before',
+        text: '登録日時',
+        val: SortKinds.PublishDateTime
+    },
+    {
+        css: 'icon-vmoriviewcount-before',
+        text: '登録日時',
+        val: SortKinds.RegistDateTime
     }
 ]
 
@@ -126,6 +136,10 @@ export default defineComponent({
         selSortKinds: {
             type: Object as PropType<SortKinds>,
             default: SortKinds.ViewCount
+        },
+        //選択肢リスト
+        selectList:{
+            type: Object as PropType<SortKinds[]>
         }
     },
     setup(props, context: SetupContext) {
@@ -134,10 +148,15 @@ export default defineComponent({
             state.selSortKinds.value = props.selSortKinds
         })
 
+        //選択肢
+        const selectList = []
+        props.selectList.forEach(x => {
+            selectList.push(sortList.find(j => j.val == x))
+        })
         return{
             //選択中のソート情報
             selctItem: computed(() =>  sortList.find(x => x.val == state.selSortKinds.value)) ,
-            sortList: sortList,
+            sortList: selectList,
             showSelectModal: state.showSelectModal,
             //選択モーダルの表示
             showModal: () => state.showSelectModal.value = true,

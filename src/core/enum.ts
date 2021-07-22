@@ -249,6 +249,8 @@ export enum SortKinds{
     CommentCount = 30,
     //VMori再生回数
     VMoriViewCount = 40,
+    //Youtube登録日時
+    PublishDateTime = 50,
 }
 
 /**

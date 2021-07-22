@@ -379,7 +379,7 @@
                         {{ item.text }}
                     </span>
                 </div>
-                <vm-selectsort :selSortKinds="selSortKinds" @emit-changeSort="changeSort" class="vranking-sort"> </vm-selectsort>
+                <vm-selectsort :selectList="selectSortList" :selSortKinds="selSortKinds" @emit-changeSort="changeSort" class="vranking-sort"> </vm-selectsort>
                 <vm-search-detail class="vranking-searchdetail" @emit-clickSearchBtn="searchVieoByDetail"></vm-search-detail>
                 <div class="vranking-pagination vranking-pagination-header" v-if="showPagination">
                     <vm-pagination :currentPage="currentPage" :totalRecord="totalRecord" :displayItem="displayItem" :rangeSize="paginationRange" @emit-clickPage="selectedPage"></vm-pagination>
@@ -495,6 +495,8 @@ export default defineComponent({
             selectedVideo: (videoId: string) => rankingVideoService.selectedVideo(videoId),
             //並び順種類
             selSortKinds: state.sortKinds,
+            //並び順選択肢
+            selectSortList: [SortKinds.VMoriViewCount,SortKinds.ViewCount],
             //詳細検索
             searchVieoByDetail: (searchDetail: SearchDetail) => rankingVideoService.searchVieoByDetail(searchDetail),
             //期間
@@ -518,7 +520,7 @@ export default defineComponent({
             //ページネーションの表示有無
             showPagination: rankingVideoService.showPagination(),
             //ページネーションの番号どれだけ表示するか
-            paginationRange: state.pagingRangeSize
+            paginationRange: state.pagingRangeSize,
         }
     },
 })

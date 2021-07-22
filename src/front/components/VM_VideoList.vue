@@ -1,5 +1,47 @@
 <style lang="scss" scoped>
+.videolist-container{
+    & .icon-youtubeviewcount-before::before{
+        vertical-align: middle;
+        margin-right: 5px;
+        margin-bottom: 2px; 
+        width:20px;
+        height: 1em;
+    }
 
+    & .icon-vmoriviewcount-before::before{
+        vertical-align: middle;
+        margin-right: 5px;
+        margin-bottom: 2px; 
+        width:20px;
+        height: 1em;
+    }
+
+
+    & .video{
+
+        &-container{
+            border: solid 1px #cccccc;
+        }
+
+        &-title{
+            height:3em;
+        }
+
+        &-description{
+            height:auto;
+            padding: 5px;
+        }
+
+        &-stastics{
+            max-height: none;
+            display: block;
+
+            & span{
+                display: block;
+            }
+        }
+    }
+}
 </style>
 
 <template>
@@ -14,8 +56,12 @@
                 <span class="video-title">{{ item.title}}</span>
                 <span class="video-channel">{{ item.channelTitle }}</span>
                 <div class="video-stastics">
-                    <span class="statics-viewcount">{{ displayStatistics(item.viewCount, item.publishDateTime) }}</span>
-                    <img class="statics-platformicon" :src="getPlatFormIconSrc(item.platFormKinds)">
+                    <span class="video-viewcount-vmori icon-vmoriviewcount-before">    
+                        {{ displayStatistics(item.vMoriViewCount, item.registDateTime) }}
+                    </span>
+                    <span class="video-viewcount icon-youtubeviewcount-before">
+                        {{ displayStatistics(item.viewCount, item.publishDateTime) }}
+                    </span>                
                 </div>
             </div>
         </div>
