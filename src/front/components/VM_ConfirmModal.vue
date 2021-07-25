@@ -11,7 +11,8 @@
                 min-width: 300px;
             }
             @include sp{
-                min-width: 200px;
+                width: auto;
+                padding: 0;
             }
         }
         &-title{
@@ -73,7 +74,7 @@
 </style>
 
 <template>
-    <VM_Modal @emit-outsideClick="outsideClick">
+    <VM_Modal @emit-outsideClick="outsideClick" :windowClass="windowClass">
         <template v-slot:content >
             <div class="confirm-container" :style="styles"> 
                 <span v-if="title != ''" class="confirm-title" :class="{'confirm-title-error': isErrorKinds, 'confirm-title-success': isSuccess}">{{ title }}</span>
@@ -99,7 +100,8 @@ type Props = {
   hideBtn: boolean,
   kinds: ConfirmKinds,
   minWidth: string,
-  padding: string
+  padding: string,
+  windowClass: string
 };
 export default defineComponent({
     components:{
@@ -130,6 +132,9 @@ export default defineComponent({
         padding:{
             type: String,
         },
+        windowClass:{
+            type:String
+        }
     },
     emits: ['emit-clickBtn', 'emit-outsideClick'],
     setup(props: Props, context: SetupContext) {
@@ -157,6 +162,7 @@ export default defineComponent({
             isErrorKinds: props.kinds == ConfirmKinds.Error,
             isSuccess: props.kinds == ConfirmKinds.Success,
             hideBtn: props.hideBtn,
+            windowClass: props.windowClass,
             onClickBtn,
             styles: {
                 'min-width': props.minWidth,

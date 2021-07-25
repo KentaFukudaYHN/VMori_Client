@@ -2,13 +2,54 @@
     .guide{
         display: flex;
         &-container{
-            width:200px;
+            min-width:200px;
             height: 100%;
         }
 
         &-content{
             width: 100%;
             margin-bottom: 60px;
+        }
+        & .icon-latest-before{
+            &:not(.active-page):hover{
+                background: #e9e9e9;
+            }
+            display: flex;
+            align-items: center;
+            &::before{
+                width: 25px;
+                height: 25px;
+                margin: 0 10px;
+            }
+        }
+
+        & .icon-ranking-before{
+            &:not(.active-page):hover{
+                background: #e9e9e9;
+            }
+            display: flex;
+            align-items: center;
+            &::before{
+                width: 25px;
+                height: 25px;
+                margin: 0 10px;
+            }
+        }
+
+        & .guide-container{
+            nav{
+                border-top: solid 1px #dcdcdc;
+                border-bottom: solid 1px #dcdcdc;
+                cursor: pointer;
+            }
+            li{
+                padding: 15px 0;
+                font-size: 15px;
+            }
+        }
+
+        & .active-page{
+            background: #cecece;
         }
     }
     .guide-sp{
@@ -27,12 +68,16 @@
         & .guidesp{
 
             &-menu{
-                width: 30px;
-                height: 30px;
+                width: 23px;
+                height: 23px;
                 background-position: center;
                 background-repeat: no-repeat;
                 background-size: contain;
+                opacity: 0.5;
             }
+        }
+        & .active-icon{
+            opacity: 1;
         }
     }
 </style>
@@ -43,11 +88,13 @@
         <div v-if="menu.show" class="guide-container">
             <nav>
                 <ul>
-                    <li>
-                        ホーム
+                    <li class="icon-latest-before" :class="{'active-page': openPageIsLatest}"
+                        @click="clickLatestMenu">
+                        NEW動画！！
                     </li>
-                    <li>
-                        ライブラリ
+                    <li class="icon-ranking-before" :class="{'active-page': openPageIsRanking}"
+                        @click="clickRankingMenu">
+                        ランキング
                     </li>
                 </ul>
             </nav>
@@ -57,11 +104,11 @@
         </div>
     </div>
     <div class="guide-sp">
-        <div class="guidesp-menu icon-menusp-search"></div>
-        <div class="guidesp-menu icon-menusp-like"></div>
+        <div class="guidesp-menu icon-menusp-search" @click="clickLatestMenu" :class="{'active-icon': openPageIsLatest}"></div>
+        <div class="guidesp-menu icon-menusp-like" @click="clickRankingMenu" :class="{'active-icon': openPageIsRanking}"></div>
         <div class="guidesp-menu icon-menusp-up" @click="showUploadVideo"></div>
         <div class="guidesp-menu icon-menusp-history"></div>
-        <div class="guidesp-menu icon-menusp-channels"></div>
+        <div class="guidesp-menu icon-menusp-channels" @click="clickAccountMenu" :class="{'active-icon': openPageIsAccount}"></div>
     </div>
 
     <vm-upvideo v-if="isShowUploadVideo" @emit-clickCloseBtn="closeUploadVideo"></vm-upvideo>
@@ -72,6 +119,10 @@
 import VM_Header from '@/front/components/VM_VideoHeader.vue'
 import { defineComponent, reactive, toRefs, ref, SetupContext, watchEffect, computed } from 'vue'
 import VM_UploadVideo from '@/front/components/VM_UploadVideo.vue'
+import { AppStateService } from '@/core/services/AppStateService'
+import { useStore } from '@/dataAccess/store/store'
+import { pageSetting } from '@/dataAccess/entities/PageSetting'
+import { useRouter } from '@/router/router'
 
 type Props = {
     searchText: string
@@ -98,9 +149,13 @@ export default defineComponent({
     setup(props: Props, context: SetupContext) {
         let isShowUploadVideo = ref(false)
 
+        const router = useRouter()
+
         watchEffect(() => {
             state.searchText.value = props.searchText
         })
+
+        const appStateService = new AppStateService(useStore())
 
         //メニュー
         return{
@@ -116,6 +171,16 @@ export default defineComponent({
             onClickSearchBtn: (text: string) => { onClickSearchBtn(text, context) },
             //検索テキスト
             searchText: state.searchText,
+            //現在のページ名
+            pageName: computed(() => appStateService.getPageName()),
+            //最新情報ページを開いているかどうか
+            openPageIsLatest: computed(() => appStateService.getPageName() == pageSetting.LatesetVideo),
+            //ランキング動画ページを開いているかどうか
+            openPageIsRanking: computed(() => appStateService.getPageName() == pageSetting.VideoRanking),
+            openPageIsAccount: computed(() => appStateService.getPageName() == pageSetting.Account),
+            clickLatestMenu: () => router.push(pageSetting.LatesetVideo),
+            clickRankingMenu: () => router.push(pageSetting.VideoRanking),
+            clickAccountMenu: () => router.push(pageSetting.Account)
         }
     },
 })

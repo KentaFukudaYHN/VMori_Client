@@ -2,7 +2,10 @@
 export const INITIALIZE_RECOMMEND_VIDEOS = "INITIALIZZE_RECOMMEND_VIDEOS"
 
 export namespace AppStateModule{
+    //ローディング中かどうか更新
     export const UPDATE_LOADING = "APPSTATE_UPDATE_LOADING"
+    //現在のページの更新
+    export const UPDATE_PAGE = "APPSTATE_UPDATE_PAGE"
 }
 
 //アカウント情報

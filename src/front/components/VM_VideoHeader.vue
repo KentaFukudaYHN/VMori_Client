@@ -160,7 +160,7 @@
     <header class="video-header" :class="{'video-header-spsearch': showSpSearchBox}">
         <div class="header-title-container">
             <button class="btn-menu-hamburger" @click="clickMenubtn"></button>
-            <img class="icon-title" src='assets/title_icon.png'>
+            <img class="icon-title" src='assets/title_icon.png' @click="openTop">
         </div>
         <div class="video-search">
             <input class="video-search-input" :value="searchTextVal" @change="onChangeSearchText"/>
@@ -171,7 +171,7 @@
         <div class="video-header-icon">
             <button class="icon-search-dark" @click="clickShowSpSearchBtn"></button>
             <button class="icon-video-up" @click="showUpVideoModal"></button>
-            <button class="icon-btn" ref="refIconBtn" :style="iconBtnStyle" aria-label="アカウント情報を開く"></button>
+            <button @click="openAccount" class="icon-btn" ref="refIconBtn" :style="iconBtnStyle" aria-label="アカウント情報を開く"></button>
         </div>
         <div class="video-search-sp">
             <span class="video-search-closebtn" @click="clickCloseSpSearchBtn">x</span>
@@ -193,7 +193,8 @@ import { useStore } from '@/dataAccess/store/store'
 import { VideoService } from '@/core/services/VideoService'
 import { AccountService } from '@/core/services/AccountService'
 import VMoriRepository from '@/dataAccess/repository/VMoriRepository'
-import { useRouter } from '@/router/router'
+import { router, useRouter } from '@/router/router'
+import { pageSetting } from '@/dataAccess/entities/PageSetting'
 
 const state = toRefs(reactive({
     uploadVideo:{
@@ -255,7 +256,12 @@ export default defineComponent({
             //スマートフォン用検索ボックスの表示
             clickShowSpSearchBtn: () => { showSpSearchBox.value = true },
             clickCloseSpSearchBtn: () => { showSpSearchBox.value = false },
-            search: () => { search(context) }
+            search: () => { search(context) },
+            openTop: () => {
+                debugger
+                router.push('/')
+            },
+            openAccount: () => router.push(pageSetting.Account)
         }
     },
 })

@@ -2,6 +2,7 @@ export const INIT_RECOMMEND_VIDEO_HEADER = 'INIT_RECOMMEND_VIDEO_HEADER'
 
 export namespace AppStateModule{
     export const UPDATE_LOADING = "APPSTATE_UPDATE_LOADING"
+    export const UPDATE_PAGE = "APPSTATE_UPDATE_PAGE"
 }
 
 //アカウント情報

@@ -3,7 +3,6 @@ import { Router } from 'vue-router'
 import { BaseApiRes } from '@/core/apiReqRes/BaseApiRes' 
 
 const BASE_URL = process.env.API_URL
-// const BASE_URL = "https://vmori-dev.azurewebsites.net"
 console.log('apiurl: ' + process.env.API_URL)
 
 export default class VMoriRepository{

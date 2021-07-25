@@ -12,10 +12,18 @@
         margin-bottom: 0;
     }
 }
+
+::v-deep{
+    .login-window{
+        @include sp{
+            // width: 80%;
+        }
+    }
+}
 </style>
 
 <template>
-    <VM_Modal>
+    <VM_Modal :windowClass="'login-window'">
         <template v-slot:content>
             <div class="login-container">
                 <img class="icon-title" src='assets/title_icon.png'>
@@ -72,7 +80,6 @@ export default defineComponent({
         const router = useRouter();
         const submit = async () => {
             if(valid.meta.value.valid == false){ return }
-
             if(mail != '' || password != ''){
                 //ログインリクエスト
                 const repository = new VMoriRepository(router);
@@ -82,7 +89,6 @@ export default defineComponent({
                         Mail:mail,
                         Password:password
                     })
-
                     if(res.status == 200){
                         //アカウント情報画面に遷移 @ToDo
                         error.value = ''

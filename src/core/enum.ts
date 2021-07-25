@@ -275,3 +275,18 @@ export enum PeriodKinds{
     All = 1000
 
 }
+
+/**
+ * ページ種類
+ */
+export enum PageKinds{
+    Login = 10,
+    SignUp = 20,
+    AppReqMail = 30,
+    Account = 40,
+    ResetReqPassword = 50,
+    UpVideo = 60,
+    Video = 70,
+    VideoRanking = 80,
+    LatestVideo = 90
+}

@@ -17,7 +17,7 @@
 
     &-sort{
         margin: 15px 0px 10px 0;
-        @include sp{
+        @include pc{
             margin: 0 10px 0 0;
         }
     }
@@ -25,7 +25,7 @@
     &-searchgenre{
         padding: 10px;
         background: #f1f1f1;
-        @include sp{
+        @include pc{
             background: transparent;
         }
     }

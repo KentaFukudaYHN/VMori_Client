@@ -9,56 +9,63 @@ import Test from '@/front/pages/Test.vue'
 import ResetReqPassword from '@/front/pages/ResetReqPasswordPage.vue'
 import Videopage from '@/front/pages/VideoPage.vue'
 import VideoRankingPage from '@/front/pages/VideoRankingPage.vue'
+import { pageSetting } from '@/dataAccess/entities/PageSetting'
+import { AppStateService } from '@/core/services/AppStateService'
+import { useStore, store } from '@/dataAccess/store/store'
+import { onMounted } from '@vue/runtime-core'
+
+let appStateService: AppStateService = null
+
 
 const route = [
     {
         path: '/',
         name: 'TOP',
-        component: LatestVideo
+        component: VideoRankingPage
     },
     {
         path: '/LatestVideo',
-        name: 'LatestVideo',
+        name: pageSetting.LatesetVideo,
         component: LatestVideo
     },
     {
         path: '/Login',
-        name: 'Login',
+        name: pageSetting.Login,
         component: Login
     },
     {
         path: '/SignUp',
-        name: 'SignUp',
+        name: pageSetting.SignUp,
         component: SignUp
     },
     {
         path: '/AppReqMail',
-        name: 'AppReqMail',
+        name: pageSetting.AppReqMail,
         component: AppReqMail
     },
     {
         path: '/Account',
-        name: 'Account',
+        name: pageSetting.Account,
         component: Account
     },
     {
         path: '/ResetReqPassword',
-        name: 'ResetReqPassword',
+        name: pageSetting.ResetReqPassword,
         component: ResetReqPassword
     },
     {
         path: '/UpVideo',
-        name: 'UpVideo',
+        name: pageSetting.UpVideo,
         component: UpVideo
     },
     {
         path: '/Video',
-        name: 'Video',
+        name: pageSetting.Video,
         component: Videopage
     },
     {
         path: '/VideoRanking',
-        name: 'VideoRanking',
+        name: pageSetting.VideoRanking,
         component: VideoRankingPage
     },
     {
@@ -71,6 +78,17 @@ const route = [
 export const router = createRouter({
     history: createWebHistory(),
     routes: route
+})
+
+router.beforeEach((to, from, next) => {
+    debugger
+    if(appStateService == null ) { appStateService = new AppStateService(store) }
+    let name = to.name.toString()
+    if(name == 'TOP') {
+         name = pageSetting.VideoRanking
+    }
+    appStateService.updatePageState(name)
+    next()
 })
 
 export const useRouter = () =>{

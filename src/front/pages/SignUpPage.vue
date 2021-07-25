@@ -1,9 +1,10 @@
-<style lang="scss" scope>
+<style lang="scss" scoped>
 .signup-container{
     margin: 0 auto 0 auto;
     min-width: 320px;
     @include sp{
         min-width: 0;
+        margin: 10px;
     }
     .link-font{
         font-size: 14px;
@@ -25,6 +26,16 @@
     @include tab{
         width: 170px;
         margin: 10px auto 10px auto;
+    }
+}
+
+::v-deep .singup-confirm-window{
+    @include sp{
+        width:90% !important;
+    }
+
+    & .confirm-container{
+        min-width: auto !important;
     }
 }
 </style>
@@ -71,7 +82,7 @@
             </div>
         </template>
     </VM_Modal>
-    <VM_Confirm v-if="showConfirmModal" :title="confirmTitle" :msg="confirmMsg" @emit-clickBtn="onClickConfirmBtn" :minWidth="'700px'"/>
+    <VM_Confirm  v-if="showConfirmModal" windowClass="singup-confirm-window" :title="confirmTitle" :msg="confirmMsg" @emit-clickBtn="onClickConfirmBtn" :minWidth="'700px'"/>
 </template>
 
 <script lang="ts">

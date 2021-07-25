@@ -32,6 +32,10 @@
             padding: 5px;
         }
 
+        &-channel{
+            overflow: hidden;
+        }
+
         &-stastics{
             max-height: none;
             display: block;

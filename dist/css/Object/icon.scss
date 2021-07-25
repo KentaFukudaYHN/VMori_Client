@@ -65,7 +65,7 @@
 
 //モバイルメニューチャンネルリストアイコン
 .icon-menusp-channels{
-    background-image: url('../../assets/icon-menu-list.png');
+    background-image: url('../../assets/icon-menu2-list.png');
 }
 
 //モバイルメニューアップロードアイコン
@@ -88,6 +88,23 @@
     content: '';
     display: inline-block;
     background-image: url('../../assets/icon_vmori_mini.png');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
+.icon-latest-before::before{
+    content: '';
+    display: inline-block;
+    background-image: url('../../assets/icon-menu-search.png');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+.icon-ranking-before::before{
+    content: '';
+    display: inline-block;
+    background-image: url('../../assets/icon-menu-like.png');
     background-position: center;
     background-repeat: no-repeat;
     background-size: contain;

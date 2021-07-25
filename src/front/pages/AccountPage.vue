@@ -1,4 +1,9 @@
 <style lang="scss" scoped>
+.account-title{
+    @include sp{
+        display: none;
+    }
+}
 /* #region scss */
 .account-container{
     margin: 0 50px 0 50px;
@@ -10,6 +15,9 @@
     &-list{
         margin: 0;
         padding: 0;
+        @include sp{
+            padding-top:10px;
+        }
         &-item{
             display: flex;
             align-items: middle;
@@ -150,7 +158,7 @@
 <vm-guide>
     <template v-slot:content>
         <div class="account-container">
-            <h2>アカウント情報</h2>
+            <h2 class="account-title">アカウント情報</h2>
             <ul class="setting-list">
                 <li class="setting-list-item">
                     <div class="setting-list-label">
