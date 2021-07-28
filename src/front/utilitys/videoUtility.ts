@@ -1,10 +1,46 @@
 class VideoUtility {
+
+    /**
+     * 再生回数の表示文字列を生成
+     * @param viewCount 
+     */
+    createDisplayViewCount(viewCount:number){
+        let text = String(viewCount)
+        const thousand = 10000
+        const billion = 100000000
+        if(viewCount >= thousand && viewCount <= billion) {
+            text = String(Math.floor(viewCount / thousand)) + '万'
+        }else if(viewCount >= billion){
+            text = String(Math.floor(viewCount / billion )) + '億'
+        }
+
+        return text
+    }
+
+    /**
+     * チャンネル登録者数の表示文字列を生成
+     * @param subscriber 
+     * @returns 
+     */
+    crateDisplaySubscriber(subscriber: number){
+        let text = String(subscriber)
+        const thousand = 10000
+        const billion = 100000000
+        if(subscriber >= thousand && subscriber <= billion) {
+            text = String(Math.floor(subscriber / thousand * 10 ) / 10) + '万'
+        }else if(subscriber >= billion){
+            text = String(Math.floor(subscriber / billion * 10) / 10) + '億'
+        }
+
+        return text
+    }
+
     //表示用の統計情報を生成
     createDisplayStatistics(viewCount: number, publishDate: Date, detail = false){
         /*再生回数のテキスト生成*/
         let viewCountText = String(viewCount)
         const billion = 100000000
-        if(viewCount >= 10000){
+        if(viewCount >= 10000 && viewCount <= billion){
             viewCountText = String(Math.floor(viewCount/ 10000)) + '万'
         }else if(viewCount >= billion){
             viewCountText = String(Math.floor(viewCount / billion)) + '億'

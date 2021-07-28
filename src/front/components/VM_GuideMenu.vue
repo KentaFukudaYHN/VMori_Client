@@ -36,6 +36,19 @@
             }
         }
 
+        & .icon-channels-before{
+            &:not(.active-page):hover{
+                background: #e9e9e9;
+            }
+            display: flex;
+            align-items: center;
+            &::before{
+                width: 25px;
+                height: 25px;
+                margin: 0 10px;
+            }
+        }
+
         & .guide-container{
             nav{
                 border-top: solid 1px #dcdcdc;
@@ -96,6 +109,10 @@
                         @click="clickRankingMenu">
                         ランキング
                     </li>
+                    <li class="icon-channels-before" :class="{'active-page': openPageIsChannels}"
+                        @click="clickChannelMenu">
+                        チャンネル一覧
+                    </li>
                 </ul>
             </nav>
         </div>
@@ -107,8 +124,8 @@
         <div class="guidesp-menu icon-menusp-search" @click="clickLatestMenu" :class="{'active-icon': openPageIsLatest}"></div>
         <div class="guidesp-menu icon-menusp-like" @click="clickRankingMenu" :class="{'active-icon': openPageIsRanking}"></div>
         <div class="guidesp-menu icon-menusp-up" @click="showUploadVideo"></div>
-        <div class="guidesp-menu icon-menusp-history"></div>
-        <div class="guidesp-menu icon-menusp-channels" @click="clickAccountMenu" :class="{'active-icon': openPageIsAccount}"></div>
+        <div class="guidesp-menu icon-menusp-channels" @click="clickChannelMenu" :class="{'active-icon': openPageIsChannels}"></div>
+        <div class="guidesp-menu icon-menusp-account" @click="clickAccountMenu" :class="{'active-icon': openPageIsAccount}"></div>
     </div>
 
     <vm-upvideo v-if="isShowUploadVideo" @emit-clickCloseBtn="closeUploadVideo"></vm-upvideo>
@@ -123,6 +140,7 @@ import { AppStateService } from '@/core/services/AppStateService'
 import { useStore } from '@/dataAccess/store/store'
 import { pageSetting } from '@/dataAccess/entities/PageSetting'
 import { useRouter } from '@/router/router'
+import { useRoute } from 'vue-router'
 
 type Props = {
     searchText: string
@@ -150,6 +168,7 @@ export default defineComponent({
         let isShowUploadVideo = ref(false)
 
         const router = useRouter()
+        const route = useRoute()
 
         watchEffect(() => {
             state.searchText.value = props.searchText
@@ -178,8 +197,10 @@ export default defineComponent({
             //ランキング動画ページを開いているかどうか
             openPageIsRanking: computed(() => appStateService.getPageName() == pageSetting.VideoRanking),
             openPageIsAccount: computed(() => appStateService.getPageName() == pageSetting.Account),
+            openPageIsChannels: computed(() => route.path.slice(1) == pageSetting.Channels),
             clickLatestMenu: () => router.push(pageSetting.LatesetVideo),
             clickRankingMenu: () => router.push(pageSetting.VideoRanking),
+            clickChannelMenu: () => router.push(pageSetting.Channels),
             clickAccountMenu: () => router.push(pageSetting.Account)
         }
     },

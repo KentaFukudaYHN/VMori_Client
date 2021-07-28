@@ -64,13 +64,17 @@
 }
 
 //モバイルメニューチャンネルリストアイコン
-.icon-menusp-channels{
+.icon-menusp-account{
     background-image: url('../../assets/icon-menu2-list.png');
 }
 
 //モバイルメニューアップロードアイコン
 .icon-menusp-up{
     background-image: url('../../assets/icon-menu-up.png');
+}
+
+.icon-menusp-channels{
+    background-image: url('../../assets/icon-channels.png');
 }
 
 //youtube再生回数用アイコン
@@ -105,6 +109,15 @@
     content: '';
     display: inline-block;
     background-image: url('../../assets/icon-menu-like.png');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
+.icon-channels-before::before{
+    content: '';
+    display: inline-block;
+    background-image: url('../../assets/icon-channels.png');
     background-position: center;
     background-repeat: no-repeat;
     background-size: contain;

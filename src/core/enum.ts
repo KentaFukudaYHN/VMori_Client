@@ -237,7 +237,7 @@ export function VideoGenreKindsToString(target: VideoGenreKinds){
 }
 //#endregion
 
-//並び替え順
+//動画並び替え順
 export enum SortKinds{
     //登録日時順
     RegistDateTime = 0,
@@ -251,6 +251,18 @@ export enum SortKinds{
     VMoriViewCount = 40,
     //Youtube登録日時
     PublishDateTime = 50,
+}
+
+/**
+ * チャンネル並び替え順種類
+ */
+export enum ChannelSortKinds{
+    //チャンネル情報取得日時
+    GetRegistDateTime = 0,
+    //チャンネル登録者数
+    SubscriverCount = 10,
+    //チャンネルの再生回数
+    ViewCount = 20,
 }
 
 /**

@@ -391,8 +391,6 @@ export class RankingVideoPageService {
             rankingVideosByGenreRef.refs = []
             rankingVideosByGenreRef.refKeys = []
 
-            debugger
-
             //動画ごとにregを生成
             videoRankingByGenre.items.forEach(video => {
                 rankingVideosByGenreRef.refs.push({[video.id]: ref(null)})

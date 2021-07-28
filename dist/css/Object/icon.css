@@ -52,12 +52,16 @@
   background-image: url("../../assets/icon-menu-history.png");
 }
 
-.icon-menusp-channels {
+.icon-menusp-account {
   background-image: url("../../assets/icon-menu2-list.png");
 }
 
 .icon-menusp-up {
   background-image: url("../../assets/icon-menu-up.png");
+}
+
+.icon-menusp-channels {
+  background-image: url("../../assets/icon-channels.png");
 }
 
 .icon-youtubeviewcount-before::before {
@@ -91,6 +95,15 @@
   content: '';
   display: inline-block;
   background-image: url("../../assets/icon-menu-like.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+.icon-channels-before::before {
+  content: '';
+  display: inline-block;
+  background-image: url("../../assets/icon-channels.png");
   background-position: center;
   background-repeat: no-repeat;
   background-size: contain;

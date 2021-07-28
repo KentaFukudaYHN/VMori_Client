@@ -1,21 +1,65 @@
-<!doctype html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#13d5c7"><title>VTimes</title><link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet"><link rel="preconnect" href="https://fonts.gstatic.com"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@600&display=swap" rel="stylesheet"><link rel="manifest" href="./manifest.json"><link rel="stylesheet" href="./css/Foundation/valiable.css"><link rel="stylesheet" href="./css/Foundation/reset.css"><link rel="stylesheet" href="./css/Foundation/base.css"><link rel="stylesheet" href="./css/Foundation/img.css"><link rel="stylesheet" href="./css/Layout/i-header.css"><link rel="stylesheet" href="./css/Layout/i-container.css"><link rel="stylesheet" href="./css/Layout/i-main.css"><link rel="stylesheet" href="./css/Layout/i-footer.css"><link rel="stylesheet" href="./css/Object/button.css"><link rel="stylesheet" href="./css/Object/font.css"><link rel="stylesheet" href="./css/Object/icon.css"><link rel="stylesheet" href="./css/Object/title.css"><link rel="stylesheet" href="./css/Object/checkbox.css"><link rel="stylesheet" href="./css/Object/radio.css"><link rel="stylesheet" href="./css/Object/valid.css"><link rel="stylesheet" href="./css/Object/input.css"><link rel="stylesheet" href="./css/Project/cropper.css"><link rel="stylesheet" href="./css/Project/form.css"><link rel="stylesheet" href="./css/Project/postscript.css"><link rel="stylesheet" href="./css/Project/videoGenre.css"><link rel="stylesheet" href="./css/Project/selecter.css"><link rel="stylesheet" href="./css/Project/videolist.css"><link rel="stylesheet" href="./css/Project/loading.css"><script>//グローバル変数にバンドルJSのローディング有無のフラグを定義して監視
-            Object.defineProperty(window,'isLoading', {
-                configurable: false,
-                val: false,
-                get: function () { return this.val; },
-                set: function (x) {
-                    this.val = x;
-                    //アニメーションを終了(アニメーションのDOMを削除する)
-                    document.getElementById('_loading').remove()
-                },
-            });
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="robots" content="noindex" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+        <meta name="theme-color" content="#13d5c7">
+        <title>VTimes</title>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+        <link rel="preconnect" href="https://fonts.gstatic.com">
 
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@600&display=swap" rel="stylesheet">
 
-            //PWA用にServiceWorkerの読み込み
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('./js/sw.js').then(registration => {
-                    console.log('ServiceWorker registration successful.');
-                }).catch(err => {
-                    console.log('ServiceWorker registration failed.');
-                });
-            }</script><style></style><script defer="defer" src="bundle.55389dc3f24ae82eea6f.js"></script></head><body><div id="_loading" class="loading-wrap"><div class="loading-item"><img src="./assets/loading.png"><p><span>loading...</span></p></div></div><div id="app"></div></body></html>
+        <!-- PWA マニフェスト -->
+        <link rel="manifest" href="./manifest.json">
+
+        <!-- Foundation CSS -->
+        <link rel="stylesheet" href="./css/Foundation/valiable.css">
+        <link rel="stylesheet" href="./css/Foundation/reset.css">
+        <link rel="stylesheet" href="./css/Foundation/base.css">
+        <link rel="stylesheet" href="./css/Foundation/img.css">
+
+        <!-- Layout CSS -->
+        <link rel="stylesheet" href="./css/Layout/i-header.css">
+        <link rel="stylesheet" href="./css/Layout/i-container.css">
+        <link rel="stylesheet" href="./css/Layout/i-main.css">
+        <link rel="stylesheet" href="./css/Layout/i-footer.css">
+
+        <!-- Object CSS -->
+        <link rel="stylesheet" href="./css/Object/button.css">
+        <link rel="stylesheet" href="./css/Object/font.css">
+        <link rel="stylesheet" href="./css/Object/icon.css">
+        <link rel="stylesheet" href="./css/Object/title.css">
+        <link rel="stylesheet" href="./css/Object/checkbox.css">
+        <link rel="stylesheet" href="./css/Object/radio.css">
+        <link rel="stylesheet" href="./css/Object/valid.css">
+        <link rel="stylesheet" href="./css/Object/input.css">
+
+        <!-- Project CSS -->
+        <link rel="stylesheet" href="./css/Project/cropper.css">
+        <link rel="stylesheet" href="./css/Project/form.css">
+        <link rel="stylesheet" href="./css/Project/postscript.css">
+        <link rel="stylesheet" href="./css/Project/videoGenre.css">
+        <link rel="stylesheet" href="./css/Project/selecter.css">
+        <link rel="stylesheet" href="./css/Project/videolist.css">
+        <link rel="stylesheet" href="./css/Project/loading.css">
+
+        
+        <style>
+
+        </style>
+    </head>
+    <body>
+        <div id="_loading" class="loading-wrap">
+            <div class="loading-item">
+                <img src="./assets/loading.png">
+                <p>
+                    <span>loading...</span>
+                </p>
+            </div>
+        </div>
+    </body>
+</html>

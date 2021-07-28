@@ -11,6 +11,7 @@ class PageSetting {
     Video = "Video"
     VideoRanking = "VideoRanking"
     LatesetVideo = "LatestVideo"
+    Channels = "Channels"
 }
 
 export const pageSetting = new PageSetting()

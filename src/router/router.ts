@@ -12,7 +12,7 @@ import VideoRankingPage from '@/front/pages/VideoRankingPage.vue'
 import { pageSetting } from '@/dataAccess/entities/PageSetting'
 import { AppStateService } from '@/core/services/AppStateService'
 import { useStore, store } from '@/dataAccess/store/store'
-import { onMounted } from '@vue/runtime-core'
+import ChannelListPage from '@/front/pages/ChannelListPage.vue'
 
 let appStateService: AppStateService = null
 
@@ -72,6 +72,11 @@ const route = [
         path: '/Test',
         name: 'Test',
         component: Test
+    },
+    {
+        path: '/Channels',
+        name: pageSetting.Channels,
+        component: ChannelListPage
     }
 ]
 
@@ -81,7 +86,6 @@ export const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-    debugger
     if(appStateService == null ) { appStateService = new AppStateService(store) }
     let name = to.name.toString()
     if(name == 'TOP') {
