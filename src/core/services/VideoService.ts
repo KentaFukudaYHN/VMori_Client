@@ -81,8 +81,7 @@ export class VideoService {
             TransrationLangs: translationLangs,
             sortKinds: sortKinds,
             isDesc: isDesc,
-            Start: periods.start,
-            End: periods.end,
+            PeriodKinds: periodKinds,
             isPublish: isVmoriPeriod
         }
         const res = await this._repository.post<VideoSummaryInfoApiRes>('video/getsearchlist',data)
@@ -167,8 +166,8 @@ export class VideoService {
                 endMonth.setMonth(endMonth.getMonth() + 1)
                 endMonth.setDate(0)
 
-                result.start = startMonth
-                result.end = endMonth
+                result.start =  dateUtility.getUtc(startMonth)
+                result.end = dateUtility.getUtc(endMonth)
                 break
         }
 
@@ -227,19 +226,18 @@ export class VideoService {
             translationLangs = searchDetail.translationLangs
         }
 
-        const periodData = this.createPeriodDateTime(periodKinds)
+        //const periodData = this.createPeriodDateTime(periodKinds)
 
         const res = await this._repository.post<VideoSummaryInfoByGenreApiRes>('video/GetListByGenre',{
             searchReq:{
                 page: 1,
                 displayNum: 30,
                 sortKinds: sortKinds,
-                isDesc: true,
+                isDesc: false,
                 langs: langs,
                 isTranslation: isTranslation,
                 translationLangs: translationLangs,
-                start: periodData.start,
-                end: periodData.end,
+                PeriodKinds: periodKinds,
                 isPublish: false
             },
             genres:[SearchVideoGenreKinds.All, SearchVideoGenreKinds.SmallTalk,

@@ -357,7 +357,7 @@ export class RankingVideoPageService {
             //PC以下はカラム構成なので『全てのジャンルの動画を取得』
             if(this._state.search.genre.value == this.TOP_GENRE_KINDS_VAL){ this._state.search.genre.value = VideoGenreKinds.All }
             const videosInfo = await this._videoService.getVideos(this._state.currentPage.value, this.DISPLAY_NUM, this._state.search.text.value,this._state.search.genre.value, this._createSearchDetail(),
-                             this._state.sortKinds.value, true, this._state.periodKinds.value, false)
+                             this._state.sortKinds.value, false, this._state.periodKinds.value, false)
             
             const stateVideoData = [{
                 genreKinds: this._state.search.genre.value,
