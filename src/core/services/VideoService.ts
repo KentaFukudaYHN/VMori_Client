@@ -70,7 +70,6 @@ export class VideoService {
             translationLangs = searchDetail.translationLangs
         }
 
-        const periods = this.createPeriodDateTime(periodKinds)
         const data = {
             Page: page,
             DisplayNum: displayNum,
@@ -349,6 +348,51 @@ export class VideoService {
             videoId: videoId,
             text: text,
             time: time
+        })
+    }
+
+    /**
+     * タグの更新
+     * @param string 
+     * @param id 
+     * @param tags 
+     */
+    async updateTags(id: string, tags: string[]){
+        await this._repository.post('video/UpdateTags', {
+            id: id,
+            tags: tags
+        })
+    }
+
+    /**
+     * 話している言語の更新
+     * @param id 
+     * @param speakJp 
+     * @param speakEnglish 
+     * @param speakOther 
+     */
+    async updateLangs(id: string, speakJp: boolean, speakEnglish: boolean, speakOther: boolean){
+        await this._repository.post('video/UpdateLangs', {
+            Id: id,
+            speakJP: speakJp,
+            speakEnglish: speakEnglish,
+            speakOther: speakOther
+        })
+    }
+
+    /**
+     * 翻訳している言語の更新
+     * @param id 
+     * @param translationJp 
+     * @param translationEnglish 
+     * @param translationOther 
+     */
+    async updateTranslationLangs(id: string, translationJp: boolean, translationEnglish: boolean, translationOther: boolean){
+        await this._repository.post('video/UpdateTranslationLangs',{
+            Id: id,
+            TranslationJP: translationJp,
+            TranslationEnglish: translationEnglish,
+            TranslationOther: translationOther
         })
     }
 

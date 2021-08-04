@@ -1,4 +1,4 @@
-<style lang="scss">
+<style lang="scss" scpoed>
     #videoContainer{
         margin:auto;
         font-size:15px;
@@ -455,18 +455,29 @@
         }
 
     }
-    .tagregist-container{
-        & .tagregist-btn{
-            margin-top: 25px;
-            width: 100%;
+    .register-btn{
+        margin-top: 25px;
+        width: 100%;
+    }
+    .regsit-checkbox{
+        @include sp{
+            display: block ;
         }
+        & .checkbox-item{
+            margin: 15px 0;
+        }
+    }
+    .regist-modal{
+        min-width: 220px;
+    }
+    .regist-modal-tag{
+        min-width: 300px;
     }
 </style>
 
 <template>
     <vm-guide>
         <template v-slot:content>
-            v16
             <div id="videoContainer">
                 <div ref="fullScreenContainer"  :class="{'fullscreen-none': !isFullScreenMode, 'fullscreen-on': isFullScreenMode, 'player-playing': isPlaying, 'player-playing-no': !isPlaying, 'player-mousemove': isMouseMove}">
                     <div  id="playeroOverlay" ref="playerOverlayRef">
@@ -506,6 +517,7 @@
                         <button @click="registComment" class="comment-btn icon-comment-send" :class="{'comment-btn-disable': isOkComment == false}">コメント</button>
                     </div>
                     <div id="tagContainer">
+                        タグ:
                         <span v-for="tag in video.tags.value" :key="tag" class="tag-item">
                             {{tag}}
                         </span>
@@ -520,12 +532,12 @@
                             <div class="statistics-langcontainer">
                                 <span class="statistics-langlabel">speak</span>
                                 <span v-for="lang in video.speakLangs.value" :key="lang" class="statistics-langitem" >{{ lang }}</span>
-                                <span class="icon-edit"></span>
+                                <span class="icon-edit" @click="openLangRegister"></span>
                             </div>
-                            <div v-if="showTranslationLangs" class="statistics-langcontainer">
+                            <div class="statistics-langcontainer">
                                 <span class="statistics-langlabel">translation</span>
                                 <span v-for="lang in video.translationLangs.value" :key="lang" class="statistics-langitem" >{{ lang }}</span>
-                                <span class="icon-edit"></span>
+                                <span class="icon-edit" @click="openTranslationRegister"></span>
                             </div>
                         </div>
                     </div>
@@ -577,15 +589,33 @@
                 </div>
 
             </div>
-            <vm-modal v-if="showTagRegister" :showCloseBtn="true" @emit-clickCloseBtn="closeTagRegister">
+            <vm-modal v-if="showTagRegister" :windowClass="'regist-modal-tag'" :showCloseBtn="true" @emit-clickCloseBtn="closeTagRegister">
                 <template v-slot:content >
                     <div class="tagregist-container">
-                        <span class="title-success">タグの編集</span>
+                        <span class="title-success">タグの設定</span>
                         <vm-tag :list="tagsByRegister" @emit-add="addTag" @emit-delete="deleteTag">
                         </vm-tag>
-                        <button class="btn-primary tagregist-btn">登録</button>
+                        <button class="btn-primary register-btn" @click="updateTags">登録</button>
                     </div>
                 </template>
+            </vm-modal>
+            <vm-modal v-if="showLangRegister" :windowClass="'regist-modal'" :showCloseBtn="true" @emit-clickCloseBtn="closeLangRegister">
+                <template v-slot:content>
+                    <div class="langregist-container">
+                        <span class="title-success">話している言語の設定</span>
+                        <vm-checkbox class="regsit-checkbox" :list="langsByRegister" @emit-change="onChangeLang"></vm-checkbox>
+                        <button class="btn-primary register-btn" @click="updateLangs">登録</button>
+                    </div>
+                </template>
+            </vm-modal>
+            <vm-modal v-if="showTranslationRegister" :windowClass="'regist-modal'" :showCloseBtn="true" @emit-clickCloseBtn="closeTranslationRegister">
+                <template v-slot:content>
+                    <div class="translation-container">
+                        <span class="title-success">翻訳している言葉の設定</span>
+                        <vm-checkbox class="regsit-checkbox" :list="translationLangsByRegister" @emit-change="onChangeTranslationLangs"></vm-checkbox>
+                        <button class="btn-primary register-btn" @click="updateTranslationLangs">登録</button>
+                    </div>
+                </template>            
             </vm-modal>
         </template>
     </vm-guide>
@@ -598,9 +628,11 @@ import VM_Modal from '@/front/components/VM_Modal.vue'
 import VM_TagRegister from '@/front/components/VM_TabRegister.vue'
 import VM_VideoList from '@/front/components/VM_VideoList.vue'
 import VM_Chart from '@/front/components/VM_ChannelTransitionChart.vue'
+import VM_CheckBox from '@/front/components/VM_CheckBox.vue'
 import { infoKinds, VideoPageService } from '@/front/pageServices/VideoPageService'
 import { useStore } from '@/dataAccess/store/store'
 import { useRouter } from '@/router/router'
+import CheckBoxItem from '../form/CheckBoxItem'
 
 type Props = {
     id: string
@@ -612,7 +644,8 @@ export default defineComponent({
         'vm-videolist': VM_VideoList,
         'vm-chart': VM_Chart,
         'vm-modal': VM_Modal,
-        'vm-tag': VM_TagRegister
+        'vm-tag': VM_TagRegister,
+        'vm-checkbox': VM_CheckBox,
     },
     props:{
         id: {
@@ -656,14 +689,6 @@ export default defineComponent({
             commentInputVal: state.comment.inputText,
             //コメントが送信可能かどうか
             isOkComment: computed(() => { return pageService.getIsOkComment() }),
-            //翻訳せいている言語を表示するか
-            showTranslationLangs: computed(() => { 
-                if(state.video.translationLangs.value != null){
-                    return state.video.translationLangs.value.length > 0 
-                }else{
-                    return []
-                }
-            }),
             // //説明
             // description: state.video.value.description,
             //メニュー情報
@@ -714,6 +739,33 @@ export default defineComponent({
             addTag: (tag: string) => pageService.addTag(tag),
             //タグの削除
             deleteTag: (tag: string) => pageService.deleteTag(tag),
+            //タグの更新
+            updateTags: () => pageService.updateTags(),
+            //言語編集モーダルのリスト
+            langsByRegister: state.langRegister.langlist,
+            //言語編集モーダルで言語の選択
+            onChangeLang: (values: string[]) => pageService.onChangeLang(values),
+            //言語編集モーダルの表示有無
+            showLangRegister: state.langRegister.showModal,
+            //言語編集モーダルの表示
+            openLangRegister: () => { pageService.openLangRegister() },
+            //言語編集モーダルを閉じる
+            closeLangRegister: () => { pageService.closeLangRegister() },
+            //言語の更新
+            updateLangs: async () => await pageService.updateLangs(),
+            //翻訳言語モーダルのリスト
+            translationLangsByRegister: state.taranslationLangRegister.langlist,
+            //翻訳言語の選択
+            onChangeTranslationLangs: (values: string[]) => pageService.onChangeTranslationLang(values),
+            //翻訳言語モールの表示有無
+            showTranslationRegister: state.taranslationLangRegister.showModal,
+            //翻訳言語モーダルの表示
+            openTranslationRegister: () => pageService.openTranslationLangRegister(),
+            //翻訳言語モーダルを閉じる
+            closeTranslationRegister: () => pageService.closeTranslationLangRegister(),
+            //翻訳言語の更新 
+            updateTranslationLangs: () => pageService.updateTranslationLangs()
+
         }
     },
 })

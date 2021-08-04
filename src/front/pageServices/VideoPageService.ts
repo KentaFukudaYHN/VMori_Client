@@ -10,14 +10,20 @@ import { ChannelTransition } from "../componentReqRes/channelTransition";
 import { appSetting } from "@/dataAccess/entities/AppSetting";
 import { gsap } from 'gsap'
 import { videoUtility } from "../utilitys/videoUtility";
-import { VideoLanguageKinds } from "@/core/enum";
+import { VideoLanguageKinds, VideoLanguageKindsToString } from "@/core/enum";
 import { VideoCommentApiRes } from "@/core/apiReqRes/Video";
 import { SetupContext } from "@vue/composition-api";
+import { AppStateService } from "@/core/services/AppStateService";
+import { vueUtility } from "../utilitys/vueUtility";
+import { computed } from "vue";
+import CheckBoxItem from "../form/CheckBoxItem";
+import { idText } from "typescript";
 
 
 /**動画サービス */
 export class VideoPageService{
     private _videoService: VideoService
+    private _appStateServicve: AppStateService
     private _router: Router
 
     //#region State
@@ -25,12 +31,19 @@ export class VideoPageService{
     private _state = {
         video:{
             id:  ref(''),
+            videoId: ref(''),
             tags: ref([]) as Ref<string[]>,
             title: ref(''),
             description: ref(''),
             statistics: ref(''),
             speakLangs: ref([]) as Ref<string[]>,
+            speakJP: ref(false),
+            speakEnglish: ref(false),
+            speakOther: ref(false),
             translationLangs: ref([]) as Ref<string[]>,
+            translationJP: ref(false),
+            translationEnglish: ref(false),
+            translationOther: ref(false),
             isPlaying: ref(false),
             isMouseMoveOnFullScreenLayer: ref(false)
         },
@@ -64,6 +77,14 @@ export class VideoPageService{
             showModal: ref(false),
             taglist: ref([]) as Ref<string[]>,
         },
+        langRegister:{
+            showModal: ref(false),
+            langlist: ref([]) as Ref<CheckBoxItem[]>
+        },
+        taranslationLangRegister:{
+            showModal: ref(false),
+            langlist: ref([]) as Ref<CheckBoxItem[]>
+        }
     }
 
     //#endregion
@@ -109,19 +130,10 @@ export class VideoPageService{
      */
     async init(playerOverlay: HTMLElement, playerComment:HTMLElement, fullScreenLayer: HTMLElement, fullScreenBtn: HTMLElement, fullScreenComment: HTMLElement){
         //GETパラメータークエリから動画ID抽出
-        this._state.video.id.value = useRoute().query.v as string
+        this._state.video.videoId.value = useRoute().query.v as string
 
         //入力コメントの初期化
         this._state.comment.inputText.value = ''
-
-        //refの設定
-        // this._playerRef = ref(null)
-        // this._playerOverlayRef = ref(null)
-        // this._playerCommentRef = ref(null)
-        // this._fullScreenBtnRef = ref(null)
-        // this._fullScreenCommentRef = ref(null)
-        // this._fullScreenLayerRef = ref(null)
-        // this._fullScreenContainerRef =  ref(null)
 
         //windowsの幅に合わせて動的に動画の幅を変えるためにresizeイベントを監視
         window.removeEventListener('resize', this.onResizeVideo)
@@ -133,7 +145,6 @@ export class VideoPageService{
 
         //iframeのサイズの変更を検知してオーバーレイするコメント欄のサイズとフルスクリーンボタンの位置を調整する
         const playerDom = playerOverlay as HTMLDivElement
-        debugger
         this._observer = new ResizeObserver(async (entries) => {
             this.adjustContentSize(entries[0].target as HTMLDivElement, playerComment,
                 fullScreenLayer, fullScreenBtn, fullScreenComment)
@@ -179,36 +190,8 @@ export class VideoPageService{
         return this._state
     }
 
-    // getPlayerRef(){
-    //     return this._playerRef
-    // }
-
-    // getPlayerOverLayRef(){
-    //     return this._playerOverlayRef
-    // }
-    
-    // getPlayerCommentRef(){
-    //     return this._playerCommentRef
-    // }
-
-    // getFullScreenBtnRef(){
-    //     return this._fullScreenBtnRef
-    // }
-
-    // getFullScreenLayerRef(){
-    //     return this.getFullScreenLayerRef
-    // }
-
-    // getFullScreenContainerRef(){
-    //     return this._fullScreenContainerRef
-    // }
-
-    // getFullScreenCommentRef(){
-    //     return this._fullScreenCommentRef
-    // }
-
     getYoutubeVideoSrc(){
-        return "https://www.youtube.com/embed/" + this._state.video.id
+        return "https://www.youtube.com/embed/" + this._state.video.videoId
     }
 
     getIsFullScreenMode(){
@@ -249,7 +232,7 @@ export class VideoPageService{
     async registComment(playerOverlay: HTMLElement){
         if(this._state.comment.inputText.value == null || this._state.comment.inputText.value == '' || this._state.comment.inputText.value.length > this.MAX_COMMENT_LENGTH){ return }
 
-        await this._videoService.registCommentForApi(this._state.video.id.value, this._state.comment.inputText.value, Math.floor(this._player.getCurrentTime()))
+        await this._videoService.registCommentForApi(this._state.video.videoId.value, this._state.comment.inputText.value, Math.floor(this._player.getCurrentTime()))
     
         const comment = {
             id: this._getUniqueStr(100),
@@ -300,6 +283,67 @@ export class VideoPageService{
             this._state.info.spList.value.push(x)
         })
     }
+
+    /**
+     * タグの更新
+     */
+    async updateTags(){
+        try{
+            await this._appStateServicve.updateIsLoadin(true)
+            await this._videoService.updateTags(this._state.video.id.value, this._state.tagRegister.taglist.value)
+            vueUtility.updateArray(this._state.tagRegister.taglist.value as [], this._state.video.tags as Ref<[]>)
+            this._state.tagRegister.showModal.value = false
+        }finally{
+            this._appStateServicve.updateIsLoadin(false)
+        }
+    }
+
+    /**
+     * 話している言語の更新
+     */
+    async updateLangs(){
+        try{
+            await this._appStateServicve.updateIsLoadin(true)
+            const speakJp = this._state.langRegister.langlist.value.find(x => x.val == VideoLanguageKinds.JP).selected
+            const speakEnglish = this._state.langRegister.langlist.value.find(x => x.val == VideoLanguageKinds.English).selected
+            const speakOther = this._state.langRegister.langlist.value.find(x => x.val == VideoLanguageKinds.Other).selected
+
+            if(!speakJp && !speakEnglish && !speakOther){
+                alert('『話している言語』は一つ以上選択する必要があります')
+            }else{
+                await this._videoService.updateLangs(this._state.video.id.value, speakJp, speakEnglish, speakOther)
+                this._settingLangs(speakJp, speakEnglish, speakOther)
+                this._state.langRegister.showModal.value = false
+            }
+
+        }finally{
+            await this._appStateServicve.updateIsLoadin(false)
+        }
+    }
+
+    /**
+     * 話している言語の更新
+     */
+     async updateTranslationLangs(){
+        try{
+            await this._appStateServicve.updateIsLoadin(true)
+            const speakJp = this._state.taranslationLangRegister.langlist.value.find(x => x.val == VideoLanguageKinds.JP).selected
+            const speakEnglish = this._state.taranslationLangRegister.langlist.value.find(x => x.val == VideoLanguageKinds.English).selected
+            const speakOther = this._state.taranslationLangRegister.langlist.value.find(x => x.val == VideoLanguageKinds.Other).selected
+
+            if(!speakJp && !speakEnglish && !speakOther){
+                alert('『話している言語』は一つ以上選択する必要があります')
+            }else{
+                await this._videoService.updateTranslationLangs(this._state.video.id.value, speakJp, speakEnglish, speakOther)
+                this._settingTranslationLangs(speakJp, speakEnglish, speakOther)
+                this._state.taranslationLangRegister.showModal.value = false
+            }
+
+        }finally{
+            await this._appStateServicve.updateIsLoadin(false)
+        }
+    }
+
     //#endregion
     
     //#region その他の処理
@@ -403,7 +447,111 @@ export class VideoPageService{
         tags.splice(index, 1)
         this._state.tagRegister.taglist.value = tags
     }   
-    //#endregion
+
+    /**
+     * 話している言語編集モーダルの表示
+     */
+    openLangRegister(){
+        this._state.langRegister.langlist.value.splice(0, this._state.langRegister.langlist.value.length)
+        
+        this._state.langRegister.langlist.value.push({
+                text: VideoLanguageKindsToString(VideoLanguageKinds.JP),
+                id: 'registerLangJP',
+                val: VideoLanguageKinds.JP,
+                selected: this._state.video.speakJP.value
+        } as CheckBoxItem)
+        this._state.langRegister.langlist.value.push({
+            text: VideoLanguageKindsToString(VideoLanguageKinds.English),
+            id: 'registerLangEnglish',
+            val: VideoLanguageKinds.English,
+            selected: this._state.video.speakEnglish.value
+        } as CheckBoxItem)
+        this._state.langRegister.langlist.value.push({
+            text: VideoLanguageKindsToString(VideoLanguageKinds.Other),
+            id: 'registerLangOther',
+            val: VideoLanguageKinds.Other,
+            selected: this._state.video.speakOther.value
+        } as CheckBoxItem)
+        this._state.langRegister.showModal.value = true
+    }
+
+    /**
+     * 話している言語編集モーダルを閉じる
+     */
+    closeLangRegister(){
+        this._state.langRegister.showModal.value = false
+    }
+
+    //話している言語の選択
+    onChangeLang(values: string[]){
+        const tmpList = this._state.langRegister.langlist.value.slice()
+
+        for(let i=0; i< tmpList.length; i++){
+            const targetIndex = values.indexOf(String(tmpList[i].val))
+            if(targetIndex > -1){
+                tmpList[i].selected = true
+            }else{
+                tmpList[i].selected = false
+            }
+        }
+
+        this._state.langRegister.langlist.value = tmpList
+        // vueUtility.updateArray(list as [], this._state.langRegister.langlist as Ref<[]>)
+    }
+
+    /**
+     * 翻訳している言語編集モーダルの表示
+     */
+     openTranslationLangRegister(){
+        this._state.taranslationLangRegister.langlist.value.splice(0, this._state.taranslationLangRegister.langlist.value.length)
+        
+        this._state.taranslationLangRegister.langlist.value.push({
+                text: VideoLanguageKindsToString(VideoLanguageKinds.JP),
+                id: 'registerLangJP',
+                val: VideoLanguageKinds.JP,
+                selected: this._state.video.translationJP.value
+        } as CheckBoxItem)
+        this._state.taranslationLangRegister.langlist.value.push({
+            text: VideoLanguageKindsToString(VideoLanguageKinds.English),
+            id: 'registerLangEnglish',
+            val: VideoLanguageKinds.English,
+            selected: this._state.video.translationEnglish.value
+        } as CheckBoxItem)
+        this._state.taranslationLangRegister.langlist.value.push({
+            text: VideoLanguageKindsToString(VideoLanguageKinds.Other),
+            id: 'registerLangOther',
+            val: VideoLanguageKinds.Other,
+            selected: this._state.video.translationEnglish.value
+        } as CheckBoxItem)
+        this._state.taranslationLangRegister.showModal.value = true
+    }
+
+    /**
+     * 翻訳している言語の編集モダールを閉じる
+     */
+    closeTranslationLangRegister(){
+        this._state.taranslationLangRegister.showModal.value = false
+    }
+
+    /**
+     * 翻訳している言語の選択
+     * @param values 
+     */
+    onChangeTranslationLang(values: string[]){
+        const tmpList = this._state.taranslationLangRegister.langlist.value.slice()
+
+        for(let i=0; i< tmpList.length; i++){
+            const targetIndex = values.indexOf(String(tmpList[i].val))
+            if(targetIndex > -1){
+                tmpList[i].selected = true
+            }else{
+                tmpList[i].selected = false
+            }
+        }
+
+        this._state.taranslationLangRegister.langlist.value = tmpList
+        // vueUtility.updateArray(list as [], this._state.taranslationLangRegister.langlist as Ref<[]>)
+    }    //#endregion
     
     //#region Private処理
     /****************************
@@ -415,12 +563,12 @@ export class VideoPageService{
      */
     async _initVideoInfo(playerOverlay: HTMLElement){
         //動画IDが設定されてなければHomeに戻る
-        if(this._state.video.id.value == null || this._state.video.id.value == ""){
+        if(this._state.video.videoId.value == null || this._state.video.videoId.value == ""){
             this._router.push('Home')
         }
 
         //動画情報の取得
-        const video = await this._videoService.getVideo(this._state.video.id.value)
+        const video = await this._videoService.getVideo(this._state.video.videoId.value)
         //動画情報が取得できなければHomeへ
         if(video == null) { 
             this._router.push('Home')
@@ -430,6 +578,9 @@ export class VideoPageService{
         /**********************
          * 取得した動画情報の設定
          *********************/
+
+        //IDの設定
+        this._state.video.id.value = video.id
 
         //タイトルの設定
         this._state.video.title.value = video.videoTitle
@@ -447,14 +598,17 @@ export class VideoPageService{
         if(video.tags == null) { this._state.video.tags.value = [] }
 
         //話している言葉の設定
-        if(video.speakJP) { this._state.video.speakLangs.value.push(this._convertVideoLangeKindsToSimpleString(VideoLanguageKinds.JP)) }
-        if(video.speakEnglish) { this._state.video.speakLangs.value.push(this._convertVideoLangeKindsToSimpleString(VideoLanguageKinds.English)) }
-        if(video.speakOther) { this._state.video.speakLangs.value.push(this._convertVideoLangeKindsToSimpleString(VideoLanguageKinds.Other)) }
+        this._settingLangs(video.speakJP, video.speakEnglish, video.speakOther)
+        this._state.video.speakJP.value = video.speakJP
+        this._state.video.speakEnglish.value = video.speakEnglish
+        this._state.video.speakOther.value = video.speakOther
 
         //翻訳している言語の設定
-        if(video.translationJp) { this._state.video.translationLangs.value.push(this._convertVideoLangeKindsToSimpleString(VideoLanguageKinds.JP)) }
-        if(video.translationEnglish) { this._state.video.translationLangs.value.push(this._convertVideoLangeKindsToSimpleString(VideoLanguageKinds.English)) }
-        if(video.translationOther) { this._state.video.translationLangs.value.push(this._convertVideoLangeKindsToSimpleString(VideoLanguageKinds.Other)) }
+        this._settingTranslationLangs(video.translationJp, video.translationEnglish, video.translationOther)
+        this._state.video.translationJP.value = video.translationJp
+        this._state.video.translationEnglish.value = video.translationEnglish
+        this._state.video.translationOther.value = video.translationOther
+
 
         //動画コメントの設定
         const videoComments = await this._videoService.getVideoCommentsByApi(video.videoId)
@@ -518,10 +672,10 @@ export class VideoPageService{
             await this._videoService.updateIsLoadedYoutubePlayer(true)
 
             window['onYouTubeIframeAPIReady'] = async () => { 
-                await this.initYoutube(this._state.video.id.value) 
+                await this.initYoutube(this._state.video.videoId.value) 
             }
         }else{
-            await this.initYoutube(this._state.video.id.value)
+            await this.initYoutube(this._state.video.videoId.value)
 
         }
     }
@@ -550,7 +704,6 @@ export class VideoPageService{
         var youtubeSrc = target.src as string
         target.style.zIndex = '1' as string
         target.src = youtubeSrc + '&wmode=transparent'
-        debugger
         this.onResizeVideo()
     }
 
@@ -618,7 +771,6 @@ export class VideoPageService{
             videoWidth = windowWidth
         }
         const videoHeight = Math.floor(videoWidth * 0.563)
-        debugger
         
         const targetContainer = document.getElementById('videoContainer') as HTMLDivElement
         const targetOverlay = document.getElementById('playeroOverlay') as HTMLDivElement
@@ -889,6 +1041,40 @@ export class VideoPageService{
         return 'a' +( new Date().getTime().toString(16)  + Math.floor(strong*Math.random()).toString(16))
     }
 
+    /**
+     * 言語の設定
+     * @param speakJp 
+     * @param speakEnglish 
+     * @param speakOther 
+     */
+    _settingLangs(speakJP: boolean, speakEnglish: boolean, speakOther: boolean){
+        this._state.video.speakLangs.value.splice(0, this._state.video.speakLangs.value.length)
+        if(speakJP) { this._state.video.speakLangs.value.push(this._convertVideoLangeKindsToSimpleString(VideoLanguageKinds.JP)) }
+        if(speakEnglish) { this._state.video.speakLangs.value.push(this._convertVideoLangeKindsToSimpleString(VideoLanguageKinds.English)) }
+        if(speakOther) { this._state.video.speakLangs.value.push(this._convertVideoLangeKindsToSimpleString(VideoLanguageKinds.Other)) }
+        
+        this._state.video.speakJP.value = speakJP
+        this._state.video.speakEnglish.value = speakEnglish
+        this._state.video.speakOther.value = speakOther
+    }
+
+    /**
+     * 翻訳している言語の設定
+     * @param translationJP 
+     * @param translationEnglish 
+     * @param translationOther 
+     */
+    _settingTranslationLangs(translationJP: boolean, translationEnglish: boolean, translationOther: boolean){
+        this._state.video.translationLangs.value.splice(0, this._state.video.translationLangs.value.length)
+        if(translationJP) { this._state.video.translationLangs.value.push(this._convertVideoLangeKindsToSimpleString(VideoLanguageKinds.JP)) }
+        if(translationEnglish) { this._state.video.translationLangs.value.push(this._convertVideoLangeKindsToSimpleString(VideoLanguageKinds.English)) }
+        if(translationOther) { this._state.video.translationLangs.value.push(this._convertVideoLangeKindsToSimpleString(VideoLanguageKinds.Other)) }
+        
+        this._state.video.translationJP.value = translationJP
+        this._state.video.translationEnglish.value = translationEnglish
+        this._state.video.translationOther.value = translationOther
+    }
+
     //#endregion
 
     /**
@@ -898,6 +1084,7 @@ export class VideoPageService{
      */
     constructor(store: Store<State>, router: Router){
         this._videoService = new VideoService(store, new VMoriRepository(router))
+        this._appStateServicve = new AppStateService(store)
         this._router = router
     }
 }

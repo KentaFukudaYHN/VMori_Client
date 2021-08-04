@@ -4,7 +4,7 @@
 <template>
     <div class="checkbox-container">
         <div v-for="item in list" :key="item.val" class="checkbox-item">           
-            <input :id="item.id" type="checkbox" :name="name" :value="item.val" @change="onChange">
+            <input :id="item.id" type="checkbox" :name="name" :value="item.val" @change="onChange" :checked="item.selected">
             <label :for="item.id">{{item.text}}</label>
         </div>
     </div>
@@ -31,11 +31,19 @@ export default defineComponent({
     },
     emits:['emit-change'],
     setup(props: Props, context: SetupContext) {
+
+        props.list.forEach(x =>{
+            if(x.selected == true){
+                selectedData.push(String(x.val))
+            }
+        })
+
         return{
             list: props.list,
             name: props.name,
             onChange: (e) => {
                 const target = e.target as HTMLInputElement
+                debugger
                 if(target.checked){
                     selectedData.push(target.value)
                 }else{
