@@ -9,6 +9,14 @@
     border-radius: 50%;
 }
 
+//ボタンメニュー/ハンバーガーアイコン
+.icon-btnmenu{
+    background-image: url('../../assets/icon_btnmenu.png');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
 //動画アップロードアイコン
 .icon-video-up{
     cursor: pointer;

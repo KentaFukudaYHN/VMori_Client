@@ -264,6 +264,18 @@ export class VideoService {
     }
 
     /**
+     * ランダムに動画情報を取得
+     */
+    async getVideoByRandom(){
+        const res = await this._repository.get<VideoItemApitRes>('video/getRandom')
+        if(res.isOk()){
+            return res.data
+        }else{
+            return null
+        }
+    }
+
+    /**
      * チャンネル推移情報の取得
      * @param channelId 
      * @returns 

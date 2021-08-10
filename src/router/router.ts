@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory, useRouter as BaseRouter } from 'vue-router'
+import Home from '@/front/pages/HomePage.vue'
 import Login from '@/front/pages/LoginPage.vue'
 import SignUp from '@/front/pages/SignUpPage.vue'
 import AppReqMail from '@/front/pages/AppReqMailPage.vue'
@@ -20,8 +21,8 @@ let appStateService: AppStateService = null
 const route = [
     {
         path: '/',
-        name: 'TOP',
-        component: VideoRankingPage
+        name: '/Home',
+        component: Home
     },
     {
         path: '/LatestVideo',

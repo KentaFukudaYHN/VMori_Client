@@ -7,6 +7,13 @@
   border-radius: 50%;
 }
 
+.icon-btnmenu {
+  background-image: url("../../assets/icon_btnmenu.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
 .icon-video-up {
   cursor: pointer;
   width: 50px;
