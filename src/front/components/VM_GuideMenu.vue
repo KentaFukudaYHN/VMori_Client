@@ -107,7 +107,7 @@
                     </li>
                     <li class="icon-ranking-before" :class="{'active-page': openPageIsRanking}"
                         @click="clickRankingMenu">
-                        逆ランキング
+                        ランキング
                     </li>
                     <li class="icon-channels-before" :class="{'active-page': openPageIsChannels}"
                         @click="clickChannelMenu">
