@@ -13,6 +13,8 @@ export type VideoSummary = {
     thumbnailLink: string,
     //再生回数
     viewCount: number,
+    //Vtuberの森の再生回数
+    vMoriViewCount: number,
     //説明
     description: string,
     //動画プラットフォーム種類

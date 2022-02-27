@@ -654,6 +654,8 @@ export class VideoPageService{
             videoItem.title = x.title
             videoItem.thumbnailLink = x.thumbnailLink
             videoItem.publishDateTime = new Date(x.publishDateTime)
+            videoItem.registDateTime = new Date(x.registDateTime)
+            videoItem.vMoriViewCount = x.vMoriViewCount
             videoItem.platFormKinds = x.platFormKinds
             videoItem.viewCount = x.viewCount
             this._state.channel.videos.value.push(videoItem)
