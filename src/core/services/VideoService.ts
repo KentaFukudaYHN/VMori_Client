@@ -232,7 +232,7 @@ export class VideoService {
                 page: 1,
                 displayNum: 30,
                 sortKinds: sortKinds,
-                isDesc: false,
+                isDesc: true,
                 langs: langs,
                 isTranslation: isTranslation,
                 translationLangs: translationLangs,
@@ -240,7 +240,7 @@ export class VideoService {
                 isPublish: false
             },
             genres:[SearchVideoGenreKinds.All, SearchVideoGenreKinds.SmallTalk,
-                SearchVideoGenreKinds.Entertainment, SearchVideoGenreKinds.Game,
+                SearchVideoGenreKinds.Asmr, SearchVideoGenreKinds.Game,
                 SearchVideoGenreKinds.Song]
         })
         console.log(res.data)
