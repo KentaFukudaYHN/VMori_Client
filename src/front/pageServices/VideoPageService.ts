@@ -18,11 +18,13 @@ import { vueUtility } from "../utilitys/vueUtility";
 import { computed } from "vue";
 import CheckBoxItem from "../form/CheckBoxItem";
 import { idText } from "typescript";
+import { HistoryVideoService } from "@/core/services/historyVideoService";
 
 
 /**動画サービス */
 export class VideoPageService{
     private _videoService: VideoService
+    private _historyVideoService: HistoryVideoService
     private _appStateServicve: AppStateService
     private _router: Router
 
@@ -158,6 +160,9 @@ export class VideoPageService{
         onUnmounted(() =>{
             this._observer.disconnect()
         })
+
+        //視聴回数のカウントアップリクエスト
+        this._historyVideoService.registHistory(this._state.video.videoId.value)
 
         //動画情報取得
         this._initVideoInfo(playerOverlay)
@@ -1083,7 +1088,9 @@ export class VideoPageService{
      * @param router 
      */
     constructor(store: Store<State>, router: Router){
-        this._videoService = new VideoService(store, new VMoriRepository(router))
+        const repository =  new VMoriRepository(router)
+        this._videoService = new VideoService(store, repository)
+        this._historyVideoService = new HistoryVideoService(repository)
         this._appStateServicve = new AppStateService(store)
         this._router = router
     }

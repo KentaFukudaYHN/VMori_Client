@@ -202,7 +202,6 @@ export class RankingVideoPageService {
      * @param videoId 動画ID
      */
     selectedVideo(videoId: string){
-        this._historyService.registHistory(videoId)
         this._router.push({name: 'Video', query: { v:videoId }})
     }
 
