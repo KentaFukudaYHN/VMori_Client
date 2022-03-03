@@ -26,6 +26,7 @@ vue3 + typescriptをwebpackを使ってSPAを最小構成で構築していま�
 
 ### フロントのコード構成
 大きくcore、dataAccess、front、routerにフォルダを分けています<br>
+※開始当初から試行錯誤してアーキテクチャを決めた為、一部アーキテクチャから逸脱した実装をしています(ログイン処理をAccountPageに直接書く等)
 <br>
 ![image](https://user-images.githubusercontent.com/43101670/156493548-e7cca90a-2917-4a2f-829a-53430da19511.PNG)
 <br>
