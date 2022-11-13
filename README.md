@@ -5,7 +5,7 @@ Youtube上では他のYoutuberの動画によって、Vtuberの動画が探し�
  
 # デモ
 動画での説明です<br>
- https://youtu.be/IlPmrpzTLHU
+ https://youtu.be/BFMxrGrhqQA
  
 # 機能
 ・Youtubeの動画を簡単にアップロード<br>
